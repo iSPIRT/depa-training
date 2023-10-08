@@ -1,0 +1,104 @@
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+
+# GitHub recommends pinning actions to a commit SHA.
+# To get a newer version, you will need to update the SHA.
+# You can also reference a tag or branch, but the action may change without warning.
+
+name: Deploy COVID scenario to ACI
+
+on: 
+  workflow_dispatch:
+    inputs: 
+      contract:
+        description: "Contract ID"
+        required: true
+
+env:
+  CONTAINER_REGISTRY: ${{ vars.CONTAINER_REGISTRY }}
+  CONTAINER_REGISTRY_USERNAME: ${{ secrets.CONTAINER_REGISTRY_USERNAME }}
+  CONTAINER_REGISTRY_PASSWORD: ${{ secrets.CONTAINER_REGISTRY_ACCESS_TOKEN }}
+  AZURE_RESOURCE_GROUP: ${{ vars.AZURE_RESOURCE_GROUP }}
+  AZURE_STORAGE_ACCOUNT_NAME: ${{ vars.AZURE_STORAGE_ACCOUNT_NAME }}
+  AZURE_ICMR_CONTAINER_NAME: ${{ vars.AZURE_ICMR_CONTAINER_NAME }}
+  AZURE_COWIN_CONTAINER_NAME: ${{ vars.AZURE_COWIN_CONTAINER_NAME }}
+  AZURE_INDEX_CONTAINER_NAME: ${{ vars.AZURE_INDEX_CONTAINER_NAME }}
+  AZURE_MODEL_CONTAINER_NAME: ${{ vars.AZURE_MODEL_CONTAINER_NAME }}
+  AZURE_OUTPUT_CONTAINER_NAME: ${{ vars.AZURE_OUTPUT_CONTAINER_NAME }}
+  AZURE_KEYVAULT_ENDPOINT: ${{ vars.AZURE_KEYVAULT_ENDPOINT }}
+  TOOLS_HOME: ${{ github.workspace }}/external/confidential-sidecar-containers/tools
+  DATA_DIRECTORY: ${{ github.workspace}}/scenarios/covid/data
+  CONTRACT_SERVICE_URL: ${{ vars.CONTRACT_SERVICE_URL }}
+
+jobs:
+  deploy-ccr-covid-aci:
+    runs-on: [self-hosted, linux, X64]
+    steps:
+      - uses: AutoModality/action-clean@v1
+      - uses: actions/checkout@v3
+
+      - uses: pietrobolcato/install-azure-cli-action@main
+
+      - name: Update submodules
+        run: git submodule update --init --recursive
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.19.x'
+
+      - name: Install jq
+        run: sudo apt install -y jq
+        
+      - name: Log in with Azure
+        uses: azure/login@v1
+        with:
+          creds: '${{ secrets.AZURE_CREDENTIALS }}'
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.CONTAINER_REGISTRY_USERNAME }}
+          password: ${{ secrets.CONTAINER_REGISTRY_ACCESS_TOKEN }}
+
+      - name: Install az confcom extension
+        run:  az extension add --name confcom -y
+
+      - name: Add user to docker group
+        run: sudo usermod -aG docker $USER
+
+      - name: Run pre-processing
+        run: cd ${{ github.workspace }}/scenarios/covid/deployment/docker && ./preprocess.sh
+
+      - name: Run model saving
+        run: cd ${{ github.workspace }}/scenarios/covid/deployment/docker && ./save-model.sh
+
+      - name: Pull container images for generating policy
+        run: cd ${{ github.workspace }}/ci && ./pull-containers.sh
+
+      - name: Import data and model encryption keys with key release policies
+        run: cd ${{ github.workspace }}/scenarios/covid/data && ./3-import-keys.sh
+
+      - name: Encrypt data and models
+        run: cd ${{ github.workspace }}/scenarios/covid/data && ./4-encrypt-data.sh
+
+      - name: Upload data and model
+        run: cd ${{ github.workspace }}/scenarios/covid/data && ./5-upload-encrypted-data.sh
+
+      - name: Run training
+        run: cd ${{ github.workspace }}/scenarios/covid/deployment/aci && ./deploy.sh -c ${{ github.event.inputs.contract }} -q ../../config/query_config.json -m ../../config/model_config.json
+
+      - name: Dump training container logs
+        run: sleep 200 && az container logs --name depa-training-covid --resource-group $AZURE_RESOURCE_GROUP --container-name depa-training
+
+      - name: Dump sidecar container logs
+        run: az container logs --name depa-training-covid --resource-group $AZURE_RESOURCE_GROUP --container-name encrypted-storage-sidecar
+
+      - name: Download and decrypt model
+        run: cd ${{ github.workspace }}/scenarios/covid/data && ./6-download-decrypt-model.sh
+
+      - name: Cleanup data directory
+        run: sudo rm -rf $DATA_DIRECTORY
+        if: ${{ always() }}

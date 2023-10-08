@@ -1,0 +1,93 @@
+{
+  "id": "f4f72a88-bab1-11ed-afa1-0242ac120002",
+  "schemaVersion": "0.1",
+  "startTime": "2023-03-14T00:00:00.000Z",
+  "expiryTime": "2024-03-14T00:00:00.000Z",
+  "tdc" : "",
+  "tdps" : [],
+  "ccrp": "did:web:ccrprovider.github.io",
+  "datasets": [
+    {
+      "id" : "19517ba8-bab8-11ed-afa1-0242ac120002",
+      "name": "icmr",
+      "url" : "https://ccrcontainer.blob.core.windows.net/icmr/data.img",
+      "provider": "",
+      "key" : {
+        "type": "azure",
+        "properties": {
+          "kid": "ICMRFilesystemEncryptionKey",
+          "authority": {
+              "endpoint": "sharedneu.neu.attest.azure.net"
+          },
+          "endpoint": ""
+        }
+      }
+    },
+    {
+      "id" : "216d5cc6-bab8-11ed-afa1-0242ac120002",
+      "name": "cowin",
+      "url" : "https://ccrcontainer.blob.core.windows.net/cowin/data.img",
+      "provider": "",
+      "key" : {
+        "type": "azure",
+        "properties": {
+          "kid": "COWINFilesystemEncryptionKey",
+          "authority": {
+              "endpoint": "sharedneu.neu.attest.azure.net"
+          },
+          "endpoint": ""
+        }
+      }
+    },
+    {
+      "id" : "2830a144-bab8-11ed-afa1-0242ac120002",
+      "name": "index",
+      "url" : "https://ccrcontainer.blob.core.windows.net/swr/data.img",
+      "provider": "",
+      "key" : {
+        "type": "azure",
+        "properties": {
+          "kid": "IndexFilesystemEncryptionKey",
+          "authority": {
+              "endpoint": "sharedneu.neu.attest.azure.net"
+          },
+          "endpoint": ""
+        }
+      }
+    }
+  ],
+  "purpose": "TRAINING",
+  "constraints": [
+    {
+      "privacy": [
+        {
+          "dataset": "19517ba8-bab8-11ed-afa1-0242ac120002", 
+          "epsilon_threshold": "1.5",
+          "noise_multiplier": "2.0",
+          "delta": "0.01",
+          "epochs_per_report": "2"
+        },
+        {
+          "dataset": "216d5cc6-bab8-11ed-afa1-0242ac120002", 
+          "epsilon_threshold": "1.5",
+          "noise_multiplier": "2.0",
+          "delta": "0.01",
+          "epochs_per_report": "2"
+        },
+        {
+          "dataset": "2830a144-bab8-11ed-afa1-0242ac120002", 
+          "epsilon_threshold": "1.5",
+          "noise_multiplier": "2.0",
+          "delta": "0.01",
+          "epochs_per_report": "2"
+        }
+      ]
+    }
+  ],
+  "terms": {
+    "payment" : {
+    },
+    "revocation": {
+    }
+  }
+}

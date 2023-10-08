@@ -1,0 +1,6 @@
+[submodule "external/confidential-sidecar-containers"]
+	path = external/confidential-sidecar-containers
+	url = https://github.com/microsoft/confidential-sidecar-containers
+[submodule "external/contract-ledger"]
+	path = external/contract-ledger
+	url = https://github.com/kapilvgit/contract-ledger.git
