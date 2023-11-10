@@ -25,7 +25,7 @@ For deploying the sample to Azure, you will additionally need.
 
 - Valid Azure subscription with sufficient access to create key vault, storage accounts, storage containers, and Azure Container Instances. 
 - [Azure Key Vault](https://azure.microsoft.com/en-us/products/key-vault/) to store encryption keys and implement secure key release to CCR. You can either you Azure Key Vault Premium (lower cost), or [Azure Key Vault managed HSM](https://learn.microsoft.com/en-us/azure/key-vault/managed-hsm/overview) for enhanced security. Please see instructions below on how to create and setup your AKV instance. 
-- [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli-linux). 
+- [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli-linux). This is pre-installed if you are using Codespaces. 
 - [Azure CLI Confidential containers extension](https://learn.microsoft.com/en-us/cli/azure/confcom?view=azure-cli-latest). After installing Azure CLI, you can install this extension using ```az extension add --name confcom -y```
 - [Go](https://go.dev/doc/install). Follow the instructions to install Go. After installing, ensure that the PATH environment variable is set to include ```go``` runtime.
 - ```jq```. You can install jq using ```sudo apt-get install -y jq```
