@@ -2,8 +2,10 @@
 	"image": "mcr.microsoft.com/devcontainers/universal:2",
 	"features": {
 		"ghcr.io/devcontainers/features/azure-cli:1": {
-			"version": "latest"
-		}
+			"version": "latest",
+			"extensions": "confcom"
+		},
+		"ghcr.io/eitsupi/devcontainer-features/jq-likes:2": {}
 	},
 	"postCreateCommand": "pip install -r requirements.txt"
 }
