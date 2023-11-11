@@ -10,12 +10,12 @@
     {
       "id" : "19517ba8-bab8-11ed-afa1-0242ac120002",
       "name": "icmr",
-      "url" : "https://ccrcontainer.blob.core.windows.net/icmr/data.img",
+      "url" : "https://ccrcontainer.blob.core.windows.net/mnist_1/data.img",
       "provider": "",
       "key" : {
         "type": "azure",
         "properties": {
-          "kid": "ICMRFilesystemEncryptionKey",
+          "kid": "MNIST_1_FilesystemEncryptionKey",
           "authority": {
               "endpoint": "sharedneu.neu.attest.azure.net"
           },
@@ -26,12 +26,12 @@
     {
       "id" : "216d5cc6-bab8-11ed-afa1-0242ac120002",
       "name": "cowin",
-      "url" : "https://ccrcontainer.blob.core.windows.net/cowin/data.img",
+      "url" : "https://ccrcontainer.blob.core.windows.net/mnist_2/data.img",
       "provider": "",
       "key" : {
         "type": "azure",
         "properties": {
-          "kid": "COWINFilesystemEncryptionKey",
+          "kid": "MNIST_2FilesystemEncryptionKey",
           "authority": {
               "endpoint": "sharedneu.neu.attest.azure.net"
           },
@@ -42,12 +42,12 @@
     {
       "id" : "2830a144-bab8-11ed-afa1-0242ac120002",
       "name": "index",
-      "url" : "https://ccrcontainer.blob.core.windows.net/swr/data.img",
+      "url" : "https://ccrcontainer.blob.core.windows.net/mnist_3/data.img",
       "provider": "",
       "key" : {
         "type": "azure",
         "properties": {
-          "kid": "IndexFilesystemEncryptionKey",
+          "kid": "MNIST_3FilesystemEncryptionKey",
           "authority": {
               "endpoint": "sharedneu.neu.attest.azure.net"
           },

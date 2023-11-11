@@ -1,5 +1,5 @@
 {
-  "input_dataset_path": "/tmp/sandbox_icmr_cowin_index_without_key_identifiers.csv", 
+  "input_dataset_path": "/tmp/sandbox_mnist_without_key_identifiers.csv", 
   "saved_model_path": "/mnt/remote/model/model.onnx",
   "saved_model_optimizer": "/mnt/remote/model/dpsgd_model_opimizer.pth",
   "trained_model_output_path":"/mnt/remote/output/model.onnx",
@@ -10,7 +10,7 @@
   "epsilon_threshold": 1.0, 
   "delta": 0.01, 
   "sample_size": 60000, 
-  "target_variable": "icmr_a_icmr_test_result",
+  "target_variable": "label",
   "test_train_split": 0.2,
   "metrics": [
     "accuracy",
