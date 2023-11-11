@@ -1,19 +1,19 @@
 services:
   icmr:
-    image: ${CONTAINER_REGISTRY}/preprocess-icmr:latest
+    image: ${CONTAINER_REGISTRY}/preprocess-mnist_1:latest
     volumes:
       - $ICMR_INPUT_PATH:/mnt/depa_ccr_poc/data
-      - $ICMR_OUTPUT_PATH:/mnt/output/icmr
-    command: ["python3", "ccr_depa_covid_poc_dp_data_prep_icmr.py"]
+      - $ICMR_OUTPUT_PATH:/mnt/output/mnist_1
+    command: ["python3", "ccr_depa_covid_poc_dp_data_prep_mnist_1.py"]
   index:
-    image: ${CONTAINER_REGISTRY}/preprocess-index:latest
+    image: ${CONTAINER_REGISTRY}/preprocess-mnist_2:latest
     volumes:
       - $INDEX_INPUT_PATH:/mnt/depa_ccr_poc/data
-      - $INDEX_OUTPUT_PATH:/mnt/output/index
-    command: ["python3", "ccr_depa_covid_poc_dp_data_prep_index.py"]
+      - $INDEX_OUTPUT_PATH:/mnt/output/mnist_2
+    command: ["python3", "ccr_depa_covid_poc_dp_data_prep_mnist_2.py"]
   cowin:
-    image: ${CONTAINER_REGISTRY}/preprocess-cowin:latest
+    image: ${CONTAINER_REGISTRY}/preprocess-mnist_3:latest
     volumes:
       - $COWIN_INPUT_PATH:/mnt/depa_ccr_poc/data
-      - $COWIN_OUTPUT_PATH:/mnt/output/cowin
-    command: ["python3", "ccr_depa_covid_poc_dp_data_prep_cowin.py"]
+      - $COWIN_OUTPUT_PATH:/mnt/output/mnist_3
+    command: ["python3", "ccr_depa_covid_poc_dp_data_prep_mnist_3.py"]

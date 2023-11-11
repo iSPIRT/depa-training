@@ -1,8 +1,8 @@
 export DATA_DIR=$PWD/../../data
-export ICMR_INPUT_PATH=$DATA_DIR/icmr
-export ICMR_OUTPUT_PATH=$DATA_DIR/icmr/preprocessed
-export INDEX_INPUT_PATH=$DATA_DIR/index
-export INDEX_OUTPUT_PATH=$DATA_DIR/index/preprocessed
-export COWIN_INPUT_PATH=$DATA_DIR/cowin
-export COWIN_OUTPUT_PATH=$DATA_DIR/cowin/preprocessed
+export MNIST_1_INPUT_PATH=$DATA_DIR/mnist_1
+export MNIST_1_OUTPUT_PATH=$DATA_DIR/mnist_1/preprocessed
+export MNIST_2_INPUT_PATH=$DATA_DIR/mnist_2
+export MNIST_2_OUTPUT_PATH=$DATA_DIR/mnist_2/preprocessed
+export MNIST_3_INPUT_PATH=$DATA_DIR/mnist_3
+export MNIST_3_OUTPUT_PATH=$DATA_DIR/mnist_3/preprocessed
 docker compose -f docker-compose-preprocess.yml up --remove-orphans
