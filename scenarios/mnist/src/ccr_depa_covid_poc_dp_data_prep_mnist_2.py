@@ -11,6 +11,7 @@
 
 # Key references / Attributions: https://depa.world/training/contracts
 # Key frameworks used : pyspark
+#Crirical Library Imports
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import *
 from pyspark.sql.types import *
@@ -22,20 +23,31 @@ from pyspark.sql.functions import col , column
 # Debug Enabled
 debug_poc=True
 
-# Model Input folder
-icmr_input_folder='/mnt/depa_ccr_poc/data/'
+# Model Input and output folders
+model_input_folder='/mnt/depa_ccr_poc/data/'
 
 # POC State-wise dummy data
-icmr_file='poc_data_icmr_data.csv'
+mnist_2_file ='poc_mnist_2_data.csv'
+
+# Used for loading/Process at DP (Ideally done at DP, we just pick up anonymised/tokenised datasets)
+load_process_dp_data=True
 
 # Data Provider Level - Preprocess Locations
-dp_icmr_output_folder='/mnt/output/icmr/'
+dp_mnist_2_output_folder='/mnt/output/mnist_2/'
 
 # DP Standardisation Non Anon Files
-dp_icmr_std_nonanon_file ='dp_icmr_standardised_nonanon.csv'
+dp_mnist_2_std_nonanon_file ='dp_mnist_2_standardised_nonanon.csv'
 
 # DP Standardisation  Anon | Tokenised Files
-dp_icmr_std_anon_file ='dp_icmr_standardised_anon.csv'
+dp_mnist_2_std_anon_file ='dp_mnist_2_standardised_anon.csv'
+
+# In the CCR
+model_output_folder='/mnt/depa_ccr_poc/output/'
+
+dp_joined_dataset_identifiers_file='sandbox_mnist_linked_anon.csv'
+dp_joined_dataset_wo_identifiers_file='sandbox_mnist_without_key_identifiers.csv'
+
+
 
 """# Setting up spark session"""
 
@@ -89,13 +101,12 @@ def dp_load_data(input_folder,data_file,load=True,debug=True):
   return data_loaded
 
 
-
-def dp_process_icmr_full(input_folder,data_file,load=True,debug=True):
+def dp_process_mnist_2_full(input_folder,data_file,load=True,debug=True):
     """
-    Standardisation of ICMR data done at Data Provider Infrastructure
+    Standardisation of mnist_2 data done at Data Provider Infrastructure
     Suggested to have some standardisations defined by the DEP/ Data Consumer (DC) for easier joining process
     """
-   
+
     if load:
       input_file=input_folder+data_file
     
@@ -113,47 +124,29 @@ def dp_process_icmr_full(input_folder,data_file,load=True,debug=True):
       print("Debug | input_file",data_loaded.count())
       data_loaded.show()
 
-    # Standardisations
-    sandbox_dp_icmr=data_loaded
+    sandbox_dp_mnist_2=data_loaded
     if debug:
-      sandbox_dp_icmr.show()
+      sandbox_dp_mnist_2.show()
 
-    sandbox_dp_icmr = sandbox_dp_icmr.withColumnRenamed('icmrnumber', 'pk_icmrno')
-    sandbox_dp_icmr = sandbox_dp_icmr.withColumnRenamed('icmr_patient_mobilenumber', 'pk_mobno')
-    sandbox_dp_icmr = sandbox_dp_icmr.withColumnRenamed('srfnumber', 'ref_srfno')
-    sandbox_dp_icmr = sandbox_dp_icmr.withColumnRenamed('a_lab_id', 'fk_icmr_labid') 
-    sandbox_dp_icmr = sandbox_dp_icmr.withColumnRenamed('a_sample_genetic_strain', 'fk_genetic_strain') 
-    sandbox_dp_icmr.cache()
 
-    do_not_change=['pk_icmrno','pk_mobno', 'ref_srfno','fk_icmr_labid','fk_genetic_strain']
+   
 
-    # Standardisations
-    for i in sandbox_dp_icmr.columns:
-      if i not in do_not_change:
-        sandbox_dp_icmr = sandbox_dp_icmr.withColumnRenamed(i,'icmr_'+i)
 
     # Create the Output
-    sandbox_dp_icmr.toPandas().to_csv(dp_icmr_output_folder+ dp_icmr_std_nonanon_file)
+    sandbox_dp_mnist_2.toPandas().to_csv(dp_mnist_2_output_folder+ dp_mnist_2_std_nonanon_file)
 
-    # Anonymisation of key identifiers
-    sandbox_dp_icmr_anon = sandbox_dp_icmr.withColumn('pk_mobno_hashed', sha2(concat_ws("", sandbox_dp_icmr.pk_mobno),256)) \
-    .withColumn("ref_srfno_hashed", sha2(concat_ws("", sandbox_dp_icmr.ref_srfno),256)) \
-    .withColumn("pk_icmrno_hashed", sha2(concat_ws("", sandbox_dp_icmr.pk_icmrno),256)) \
-    .withColumn('fk_icmr_labid_hashed', sha2(concat_ws("", sandbox_dp_icmr.fk_icmr_labid),256)) \
-    .drop("pk_mobno").drop("ref_srfno").drop("pk_icmrno").drop("fk_icmr_labid").cache()
 
-    sandbox_dp_icmr_anon.toPandas().to_csv(dp_icmr_output_folder + dp_icmr_std_anon_file)
-    if debug_poc:
-      print("Debug | sandbox_icmr_anon count =", sandbox_dp_icmr_anon.count())
-      print("Debug | Dataset Created ", "sandbox_icmr_processed_nonanon")
-      #icmrdata.show()
-      sandbox_dp_icmr.show()
-      sandbox_dp_icmr_anon.show()
+    sandbox_dp_mnist_2.toPandas().to_csv(dp_mnist_2_output_folder + dp_mnist_2_std_anon_file)
     
-    return sandbox_dp_icmr_anon
+    if debug_poc:
+      print("Debug | Dataset Created ", "sandbox_mnist_2_processed_anon")
+      print("Debug | sandbox_mnist_2_nonanon count =", sandbox_dp_mnist_2.count())
+      print("Debug | sandbox_mnist_2_anon count =", sandbox_dp_mnist_2.count())
+      sandbox_dp_mnist_2.show()
+      sandbox_dp_mnist_2.show()
 
-#icmr_mockdata_testing=dp_load_data(model_input_folder,icmr_file,True,False)
+    return sandbox_dp_mnist_2
 
-ccr_sandbox_icmr=dp_process_icmr_full(icmr_input_folder,icmr_file,True,False)
 
+ccr_sandbox_mnist_2=dp_process_mnist_2_full(model_input_folder,mnist_2_file,True,True)
 

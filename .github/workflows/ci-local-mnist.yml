@@ -1,0 +1,47 @@
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+
+# GitHub recommends pinning actions to a commit SHA.
+# To get a newer version, you will need to update the SHA.
+# You can also reference a tag or branch, but the action may change without warning.
+
+name: Deploy Scenario in Docker
+
+on: [workflow_dispatch]
+
+env:
+  CONTAINER_REGISTRY: ${{ vars.CONTAINER_REGISTRY }}
+  SCENARIO: "mnist" # Default scenario name, can be overridden
+
+jobs:
+  deploy-scenario:
+    runs-on: [self-hosted, linux, X64]
+    steps:
+      - uses: AutoModality/action-clean@v1
+      - uses: actions/checkout@v3
+
+      - name: Update submodules
+        run: git submodule update --init --recursive
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.CONTAINER_REGISTRY_USERNAME }}
+          password: ${{ secrets.CONTAINER_REGISTRY_ACCESS_TOKEN }}
+
+      - name: Add user to docker group
+        run: sudo usermod -aG docker $USER
+
+      - name: Pull container images
+        run: cd ${{ github.workspace }}/ci && ./pull-containers.sh
+
+      - name: Run pre-processing
+        run: cd ./scenarios/${{ env.SCENARIO }}/deployment/docker && ./preprocess.sh
+
+      - name: Run model saving
+        run: cd ./scenarios/${{ env.SCENARIO }}/deployment/docker && ./save-model.sh
+        
+      - name: Run training
+        run: cd ./scenarios/${{ env.SCENARIO }}/deployment/docker && ./train.sh
