@@ -13,67 +13,44 @@ The end-to-end training pipeline consists of the following phases.
 
 ## Pre-requisites
 
-To deploy the sample locally, you will need a Linux system (preferably Ubuntu), or a Windows system with WSL. You will also need
+### GitHub Codespaces
+
+The simplest way to setup a development environment is using [GitHub Codespaces](https://github.com/codespaces). The repository includes a [devcontainer.json](../../.devcontainer/devcontainer.json), which customizes your codespace to install all required dependencies. 
+
+### Local Development Environment
+
+Alternatively, you deploy the sample locally on Linux (we have tested with Ubuntu 20.04), or Windows with WSL 2. You will need to install the following dependencies. 
 
 - [docker](https://docs.docker.com/engine/install/ubuntu/) and docker-compose. After installing docker, add your user to the docker group using `sudo usermod -aG docker $USER`, and log back in to a shell. 
 - make (install using ```sudo apt-get install make```)
 - Python 3.6.9 and pip 
 - Python wheel package (install using ```pip install wheel```)
-- Docker Hub account to store container images. 
 
-For deploying the sample to Azure, you will additionally need. 
+## Build CCR containers
 
-- Valid Azure subscription with sufficient access to create key vault, storage accounts, storage containers, and Azure Container Instances. 
-- [Azure Key Vault](https://azure.microsoft.com/en-us/products/key-vault/) to store encryption keys and implement secure key release to CCR. You can either you Azure Key Vault Premium (lower cost), or [Azure Key Vault managed HSM](https://learn.microsoft.com/en-us/azure/key-vault/managed-hsm/overview) for enhanced security. Please see instructions below on how to create and setup your AKV instance. 
-- [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli-linux). 
-- [Azure CLI Confidential containers extension](https://learn.microsoft.com/en-us/cli/azure/confcom?view=azure-cli-latest). After installing Azure CLI, you can install this extension using ```az extension add --name confcom -y```
-- [Go](https://go.dev/doc/install). Follow the instructions to install Go. After installing, ensure that the PATH environment variable is set to include ```go``` runtime.
-- ```jq```. You can install jq using ```sudo apt-get install -y jq```
-
-We will be creating the following resources as part of the deployment. 
-
-- Azure Key Vault
-- Azure Storage account
-- Storage containers to host encrypted datasets
-- Azure Container Instances to deploy the CCR and train the model
-
-Please stay tuned for CCR on other cloud platforms. 
-
-## Build and push CCR containers
-
-After cloning the repository, build CCR containers using the following command from the root of the repo. 
+To build your own CCR container images, use the following command from the root of the repository. 
 
 ```bash
 ./ci/build.sh
-```
-Next, login to docker hub and push containers to your container registry. 
-
-> **Note:** Replace `<docker-hub-registry-name>` the name of your docker hub account.
-
-```bash
-docker login 
-export CONTAINER_REGISTRY=<docker-hub-registry-name>
-./ci/push-containers.sh
-```
-
-Next, build and push container specific to the COVID scenario as follows. 
-
-```bash
 cd scenarios/covid
 ./ci/build.sh
-./ci/push-containers.sh
 ```
 
-These scripts build and push the following containers to your docker hub repository. 
+These scripts build the following containers. 
 
 - ```depa-training```: Container with the core CCR logic for joining datasets and running differentially private training. 
 - ```depa-training-encfs```: Container for loading encrypted data into the CCR. 
 - ```preprocess-icmr, preprocess-cowin, preprocess-index```: Containers that pre-process and de-identify datasets. 
 - ```ccr-model-save```: Container that saves the model to be trained in ONNX format. 
 
+Alternatively, you can use pre-built container images from the ```ispirt``` repository by setting the following environment variable. 
+```bash
+export CONTAINER_REGISTRY=ispirt
+```
+
 ## Data pre-processing and de-identification
 
-The folders ```scenarios/covid/data``` contains three sample training datasets. Acting as TDPs for these datasets, run the following scripts from the root of the repository to de-identify the datasets. 
+The folders ```scenarios/covid/data``` contains three sample training datasets. Acting as TDPs for these datasets, run the following scripts to de-identify the datasets. 
 
 ```bash
 cd scenarios/covid/deployment/docker
@@ -112,7 +89,41 @@ docker-train-1  | Epoch [5/5], Loss: 0.0489
 
 ## Deploy to Azure
 
-In a more realistic scenario, these datasets will not be available in the clear to the TDC, and the TDC will be required to use a CCR for training her model. The following steps describe the process of sharing encrypted datasets with TDCs and setting up a CCR for training models. 
+In a more realistic scenario, these datasets will not be available in the clear to the TDC, and the TDC will be required to use a CCR for training her model. The following steps describe the process of sharing encrypted datasets with TDCs and setting up a CCR in Azure for training models. Please stay tuned for CCR on other cloud platforms. 
+
+To deploy in Azure, you will need the following. 
+
+- Docker Hub account to store container images. Alternatively, you can use pre-built images from the ```ispirt``` container registry. 
+- [Azure Key Vault](https://azure.microsoft.com/en-us/products/key-vault/) to store encryption keys and implement secure key release to CCR. You can either you Azure Key Vault Premium (lower cost), or [Azure Key Vault managed HSM](https://learn.microsoft.com/en-us/azure/key-vault/managed-hsm/overview) for enhanced security. Please see instructions below on how to create and setup your AKV instance. 
+- Valid Azure subscription with sufficient access to create key vault, storage accounts, storage containers, and Azure Container Instances. 
+
+If you are using your own development environment instead of a dev container or codespaces, you will to install the following dependencies. 
+
+- [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli-linux).  
+- [Azure CLI Confidential containers extension](https://learn.microsoft.com/en-us/cli/azure/confcom?view=azure-cli-latest). After installing Azure CLI, you can install this extension using ```az extension add --name confcom -y```
+- [Go](https://go.dev/doc/install). Follow the instructions to install Go. After installing, ensure that the PATH environment variable is set to include ```go``` runtime.
+- ```jq```. You can install jq using ```sudo apt-get install -y jq```
+
+We will be creating the following resources as part of the deployment. 
+
+- Azure Key Vault
+- Azure Storage account
+- Storage containers to host encrypted datasets
+- Azure Container Instances to deploy the CCR and train the model
+
+### Push Container Images
+
+If you wish to use your own container images, login to docker hub and push containers to your container registry. 
+
+> **Note:** Replace `<docker-hub-registry-name>` the name of your docker hub registry name.
+
+```bash
+export CONTAINER_REGISTRY=<docker-hub-registry-name>
+docker login 
+./ci/push-containers.sh
+cd scenarios/covid
+./ci/push-containers.sh
+```
 
 ### Create Resources
 
