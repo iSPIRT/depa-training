@@ -10,8 +10,14 @@ Clone this repo as follows, and follow [instructions](./scenarios/covid/README.m
 git clone --recursive http://github.com/iSPIRT/depa-training
 ```
 
-You can also use Github codespaces using the [dev container](./.devcontainer/devcontainer.json) to create a development environment. Please ensure you allocate at least 64GB disk space in your codespace. Also, run the following command in the Codespace to update submodules.
+You can also use Github codespaces to create a development environment. Please ensure you allocate at least 64GB disk space in your codespace. Also, run the following command in the Codespace to update submodules.
 
 ```bash
 git submodule update --init --recursive
 ```
+
+# Contributing
+
+This project welcomes feedback and contributions. Before you start, please take a moment to review our [Contribution Guidelines](./CONTRIBUTING.md). These guidelines provide information on how to contribute, set up your development environment, and submit your changes.
+
+We look forward to your contributions and appreciate your efforts in making DEPA Training better for everyone.
