@@ -1,6 +1,6 @@
-# COVID predictive modelling 
+# Classification model - MNIST Dataset
 
-This hypothetical scenario involves three training data providers (TDPs), ICMR, COWIN and a state war room, and a TDC who wishes the train a model using datasets from these TDPs. The repository contains sample datasets and a model. The model and datasets are for illustrative purposes only; none of these organizations have been involved in contributing to the code or datasets.  
+MNIST set is a large collection of handwritten digits. It is a very popular dataset in the field of image processing. It is often used for benchmarking machine learning algorithms. MNIST is short for Modified National Institute of Standards and Technology database. We here consider a hypothetical scenario where in we have three TDP's and the MNIST data is divided into three parts each coming from one TDP and TDC who wishes the train a model using datasets from these TDPs. The repository contains sample datasets and a model. The model and datasets are for illustrative purposes only; none of these organizations have been involved in contributing to the code or datasets.
 
 The end-to-end training pipeline consists of the following phases. 
 
@@ -56,10 +56,10 @@ export CONTAINER_REGISTRY=<docker-hub-registry-name>
 ./ci/push-containers.sh
 ```
 
-Next, build and push container specific to the COVID scenario as follows. 
+Next, build and push container specific to the MNIST scenario as follows. 
 
 ```bash
-cd scenarios/covid
+cd scenarios/mnist
 ./ci/build.sh
 ./ci/push-containers.sh
 ```
@@ -68,15 +68,15 @@ These scripts build and push the following containers to your docker hub reposit
 
 - ```depa-training```: Container with the core CCR logic for joining datasets and running differentially private training. 
 - ```depa-training-encfs```: Container for loading encrypted data into the CCR. 
-- ```preprocess-icmr, preprocess-cowin, preprocess-index```: Containers that pre-process and de-identify datasets. 
+- ```preprocess-mnist_1, preprocess-mnist_2, preprocess-mnist_3```: Containers that pre-process and de-identify datasets. 
 - ```ccr-model-save```: Container that saves the model to be trained in ONNX format. 
 
 ## Data pre-processing and de-identification
 
-The folders ```scenarios/covid/data``` contains three sample training datasets. Acting as TDPs for these datasets, run the following scripts from the root of the repository to de-identify the datasets. 
+The folders ```scenarios/mnist/data``` contains three sample training datasets. Acting as TDPs for these datasets, run the following scripts from the root of the repository to de-identify the datasets. 
 
 ```bash
-cd scenarios/covid/deployment/docker
+cd scenarios/mnist/deployment/docker
 ./preprocess.sh
 ```
 
@@ -90,7 +90,7 @@ Next, acting as a TDC, save a sample model using the following script.
 ./save-model.sh
 ```
 
-This script will save the model as ```scenarios/covid/data/modeller/model/model.onnx.```
+This script will save the model as ```scenarios/mnist/data/modeller/model/model.onnx.```
 
 ## Deploy locally
 
@@ -128,13 +128,13 @@ az login
 export AZURE_RESOURCE_GROUP=<resource-group-name>
 export AZURE_KEYVAULT_ENDPOINT=<key-vault-endpoint>
 export AZURE_STORAGE_ACCOUNT_NAME=<unique-storage-account-name>
-export AZURE_ICMR_CONTAINER_NAME=icmrcontainer
-export AZURE_COWIN_CONTAINER_NAME=cowincontainer
-export AZURE_INDEX_CONTAINER_NAME=indexcontainer
+export AZURE_MNIST_1_CONTAINER_NAME=mnist_1container
+export AZURE_MNIST_2_CONTAINER_NAME=mnist_2container
+export AZURE_MNIST_3_CONTAINER_NAME=mnist_3container
 export AZURE_MODEL_CONTAINER_NAME=modelcontainer
 export AZURE_OUTPUT_CONTAINER_NAME=outputcontainer
 
-cd scenarios/covid/data
+cd scenarios/mnist/data
 ./1-create-storage-containers.sh 
 ./2-create-akv.sh
 ```
@@ -162,7 +162,7 @@ The generated keys are available as files with the extension `.bin`.
 Next, encrypt the datasets and models using keys generated in the previous step. 
 
 ```bash
-cd scenarios/covid/data
+cd scenarios/mnist/data
 ./4-encrypt-data.sh
 ```
 
@@ -183,7 +183,7 @@ Acting as a TDC, use the following script to deploy the CCR using Confidential C
 > **Note:** Replace `<contract-sequence-number>` with the sequence number of the contract registered with the contract service. 
 
 ```bash
-cd scenarios/covid/deployment/aci
+cd scenarios/mnist/deployment/aci
 ./deploy.sh -c <contract-sequence-number> -m ../../config/model_config.json -q ../../config/query_config.json
 ```
 
@@ -193,10 +193,10 @@ Once the deployment is complete, you can obtain logs from the CCR using the foll
 
 ```bash
 # Obtain logs from the training container
-az container logs --name depa-training-covid --resource-group $AZURE_RESOURCE_GROUP --container-name depa-training
+az container logs --name depa-training-mnist --resource-group $AZURE_RESOURCE_GROUP --container-name depa-training
 
 # Obtain logs from the encrypted filesystem sidecar
-az container logs --name depa-training-covid --resource-group $AZURE_RESOURCE_GROUP --container-name encrypted-storage-sidecar
+az container logs --name depa-training-mnist --resource-group $AZURE_RESOURCE_GROUP --container-name encrypted-storage-sidecar
 ```
 
 ### Download and decrypt trained model
@@ -204,7 +204,7 @@ az container logs --name depa-training-covid --resource-group $AZURE_RESOURCE_GR
 You can download and decrypt the trained model using the following script. 
 
 ```bash
-cd scenarios/covid/data
+cd scenarios/mnist/data
 ./6-download-decrypt-model.sh
 ```
 
