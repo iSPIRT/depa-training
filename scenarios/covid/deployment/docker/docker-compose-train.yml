@@ -1,6 +1,6 @@
 services:
   train:
-    image: ${CONTAINER_REGISTRY}/depa-training:latest
+    image: ${CONTAINER_REGISTRY:+$CONTAINER_REGISTRY/}depa-training:latest
     volumes:
       - $ICMR_INPUT_PATH:/mnt/remote/icmr
       - $COWIN_INPUT_PATH:/mnt/remote/cowin
