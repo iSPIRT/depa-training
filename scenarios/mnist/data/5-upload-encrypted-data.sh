@@ -4,8 +4,8 @@ ACCOUNT_KEY=$(az storage account keys list --account-name $AZURE_STORAGE_ACCOUNT
 
 az storage blob upload \
   --account-name $AZURE_STORAGE_ACCOUNT_NAME \
-  --container $AZURE_ICMR_CONTAINER_NAME \
-  --file icmr.img \
+  --container $AZURE_MNIST_1_CONTAINER_NAME \
+  --file mnist_1.img \
   --name data.img \
   --type page \
   --overwrite \
@@ -13,8 +13,8 @@ az storage blob upload \
 
 az storage blob upload \
   --account-name $AZURE_STORAGE_ACCOUNT_NAME \
-  --container $AZURE_COWIN_CONTAINER_NAME \
-  --file cowin.img \
+  --container $AZURE_MNIST_2_CONTAINER_NAME \
+  --file mnist_2.img \
   --name data.img \
   --type page \
   --overwrite \
@@ -22,8 +22,8 @@ az storage blob upload \
 
 az storage blob upload \
   --account-name $AZURE_STORAGE_ACCOUNT_NAME \
-  --container $AZURE_INDEX_CONTAINER_NAME \
-  --file index.img \
+  --container $AZURE_MNIST_3_CONTAINER_NAME \
+  --file mnist_3.img \
   --name data.img \
   --type page \
   --overwrite \
