@@ -4,4 +4,3 @@ do
   docker tag $container $CONTAINER_REGISTRY"/"$container
   docker push $CONTAINER_REGISTRY"/"$container
 done
-
