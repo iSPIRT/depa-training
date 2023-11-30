@@ -9,7 +9,7 @@
   "datasets": [
     {
       "id" : "19517ba8-bab8-11ed-afa1-0242ac120002",
-      "name": "icmr",
+      "name": "mnist_1",
       "url" : "https://ccrcontainer.blob.core.windows.net/mnist_1/data.img",
       "provider": "",
       "key" : {
@@ -25,7 +25,7 @@
     },
     {
       "id" : "216d5cc6-bab8-11ed-afa1-0242ac120002",
-      "name": "cowin",
+      "name": "mnist_2",
       "url" : "https://ccrcontainer.blob.core.windows.net/mnist_2/data.img",
       "provider": "",
       "key" : {
@@ -41,7 +41,7 @@
     },
     {
       "id" : "2830a144-bab8-11ed-afa1-0242ac120002",
-      "name": "index",
+      "name": "mnist_3",
       "url" : "https://ccrcontainer.blob.core.windows.net/mnist_3/data.img",
       "provider": "",
       "key" : {
