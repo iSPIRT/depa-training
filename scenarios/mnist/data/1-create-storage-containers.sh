@@ -11,17 +11,17 @@ az storage account create \
 az storage container create \
     --resource-group $AZURE_RESOURCE_GROUP \
     --account-name $AZURE_STORAGE_ACCOUNT_NAME \
-    --name $AZURE_ICMR_CONTAINER_NAME 
+    --name $AZURE_MNIST_1_CONTAINER_NAME 
 
 az storage container create \
     --resource-group $AZURE_RESOURCE_GROUP \
     --account-name $AZURE_STORAGE_ACCOUNT_NAME \
-    --name $AZURE_COWIN_CONTAINER_NAME 
+    --name $AZURE_MNIST_2_CONTAINER_NAME 
 
 az storage container create \
     --resource-group $AZURE_RESOURCE_GROUP \
     --account-name $AZURE_STORAGE_ACCOUNT_NAME \
-    --name $AZURE_INDEX_CONTAINER_NAME 
+    --name $AZURE_MNIST_3_CONTAINER_NAME 
 
 az storage container create \
     --resource-group $AZURE_RESOURCE_GROUP \
