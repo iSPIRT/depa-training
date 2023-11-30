@@ -46,17 +46,17 @@ export QUERY_CONFIGURATION=`cat $queryConfiguration | base64 --wrap=0`
 
 function generate_encrypted_filesystem_information() {
   end=`date -u -d "60 minutes" '+%Y-%m-%dT%H:%MZ'`
-  ICMR_SAS_TOKEN=$(az storage blob generate-sas --account-name $AZURE_STORAGE_ACCOUNT_NAME --container-name $AZURE_ICMR_CONTAINER_NAME --permissions r --name data.img --expiry $end --only-show-errors) 
-  export ICMR_SAS_TOKEN="$(echo -n $ICMR_SAS_TOKEN | tr -d \")"
-  export ICMR_SAS_TOKEN="?$ICMR_SAS_TOKEN"
+  MNIST_1_SAS_TOKEN=$(az storage blob generate-sas --account-name $AZURE_STORAGE_ACCOUNT_NAME --container-name $AZURE_MNIST_1_CONTAINER_NAME --permissions r --name data.img --expiry $end --only-show-errors) 
+  export_MNIST_1_SAS_TOKEN="$(echo -n $MNIST_1_SAS_TOKEN | tr -d \")"
+  export MNIST_1_SAS_TOKEN="?$MNIST_1_SAS_TOKEN"
 
-  COWIN_SAS_TOKEN=$(az storage blob generate-sas --account-name $AZURE_STORAGE_ACCOUNT_NAME --container-name $AZURE_COWIN_CONTAINER_NAME --permissions r --name data.img --expiry $end --only-show-errors) 
-  export COWIN_SAS_TOKEN=$(echo $COWIN_SAS_TOKEN | tr -d \")
-  export COWIN_SAS_TOKEN="?$COWIN_SAS_TOKEN"
+  MNIST_2_SAS_TOKEN=$(az storage blob generate-sas --account-name $AZURE_STORAGE_ACCOUNT_NAME --container-name $AZURE_MNIST_2_CONTAINER_NAME --permissions r --name data.img --expiry $end --only-show-errors) 
+  export MNIST_2_SAS_TOKEN=$(echo $MNIST_2_SAS_TOKEN | tr -d \")
+  export MNIST_2_SAS_TOKEN="?$MNIST_2_SAS_TOKEN"
 
-  INDEX_SAS_TOKEN=$(az storage blob generate-sas --account-name $AZURE_STORAGE_ACCOUNT_NAME --container-name $AZURE_INDEX_CONTAINER_NAME --permissions r --name data.img --expiry $end --only-show-errors) 
-  export INDEX_SAS_TOKEN=$(echo $INDEX_SAS_TOKEN | tr -d \")
-  export INDEX_SAS_TOKEN="?$INDEX_SAS_TOKEN"
+  MNIST_3_SAS_TOKEN=$(az storage blob generate-sas --account-name $AZURE_STORAGE_ACCOUNT_NAME --container-name $AZURE_MNIST_3_CONTAINER_NAME --permissions r --name data.img --expiry $end --only-show-errors) 
+  export MNIST_3_SAS_TOKEN=$(echo $MNIST_3_SAS_TOKEN | tr -d \")
+  export MNIST_3_SAS_TOKEN="?$MNIST_3_SAS_TOKEN"
 
   MODEL_SAS_TOKEN=$(az storage blob generate-sas --account-name $AZURE_STORAGE_ACCOUNT_NAME --container-name $AZURE_MODEL_CONTAINER_NAME --permissions r --name data.img --expiry $end --only-show-errors) 
   export MODEL_SAS_TOKEN=$(echo $MODEL_SAS_TOKEN | tr -d \")
@@ -78,33 +78,33 @@ function generate_encrypted_filesystem_information() {
 
   TMP=$(jq . encrypted-filesystem-config-template.json)
   TMP=`echo $TMP | \
-    jq '.azure_filesystems[0].azure_url = "https://" + env.AZURE_STORAGE_ACCOUNT_NAME + ".blob.core.windows.net/" + env.AZURE_ICMR_CONTAINER_NAME + "/data.img" + env.ICMR_SAS_TOKEN' | \
-    jq '.azure_filesystems[0].mount_point = "/mnt/remote/icmr"' | \
-    jq '.azure_filesystems[0].key.kid = "ICMRFilesystemEncryptionKey"' | \
+    jq '.azure_filesystems[0].azure_url = "https://" + env.AZURE_STORAGE_ACCOUNT_NAME + ".blob.core.windows.net/" + env.AZURE_MNIST_1_CONTAINER_NAME + "/data.img" + env.MNIST_1_SAS_TOKEN' | \
+    jq '.azure_filesystems[0].mount_point = "/mnt/remote/mnist_1"' | \
+    jq '.azure_filesystems[0].key.kid = "MNIST_1FilesystemEncryptionKey"' | \
     jq '.azure_filesystems[0].key.kty = env.AZURE_AKV_KEY_TYPE' | \
     jq '.azure_filesystems[0].key.akv.endpoint = env.AZURE_KEYVAULT_ENDPOINT' | \
     jq '.azure_filesystems[0].key.akv.bearer_token = env.BEARER_TOKEN' | \
-    jq '.azure_filesystems[0].key_derivation.label = "ICMRFilesystemEncryptionKey"' | \
+    jq '.azure_filesystems[0].key_derivation.label = "MNIST_1FilesystemEncryptionKey"' | \
     jq '.azure_filesystems[0].key_derivation.salt = "9b53cddbe5b78a0b912a8f05f341bcd4dd839ea85d26a08efaef13e696d999f4"'`
 
   TMP=`echo $TMP | \
-    jq '.azure_filesystems[1].azure_url = "https://" + env.AZURE_STORAGE_ACCOUNT_NAME + ".blob.core.windows.net/" + env.AZURE_COWIN_CONTAINER_NAME + "/data.img" + env.COWIN_SAS_TOKEN' | \
-    jq '.azure_filesystems[1].mount_point = "/mnt/remote/cowin"' | \
-    jq '.azure_filesystems[1].key.kid = "COWINFilesystemEncryptionKey"' | \
+    jq '.azure_filesystems[1].azure_url = "https://" + env.AZURE_STORAGE_ACCOUNT_NAME + ".blob.core.windows.net/" + env.AZURE_MNIST_2_CONTAINER_NAME + "/data.img" + env.MNIST_2_SAS_TOKEN' | \
+    jq '.azure_filesystems[1].mount_point = "/mnt/remote/mnist_2"' | \
+    jq '.azure_filesystems[1].key.kid = "MNIST_2FilesystemEncryptionKey"' | \
     jq '.azure_filesystems[1].key.kty = env.AZURE_AKV_KEY_TYPE' | \
     jq '.azure_filesystems[1].key.akv.endpoint = env.AZURE_KEYVAULT_ENDPOINT' | \
     jq '.azure_filesystems[1].key.akv.bearer_token = env.BEARER_TOKEN' | \
-    jq '.azure_filesystems[1].key_derivation.label = "COWINFilesystemEncryptionKey"' | \
+    jq '.azure_filesystems[1].key_derivation.label = "MNIST_2FilesystemEncryptionKey"' | \
     jq '.azure_filesystems[1].key_derivation.salt = "9b53cddbe5b78a0b912a8f05f341bcd4dd839ea85d26a08efaef13e696d999f4"'`
 
   TMP=`echo $TMP | \
-    jq '.azure_filesystems[2].azure_url = "https://" + env.AZURE_STORAGE_ACCOUNT_NAME + ".blob.core.windows.net/" + env.AZURE_INDEX_CONTAINER_NAME + "/data.img" + env.INDEX_SAS_TOKEN' | \
-    jq '.azure_filesystems[2].mount_point = "/mnt/remote/index"' | \
-    jq '.azure_filesystems[2].key.kid = "IndexFilesystemEncryptionKey"' | \
+    jq '.azure_filesystems[2].azure_url = "https://" + env.AZURE_STORAGE_ACCOUNT_NAME + ".blob.core.windows.net/" + env.AZURE_MNIST_3_CONTAINER_NAME + "/data.img" + env.MNIST_3_SAS_TOKEN' | \
+    jq '.azure_filesystems[2].mount_point = "/mnt/remote/mnist_3"' | \
+    jq '.azure_filesystems[2].key.kid = "mnist_3FilesystemEncryptionKey"' | \
     jq '.azure_filesystems[2].key.kty = env.AZURE_AKV_KEY_TYPE' | \
     jq '.azure_filesystems[2].key.akv.endpoint = env.AZURE_KEYVAULT_ENDPOINT' | \
     jq '.azure_filesystems[2].key.akv.bearer_token = env.BEARER_TOKEN' | \
-    jq '.azure_filesystems[2].key_derivation.label = "IndexFilesystemEncryptionKey"' | \
+    jq '.azure_filesystems[2].key_derivation.label = "mnist_3FilesystemEncryptionKey"' | \
     jq '.azure_filesystems[2].key_derivation.salt = "9b53cddbe5b78a0b912a8f05f341bcd4dd839ea85d26a08efaef13e696d999f4"'`
 
   TMP=`echo $TMP | \
