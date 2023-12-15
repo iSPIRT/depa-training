@@ -45,9 +45,9 @@ elif [[ "$AZURE_KEYVAULT_ENDPOINT" == *".managedhsm.azure.net" ]]; then
 fi
 
 DATADIR=`pwd`
-import_key "MNIST_1FilesystemEncryptionKey" $DATADIR/mnist_1key.bin
-import_key "MNIST_2FilesystemEncryptionKey" $DATADIR/mnist_2key.bin
-import_key "MNIST_3FilesystemEncryptionKey" $DATADIR/mnist_3key.bin
+import_key "MNIST_1_FilesystemEncryptionKey" $DATADIR/mnist_1key.bin
+import_key "MNIST_2_FilesystemEncryptionKey" $DATADIR/mnist_2key.bin
+import_key "MNIST_3_FilesystemEncryptionKey" $DATADIR/mnist_3key.bin
 import_key "ModelFilesystemEncryptionKey" $DATADIR/modelkey.bin
 import_key "OutputFilesystemEncryptionKey" $DATADIR/outputkey.bin
 
