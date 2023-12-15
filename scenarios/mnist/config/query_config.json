@@ -29,8 +29,8 @@
       }
    ],
    "joined_dataset": {
-      "joined_dataset": "sandbox_mnist_without_key_identifiers.csv",
-      "joining_query": "",
+      "joined_dataset": "dp_mnist_1_standardised_anon.csv",
+      "joining_query": "SELECT * FROM dp_mnist_1_standardised_anon UNION SELECT * FROM dp_mnist_2_standardised_anon UNION SELECT * FROM dp_mnist_3_standardised_anon",
       "joining_key": "",
       "model_output_folder": "/tmp/",
       "drop_columns": [
