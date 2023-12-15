@@ -102,12 +102,19 @@ Assuming you have cleartext access to all the de-identified datasets, you can tr
 The script joins the datasets using a configuration defined in [query_config.json](./config/query_config.json) and trains the model using a configuration defined in [model_config.json](./config/model_config.json). If all goes well, you should see output similar to the following output, and the trained model will be saved under the folder `/tmp/output`. 
 
 ```
-docker-train-1  | {'input_dataset_path': '/tmp/sandbox_icmr_cowin_index_without_key_identifiers.csv', 'saved_model_path': '/mnt/remote/model/model.onnx', 'saved_model_optimizer': '/mnt/remote/model/dpsgd_model_opimizer.pth', 'saved_weights_path': '', 'batch_size': 2, 'total_epochs': 5, 'max_grad_norm': 0.1, 'epsilon_threshold': 1.0, 'delta': 0.01, 'sample_size': 60000, 'target_variable': 'icmr_a_icmr_test_result', 'test_train_split': 0.2, 'metrics': ['accuracy', 'precision', 'recall']}
-docker-train-1  | Epoch [1/5], Loss: 0.0084
-docker-train-1  | Epoch [2/5], Loss: 0.4231
-docker-train-1  | Epoch [3/5], Loss: 0.0008
-docker-train-1  | Epoch [4/5], Loss: 0.0138
-docker-train-1  | Epoch [5/5], Loss: 0.0489
+docker-train-1  | {
+  "input_dataset_path": "/tmp/sandbox_mnist_without_key_identifiers.csv", "saved_model_path": "/mnt/remote/model/model.onnx","saved_model_optimizer": "/mnt/remote/model/dpsgd_model_opimizer.pth","trained_model_output_path":"/mnt/remote/output/model.onnx", "saved_weights_path": "","batch_size": 2,"total_epochs": 5,"max_grad_norm": 0.1,"epsilon_threshold": 1.0, "delta": 0.01, "sample_size": 60000, "target_variable": "label","test_train_split": 0.2,
+  "metrics": [
+    "accuracy",
+    "precision",
+    "recall"
+  ]
+}
+docker-train-1  | Epoch [1/5], Loss: 245.3699
+docker-train-1  | Epoch [2/5], Loss: 1245.3279
+docker-train-1  | Epoch [3/5], Loss: 1918.3865
+docker-train-1  | Epoch [4/5], Loss: 2402.2727
+docker-train-1  | Epoch [5/5], Loss: 1290.9904
 ```
 
 ## Deploy to Azure
