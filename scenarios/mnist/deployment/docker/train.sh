@@ -1,7 +1,7 @@
 export DATA_DIR=$PWD/../../data
-export ICMR_INPUT_PATH=$DATA_DIR/icmr/preprocessed
-export INDEX_INPUT_PATH=$DATA_DIR/index/preprocessed
-export COWIN_INPUT_PATH=$DATA_DIR/cowin/preprocessed
+export MNIST_1_INPUT_PATH=$DATA_DIR/mnist_1/preprocessed
+export MNIST_2_INPUT_PATH=$DATA_DIR/mnist_2/preprocessed
+export MNIST_3_INPUT_PATH=$DATA_DIR/mnist_3/preprocessed
 export MODEL_INPUT_PATH=$DATA_DIR/modeller/model
 export MODEL_OUTPUT_PATH=/tmp/output
 mkdir -p $MODEL_OUTPUT_PATH
