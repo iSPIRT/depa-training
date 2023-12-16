@@ -1,6 +1,6 @@
 services:
   train:
-    image: ${CONTAINER_REGISTRY}/depa-training:latest
+    image: ${CONTAINER_REGISTRY:+$CONTAINER_REGISTRY/}depa-training:latest
     volumes:
       - $MNIST_1_INPUT_PATH:/mnt/remote/mnist_1
       - $MNIST_2_INPUT_PATH:/mnt/remote/mnist_2
