@@ -27,7 +27,7 @@ debug_poc=True
 model_input_folder='/mnt/depa_ccr_poc/data/'
 
 # POC State-wise dummy data
-mnist_1_file ='poc_mnist_1_data.csv'
+mnist_1_file ='poc_data_mnist_1_data.csv'
 
 # Used for loading/Process at DP (Ideally done at DP, we just pick up anonymised/tokenised datasets)
 load_process_dp_data=True
