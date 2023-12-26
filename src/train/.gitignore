@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+build/
+tmp/
+venv/
+workspace/
+*.egg-info/
+.vscode/settings.json
+**/*.pem
+**/*.pid
+.mypy_cache/
+**/*.cose
+**/*.cbor
