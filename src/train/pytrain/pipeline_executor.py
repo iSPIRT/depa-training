@@ -3,6 +3,7 @@ import argparse
 from .task_base import TaskBase
 from .join import Join
 from .private_train import PrivateTrain
+from .train import Train
 
 class PipelineExecutor:
     def __init__(self):
