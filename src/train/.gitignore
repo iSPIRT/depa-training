@@ -3,6 +3,7 @@ __pycache__/
 build/
 tmp/
 venv/
+dist/
 workspace/
 *.egg-info/
 .vscode/settings.json
