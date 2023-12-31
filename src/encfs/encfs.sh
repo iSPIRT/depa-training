@@ -21,13 +21,8 @@ if [[ -z "${EncfsSideCarArgs}" ]]; then
   EncfsSideCarArgs=$1
 fi
 
-if [[ -z "${ModelConfiguration}" ]]; then
-  echo "Model configuration not specified"
-  exit 1
-fi
-
-if [[ -z "${QueryConfiguration}" ]]; then
-  echo "Model configuration not specified"
+if [[ -z "${PipelineConfiguration}" ]]; then
+  echo "Pipeline configuration not specified"
   exit 1
 fi
 
@@ -53,8 +48,8 @@ fi
 
 # Construct input by combining encrypted file system parameters and model configuration
 echo $EncfsSideCarArgs | base64 -d > ./encfs.json
-echo $ModelConfiguration | base64 -d > ./model_config.json
-jq -s '.[0] * .[1]' ./encfs.json ./model_config.json > config.json
+echo $PipelineConfiguration | base64 -d > ./pipeline_config.json
+jq -s '.[0] * .[1]' ./encfs.json ./pipeline_config.json > config.json
 
 echo "Checking contract..."
 cat $ContractPayload
@@ -84,11 +79,10 @@ else
   fi
 fi
 
-echo "Writing training configuration..."
+echo "Writing training pipeline configuration..."
 
 mkdir /mnt/remote/config
-echo $ModelConfiguration | base64 -d > /mnt/remote/config/model_config.json
-echo $QueryConfiguration | base64 -d > /mnt/remote/config/query_config.json
+echo $PipelineConfiguration | base64 -d > /mnt/remote/config/pipeline_config.json
 
 # Wait forever
 while true; do sleep 1; done

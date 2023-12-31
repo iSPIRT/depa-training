@@ -2,7 +2,7 @@
 
 set -e 
 
-while getopts ":c:p:" options; do
+while getopts ":c:m:q:" options; do
     case $options in 
         c)contract=$OPTARG;;
         p)pipelineConfiguration=$OPTARG;;

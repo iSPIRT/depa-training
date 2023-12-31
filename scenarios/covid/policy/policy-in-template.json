@@ -40,12 +40,7 @@
           "strategy": "re2"
         },
         {
-          "name": "ModelConfiguration",
-          "value": ".+",
-          "strategy": "re2"
-        },
-        {
-          "name": "QueryConfiguration",
+          "name": "PipelineConfiguration",
           "value": ".+",
           "strategy": "re2"
         }
