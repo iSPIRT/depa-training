@@ -1,5 +1,5 @@
 export DATA_DIR=$PWD/../../data
-export MNIST_INPUT_PATH=$DATA_DIR
+export MNIST_INPUT_PATH=$DATA_DIR/preprocessed
 export MODEL_INPUT_PATH=$DATA_DIR/model
 export MODEL_OUTPUT_PATH=/tmp/output
 mkdir -p $MODEL_OUTPUT_PATH
