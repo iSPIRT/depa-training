@@ -4,17 +4,55 @@
 
 # Getting Started
 
-Clone this repo as follows, and follow [instructions](./scenarios/covid/README.md) to deploy a sample CCR. 
+## GitHub Codespaces
+
+The simplest way to setup a development environment is using [GitHub Codespaces](https://github.com/codespaces). The repository includes a [devcontainer.json](../../.devcontainer/devcontainer.json), which customizes your codespace to install all required dependencies. Please ensure you allocate at least 64GB disk space in your codespace. Also, run the following command in the codespace to update submodules.
+
+```bash
+git submodule update --init --recursive
+```
+
+## Local Development Environment
+
+Alternatively, you can build and develop locally in a Linux environment (we have tested with Ubuntu 20.04 and 22.04), or Windows with WSL 2. Install the following dependencies. 
+
+- [docker](https://docs.docker.com/engine/install/ubuntu/) and docker-compose. After installing docker, add your user to the docker group using `sudo usermod -aG docker $USER`, and log back in to a shell. 
+- make (install using ```sudo apt-get install make```)
+- Python 3.6.9 and pip 
+- Python wheel package (install using ```pip install wheel```)
+
+Clone this repo as follows. 
 
 ```bash
 git clone --recursive http://github.com/iSPIRT/depa-training
 ```
 
-You can also use Github codespaces to create a development environment. Please ensure you allocate at least 64GB disk space in your codespace. Also, run the following command in the Codespace to update submodules.
+## Build CCR containers
+
+To build your own CCR container images, use the following command from the root of the repository. 
 
 ```bash
-git submodule update --init --recursive
+./ci/build.sh
 ```
+
+This scripts build the following containers. 
+
+- ```depa-training```: Container with the core CCR logic for joining datasets and running differentially private training. 
+- ```depa-training-encfs```: Container for loading encrypted data into the CCR. 
+
+Alternatively, you can use pre-built container images from the ```ispirt``` repository by setting the following environment variable. 
+```bash
+export CONTAINER_REGISTRY=ispirt
+```
+
+# Scenarios
+
+This repository contains two samples that illustrate the kinds of scenarios DEPA for Training can support. 
+
+- [Training a differentially private COVID prediction model on private datasets](./scenarios/covid/README.md)
+- [Convolutional Neural Network training on MNIST dataset](./scenarios/mnist/README.md)
+
+Follow these links to build and deploy these scenarios. 
 
 # Contributing
 
