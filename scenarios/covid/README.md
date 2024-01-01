@@ -11,42 +11,20 @@ The end-to-end training pipeline consists of the following phases.
 5. Deployment and execution of CCR
 6. Model decryption 
 
-## Pre-requisites
+## Build container images
 
-### GitHub Codespaces
-
-The simplest way to setup a development environment is using [GitHub Codespaces](https://github.com/codespaces). The repository includes a [devcontainer.json](../../.devcontainer/devcontainer.json), which customizes your codespace to install all required dependencies. 
-
-### Local Development Environment
-
-Alternatively, you deploy the sample locally on Linux (we have tested with Ubuntu 20.04), or Windows with WSL 2. You will need to install the following dependencies. 
-
-- [docker](https://docs.docker.com/engine/install/ubuntu/) and docker-compose. After installing docker, add your user to the docker group using `sudo usermod -aG docker $USER`, and log back in to a shell. 
-- make (install using ```sudo apt-get install make```)
-- Python 3.6.9 and pip 
-- Python wheel package (install using ```pip install wheel```)
-
-## Build CCR containers
-
-To build your own CCR container images, use the following command from the root of the repository. 
+Build container images required for this sample as follows. 
 
 ```bash
-./ci/build.sh
 cd scenarios/covid
 ./ci/build.sh
+
 ```
 
-These scripts build the following containers. 
+This script builds the following container images. 
 
-- ```depa-training```: Container with the core CCR logic for joining datasets and running differentially private training. 
-- ```depa-training-encfs```: Container for loading encrypted data into the CCR. 
 - ```preprocess-icmr, preprocess-cowin, preprocess-index```: Containers that pre-process and de-identify datasets. 
 - ```ccr-model-save```: Container that saves the model to be trained in ONNX format. 
-
-Alternatively, you can use pre-built container images from the ```ispirt``` repository by setting the following environment variable. 
-```bash
-export CONTAINER_REGISTRY=ispirt
-```
 
 ## Data pre-processing and de-identification
 
@@ -76,7 +54,7 @@ Assuming you have cleartext access to all the de-identified datasets, you can tr
 ```bash
 ./train.sh
 ```
-The script joins the datasets using a configuration defined in [query_config.json](./config/query_config.json) and trains the model using a configuration defined in [model_config.json](./config/model_config.json). If all goes well, you should see output similar to the following output, and the trained model will be saved under the folder `/tmp/output`. 
+The script joins the datasets and trains the model using a pipeline configuration defined in [pipeline_config.json](./config/pipeline_config.json). If all goes well, you should see output similar to the following output, and the trained model will be saved under the folder `/tmp/output`. 
 
 ```
 docker-train-1  | {'input_dataset_path': '/tmp/sandbox_icmr_cowin_index_without_key_identifiers.csv', 'saved_model_path': '/mnt/remote/model/model.onnx', 'saved_model_optimizer': '/mnt/remote/model/dpsgd_model_opimizer.pth', 'saved_weights_path': '', 'batch_size': 2, 'total_epochs': 5, 'max_grad_norm': 0.1, 'epsilon_threshold': 1.0, 'delta': 0.01, 'sample_size': 60000, 'target_variable': 'icmr_a_icmr_test_result', 'test_train_split': 0.2, 'metrics': ['accuracy', 'precision', 'recall']}
@@ -152,7 +130,7 @@ cd scenarios/covid/data
 
 ### Sign and Register Contract
 
-Next, follow instructions [here](./../../external/contract-ledger/README.md) to sign and register a contract the contract service. The registered contract must contain references to the datasets with matching names, keyIDs and Azure Key Vault endpoints used in this sample. A sample contract is provided [here](https://github.com/kapilvgit/contract-ledger/blob/main/demo/contract/contract.json). After signing and registering the contract, retain the contract service URL and sequence number of the contract for the rest of this sample. 
+Next, follow instructions [here](./../../external/contract-ledger/README.md) to sign and register a contract the contract service. The registered contract must contain references to the datasets with matching names, keyIDs and Azure Key Vault endpoints used in this sample. A sample contract is provided [here](./contract/contract.json). After signing and registering the contract, retain the contract service URL and sequence number of the contract for the rest of this sample. 
 
 ### Import encryption keys
 

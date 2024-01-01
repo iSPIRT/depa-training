@@ -11,53 +11,28 @@ The end-to-end training pipeline consists of the following phases.
 5. Deployment and execution of CCR
 6. Model decryption 
 
-## Pre-requisites
+## Build container images
 
-### GitHub Codespaces
-
-The simplest way to setup a development environment is using [GitHub Codespaces](https://github.com/codespaces). The repository includes a [devcontainer.json](../../.devcontainer/devcontainer.json), which customizes your codespace to install all required dependencies. 
-
-### Local Development Environment
-
-Alternatively, you deploy the sample locally on Linux (we have tested with Ubuntu 20.04), or Windows with WSL 2. You will need to install the following dependencies. 
-
-- [docker](https://docs.docker.com/engine/install/ubuntu/) and docker-compose. After installing docker, add your user to the docker group using `sudo usermod -aG docker $USER`, and log back in to a shell. 
-- make (install using ```sudo apt-get install make```)
-- Python 3.6.9 and pip 
-- Python wheel package (install using ```pip install wheel```)
-
-## Build CCR containers
-
-To build your own CCR container images, use the following command from the root of the repository. 
+Build container images required for this sample as follows. 
 
 ```bash
-./ci/build.sh
 cd scenarios/mnist
 ./ci/build.sh
 ```
 
 These scripts build the following containers. 
 
-- ```depa-training```: Container with the core CCR logic for joining datasets and running differentially private training. 
-- ```depa-training-encfs```: Container for loading encrypted data into the CCR. 
 - ```depa-mnist-preprocess```: Container for pre-processing MNIST dataset. 
 - ```depa-mnist-save-model```: Container that saves the model to be trained in ONNX format. 
 
-Alternatively, you can use pre-built container images from the ```ispirt``` repository by setting the following environment variable. 
-```bash
-export CONTAINER_REGISTRY=ispirt
-```
-
 ## Data pre-processing and de-identification
 
-The folders ```scenarios/covid/data``` contains three sample training datasets. Acting as TDPs for these datasets, run the following scripts to de-identify the datasets. 
+The folders ```scenarios/mnist/data``` contains scripts for downloading and pre-processing the MNIST dataset. Acting as a TDP for this dataset, run the following script. 
 
 ```bash
-cd scenarios/covid/deployment/docker
+cd scenarios/mnist/deployment/docker
 ./preprocess.sh
 ```
-
-This script performs pre-processing and de-identification of these datasets before sharing with the TDC.
 
 ## Prepare model for training
 
@@ -67,16 +42,16 @@ Next, acting as a TDC, save a sample model using the following script.
 ./save-model.sh
 ```
 
-This script will save the model as ```scenarios/covid/data/modeller/model/model.onnx.```
+This script will save the model as ```scenarios/mnist/data/model/model.onnx.```
 
 ## Deploy locally
 
-Assuming you have cleartext access to all the de-identified datasets, you can train the model as follows. 
+Assuming you have cleartext access to the pre-processed dataset, you can train a CNN as follows. 
 
 ```bash
 ./train.sh
 ```
-The script joins the datasets using a configuration defined in [query_config.json](./config/query_config.json) and trains the model using a configuration defined in [model_config.json](./config/model_config.json). If all goes well, you should see output similar to the following output, and the trained model will be saved under the folder `/tmp/output`. 
+The script trains a model using a pipeline configuration defined in [pipeline_config.json](./config/pipeline_config.json). If all goes well, you should see output similar to the following output, and the trained model will be saved under the folder `/tmp/output`. 
 
 ```
 docker-train-1  | /usr/local/lib/python3.9/dist-packages/torchvision/io/image.py:13: UserWarning: Failed to load image Python extension: 'libc10_cuda.so: cannot open shared object file: No such file or directory'If you don't plan on using image functionality from `torchvision.io`, you can ignore this warning. Otherwise, there might be something wrong with your environment. Did you have `libjpeg` or `libpng` installed before building `torchvision` from source?
@@ -106,7 +81,7 @@ docker-train-1  | [2,  8000] loss: 1.355
 
 ## Deploy to Azure
 
-In a more realistic scenario, these datasets will not be available in the clear to the TDC, and the TDC will be required to use a CCR for training her model. The following steps describe the process of sharing encrypted datasets with TDCs and setting up a CCR in Azure for training models. Please stay tuned for CCR on other cloud platforms. 
+In a more realistic scenario, this datasets will not be available in the clear to the TDC, and the TDC will be required to use a CCR for training. The following steps describe the process of sharing an encrypted dataset with TDCs and setting up a CCR in Azure for training. Please stay tuned for CCR on other cloud platforms. 
 
 To deploy in Azure, you will need the following. 
 
@@ -144,7 +119,7 @@ cd scenarios/mnist
 
 ### Create Resources
 
-Acting as the TDP, we will create a resource group, a key vault instance and storage containers to host encrypted training datasets and encryption keys. In a real deployments, TDPs and TDCs will use their own key vault instance. However, for this sample, we will use one key vault instance to store keys for all datasets and models. 
+Acting as the TDP, we will create a resource group, a key vault instance and storage containers to host the encrypted MNIST training dataset and encryption keys. In a real deployments, TDPs and TDCs will use their own key vault instance. However, for this sample, we will use one key vault instance to store keys for all datasets and models. 
 
 > **Note:** At this point, automated creation of AKV managed HSMs is not supported. 
 
@@ -156,9 +131,9 @@ az login
 export AZURE_RESOURCE_GROUP=<resource-group-name>
 export AZURE_KEYVAULT_ENDPOINT=<key-vault-endpoint>
 export AZURE_STORAGE_ACCOUNT_NAME=<unique-storage-account-name>
-export AZURE_MNIST_CONTAINER_NAME=icmrcontainer
-export AZURE_MODEL_CONTAINER_NAME=modelcontainer
-export AZURE_OUTPUT_CONTAINER_NAME=outputcontainer
+export AZURE_MNIST_CONTAINER_NAME=mnistdatacontainer
+export AZURE_MODEL_CONTAINER_NAME=mnistmodelcontainer
+export AZURE_OUTPUT_CONTAINER_NAME=mnistoutputcontainer
 
 cd scenarios/covid/data
 ./1-create-storage-containers.sh 
@@ -167,7 +142,7 @@ cd scenarios/covid/data
 
 ### Sign and Register Contract
 
-Next, follow instructions [here](./../../external/contract-ledger/README.md) to sign and register a contract the contract service. The registered contract must contain references to the datasets with matching names, keyIDs and Azure Key Vault endpoints used in this sample. A sample contract is provided [here](./contract/contract.json). After signing and registering the contract, retain the contract service URL and sequence number of the contract for the rest of this sample. 
+Next, follow instructions [here](./../../external/contract-ledger/README.md) to sign and register a contract the contract service. The registered contract must contain reference to the dataset with matching names, keyIDs and Azure Key Vault endpoints used in this sample. A sample contract is provided [here](./contract/contract.json). After signing and registering the contract, retain the contract service URL and sequence number of the contract for the rest of this sample. 
 
 ### Import encryption keys
 
@@ -183,16 +158,16 @@ export TOOLS_HOME=<repo-root>/external/confidential-sidecar-containers/tools
 
 The generated keys are available as files with the extension `.bin`. 
 
-### Encrypt Datasets and Model
+### Encrypt Dataset and Model
 
-Next, encrypt the datasets and models using keys generated in the previous step. 
+Next, encrypt the dataset and models using keys generated in the previous step. 
 
 ```bash
-cd scenarios/covid/data
+cd scenarios/mnist/data
 ./4-encrypt-data.sh
 ```
 
-This step will generate five encrypted file system images (with extension `.img`), three for the datasets, one encrypted file system image containing the model, and one image where the trained model will be stored.
+This step will generate three encrypted file system images (with extension `.img`), one for the dataset, one encrypted file system image containing the model, and one image where the trained model will be stored.
 
 ### Upload Datasets
 
