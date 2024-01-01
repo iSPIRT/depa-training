@@ -142,7 +142,7 @@ cd scenarios/covid/data
 
 ### Sign and Register Contract
 
-Next, follow instructions [here](./../../external/contract-ledger/README.md) to sign and register a contract the contract service. The registered contract must contain reference to the dataset with matching names, keyIDs and Azure Key Vault endpoints used in this sample. A sample contract is provided [here](./contract/contract.json). After signing and registering the contract, retain the contract service URL and sequence number of the contract for the rest of this sample. 
+Next, follow instructions [here](./../../external/contract-ledger/README.md) to sign and register a contract with the contract service. You can either deploy your own contract service or use a test contract service hosted at ```https://contract-service.westeurope.cloudapp.azure.com:8000```. The registered contract must contain references to the datasets with matching names, keyIDs and Azure Key Vault endpoints used in this sample. A sample contract template for this scenario is provided [here](./contract/contract.json). After updating, signing and registering the contract, retain the contract service URL and sequence number of the contract for the rest of this sample. 
 
 ### Import encryption keys
 
