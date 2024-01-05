@@ -27,7 +27,7 @@ class Net(nn.Module):
 net = Net()
 
 # Define the input size for the model
-dummy_input = torch.randn(1, 3, 32, 32)
+dummy_input = torch.randn(4, 3, 32, 32)
 
 # Export the model
 torch.onnx.export(net, dummy_input, model_path + "model.onnx")
