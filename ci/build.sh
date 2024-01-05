@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# Build pytrain
+pushd src/train
+python3 setup.py bdist_wheel
+popd
+
 # Build training container
 docker build -f ci/Dockerfile.train src -t depa-training:latest
 

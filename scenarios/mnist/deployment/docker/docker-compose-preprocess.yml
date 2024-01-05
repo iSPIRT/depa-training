@@ -1,0 +1,7 @@
+services:
+  mnist:
+    image: ${CONTAINER_REGISTRY:+$CONTAINER_REGISTRY/}depa-mnist-preprocess:latest
+    volumes:
+      - $MNIST_INPUT_PATH:/mnt/input/mnist
+      - $MNIST_OUTPUT_PATH:/mnt/output/mnist
+    command: ["python3.9", "preprocess.py"]

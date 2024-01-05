@@ -17,6 +17,9 @@ RUN pip3 --default-timeout=1000 install pyspark pandas opacus onnx onnx2pytorch 
 
 RUN apt-get install -y jq
 
-COPY train/ccr_join.py ccr_join.py 
-COPY train/ccr_train.py ccr_train.py
+# Install contract ledger client
+COPY train/dist/pytrain-0.0.1-py3-none-any.whl .
+RUN pip3 install pytrain-0.0.1-py3-none-any.whl
+
+# Install script to run training 
 COPY train/run.sh run.sh

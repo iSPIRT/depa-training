@@ -1,0 +1,4 @@
+data/cifar*
+*.pth
+*.bin
+*.img

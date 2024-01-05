@@ -1,6 +1,6 @@
-# COVID predictive modelling 
+# Convolution Neural Network using MNIST
 
-This hypothetical scenario involves three training data providers (TDPs), ICMR, COWIN and a state war room, and a TDC who wishes the train a model using datasets from these TDPs. The repository contains sample datasets and a model. The model and datasets are for illustrative purposes only; none of these organizations have been involved in contributing to the code or datasets.  
+This scenario involves training a CNN using the MNIST dataset. It involves one training data provider (TDP), and a TDC who wishes the train a model. 
 
 The end-to-end training pipeline consists of the following phases. 
 
@@ -16,26 +16,23 @@ The end-to-end training pipeline consists of the following phases.
 Build container images required for this sample as follows. 
 
 ```bash
-cd scenarios/covid
+cd scenarios/mnist
 ./ci/build.sh
-
 ```
 
-This script builds the following container images. 
+These scripts build the following containers. 
 
-- ```preprocess-icmr, preprocess-cowin, preprocess-index```: Containers that pre-process and de-identify datasets. 
-- ```ccr-model-save```: Container that saves the model to be trained in ONNX format. 
+- ```depa-mnist-preprocess```: Container for pre-processing MNIST dataset. 
+- ```depa-mnist-save-model```: Container that saves the model to be trained in ONNX format. 
 
 ## Data pre-processing and de-identification
 
-The folders ```scenarios/covid/data``` contains three sample training datasets. Acting as TDPs for these datasets, run the following scripts to de-identify the datasets. 
+The folders ```scenarios/mnist/data``` contains scripts for downloading and pre-processing the MNIST dataset. Acting as a TDP for this dataset, run the following script. 
 
 ```bash
-cd scenarios/covid/deployment/docker
+cd scenarios/mnist/deployment/docker
 ./preprocess.sh
 ```
-
-This script performs pre-processing and de-identification of these datasets before sharing with the TDC.
 
 ## Prepare model for training
 
@@ -45,29 +42,46 @@ Next, acting as a TDC, save a sample model using the following script.
 ./save-model.sh
 ```
 
-This script will save the model as ```scenarios/covid/data/modeller/model/model.onnx.```
+This script will save the model as ```scenarios/mnist/data/model/model.onnx.```
 
 ## Deploy locally
 
-Assuming you have cleartext access to all the de-identified datasets, you can train the model as follows. 
+Assuming you have cleartext access to the pre-processed dataset, you can train a CNN as follows. 
 
 ```bash
 ./train.sh
 ```
-The script joins the datasets and trains the model using a pipeline configuration defined in [pipeline_config.json](./config/pipeline_config.json). If all goes well, you should see output similar to the following output, and the trained model will be saved under the folder `/tmp/output`. 
+The script trains a model using a pipeline configuration defined in [pipeline_config.json](./config/pipeline_config.json). If all goes well, you should see output similar to the following output, and the trained model will be saved under the folder `/tmp/output`. 
 
 ```
-docker-train-1  | {'input_dataset_path': '/tmp/sandbox_icmr_cowin_index_without_key_identifiers.csv', 'saved_model_path': '/mnt/remote/model/model.onnx', 'saved_model_optimizer': '/mnt/remote/model/dpsgd_model_opimizer.pth', 'saved_weights_path': '', 'batch_size': 2, 'total_epochs': 5, 'max_grad_norm': 0.1, 'epsilon_threshold': 1.0, 'delta': 0.01, 'sample_size': 60000, 'target_variable': 'icmr_a_icmr_test_result', 'test_train_split': 0.2, 'metrics': ['accuracy', 'precision', 'recall']}
-docker-train-1  | Epoch [1/5], Loss: 0.0084
-docker-train-1  | Epoch [2/5], Loss: 0.4231
-docker-train-1  | Epoch [3/5], Loss: 0.0008
-docker-train-1  | Epoch [4/5], Loss: 0.0138
-docker-train-1  | Epoch [5/5], Loss: 0.0489
+docker-train-1  | /usr/local/lib/python3.9/dist-packages/torchvision/io/image.py:13: UserWarning: Failed to load image Python extension: 'libc10_cuda.so: cannot open shared object file: No such file or directory'If you don't plan on using image functionality from `torchvision.io`, you can ignore this warning. Otherwise, there might be something wrong with your environment. Did you have `libjpeg` or `libpng` installed before building `torchvision` from source?
+docker-train-1  |   warn(
+docker-train-1  | /usr/local/lib/python3.9/dist-packages/onnx2pytorch/convert/layer.py:30: UserWarning: The given NumPy array is not writable, and PyTorch does not support non-writable tensors. This means writing to this tensor will result in undefined behavior. You may want to copy the array to protect its data or make it writable before converting it to a tensor. This type of warning will be suppressed for the rest of this program. (Triggered internally at ../torch/csrc/utils/tensor_numpy.cpp:206.)
+docker-train-1  |   layer.weight.data = torch.from_numpy(numpy_helper.to_array(weight))
+docker-train-1  | /usr/local/lib/python3.9/dist-packages/onnx2pytorch/convert/model.py:147: UserWarning: Using experimental implementation that allows 'batch_size > 1'.Batchnorm layers could potentially produce false outputs.
+docker-train-1  |   warnings.warn(
+docker-train-1  | [1,  2000] loss: 2.242
+docker-train-1  | [1,  4000] loss: 1.972
+docker-train-1  | [1,  6000] loss: 1.799
+docker-train-1  | [1,  8000] loss: 1.695
+docker-train-1  | [1, 10000] loss: 1.642
+docker-train-1  | [1, 12000] loss: 1.581
+docker-train-1  | [1, 14000] loss: 1.545
+docker-train-1  | [1, 16000] loss: 1.502
+docker-train-1  | [1, 18000] loss: 1.520
+docker-train-1  | [1, 20000] loss: 1.471
+docker-train-1  | [1, 22000] loss: 1.438
+docker-train-1  | [1, 24000] loss: 1.435
+docker-train-1  | [2,  2000] loss: 1.402
+docker-train-1  | [2,  4000] loss: 1.358
+docker-train-1  | [2,  6000] loss: 1.379
+docker-train-1  | [2,  8000] loss: 1.355
+...
 ```
 
 ## Deploy to Azure
 
-In a more realistic scenario, these datasets will not be available in the clear to the TDC, and the TDC will be required to use a CCR for training her model. The following steps describe the process of sharing encrypted datasets with TDCs and setting up a CCR in Azure for training models. Please stay tuned for CCR on other cloud platforms. 
+In a more realistic scenario, this datasets will not be available in the clear to the TDC, and the TDC will be required to use a CCR for training. The following steps describe the process of sharing an encrypted dataset with TDCs and setting up a CCR in Azure for training. Please stay tuned for CCR on other cloud platforms. 
 
 To deploy in Azure, you will need the following. 
 
@@ -99,13 +113,13 @@ If you wish to use your own container images, login to docker hub and push conta
 export CONTAINER_REGISTRY=<docker-hub-registry-name>
 docker login 
 ./ci/push-containers.sh
-cd scenarios/covid
+cd scenarios/mnist
 ./ci/push-containers.sh
 ```
 
 ### Create Resources
 
-Acting as the TDP, we will create a resource group, a key vault instance and storage containers to host encrypted training datasets and encryption keys. In a real deployments, TDPs and TDCs will use their own key vault instance. However, for this sample, we will use one key vault instance to store keys for all datasets and models. 
+Acting as the TDP, we will create a resource group, a key vault instance and storage containers to host the encrypted MNIST training dataset and encryption keys. In a real deployments, TDPs and TDCs will use their own key vault instance. However, for this sample, we will use one key vault instance to store keys for all datasets and models. 
 
 > **Note:** At this point, automated creation of AKV managed HSMs is not supported. 
 
@@ -117,11 +131,9 @@ az login
 export AZURE_RESOURCE_GROUP=<resource-group-name>
 export AZURE_KEYVAULT_ENDPOINT=<key-vault-endpoint>
 export AZURE_STORAGE_ACCOUNT_NAME=<unique-storage-account-name>
-export AZURE_ICMR_CONTAINER_NAME=icmrcontainer
-export AZURE_COWIN_CONTAINER_NAME=cowincontainer
-export AZURE_INDEX_CONTAINER_NAME=indexcontainer
-export AZURE_MODEL_CONTAINER_NAME=modelcontainer
-export AZURE_OUTPUT_CONTAINER_NAME=outputcontainer
+export AZURE_MNIST_CONTAINER_NAME=mnistdatacontainer
+export AZURE_MODEL_CONTAINER_NAME=mnistmodelcontainer
+export AZURE_OUTPUT_CONTAINER_NAME=mnistoutputcontainer
 
 cd scenarios/covid/data
 ./1-create-storage-containers.sh 
@@ -146,16 +158,16 @@ export TOOLS_HOME=<repo-root>/external/confidential-sidecar-containers/tools
 
 The generated keys are available as files with the extension `.bin`. 
 
-### Encrypt Datasets and Model
+### Encrypt Dataset and Model
 
-Next, encrypt the datasets and models using keys generated in the previous step. 
+Next, encrypt the dataset and models using keys generated in the previous step. 
 
 ```bash
-cd scenarios/covid/data
+cd scenarios/mnist/data
 ./4-encrypt-data.sh
 ```
 
-This step will generate five encrypted file system images (with extension `.img`), three for the datasets, one encrypted file system image containing the model, and one image where the trained model will be stored.
+This step will generate three encrypted file system images (with extension `.img`), one for the dataset, one encrypted file system image containing the model, and one image where the trained model will be stored.
 
 ### Upload Datasets
 

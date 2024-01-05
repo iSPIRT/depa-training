@@ -81,7 +81,7 @@
       "defaultValue": "secureString",
       "type": "string",
       "metadata": {
-        "description": "Pipeline configuration"
+        "description": "Configuration representing the pipeline to be trained"
       }
     }
   },
