@@ -135,7 +135,7 @@ export AZURE_MNIST_CONTAINER_NAME=mnistdatacontainer
 export AZURE_MODEL_CONTAINER_NAME=mnistmodelcontainer
 export AZURE_OUTPUT_CONTAINER_NAME=mnistoutputcontainer
 
-cd scenarios/covid/data
+cd scenarios/mnist/data
 ./1-create-storage-containers.sh 
 ./2-create-akv.sh
 ```
@@ -184,7 +184,7 @@ Acting as a TDC, use the following script to deploy the CCR using Confidential C
 > **Note:** Replace `<contract-sequence-number>` with the sequence number of the contract registered with the contract service. 
 
 ```bash
-cd scenarios/covid/deployment/aci
+cd scenarios/mnist/deployment/aci
 ./deploy.sh -c <contract-sequence-number> -m ../../config/model_config.json -q ../../config/query_config.json
 ```
 
@@ -194,10 +194,10 @@ Once the deployment is complete, you can obtain logs from the CCR using the foll
 
 ```bash
 # Obtain logs from the training container
-az container logs --name depa-training-covid --resource-group $AZURE_RESOURCE_GROUP --container-name depa-training
+az container logs --name depa-training-mnist --resource-group $AZURE_RESOURCE_GROUP --container-name depa-training
 
 # Obtain logs from the encrypted filesystem sidecar
-az container logs --name depa-training-covid --resource-group $AZURE_RESOURCE_GROUP --container-name encrypted-storage-sidecar
+az container logs --name depa-training-mnist --resource-group $AZURE_RESOURCE_GROUP --container-name encrypted-storage-sidecar
 ```
 
 ### Download and decrypt trained model
@@ -205,7 +205,7 @@ az container logs --name depa-training-covid --resource-group $AZURE_RESOURCE_GR
 You can download and decrypt the trained model using the following script. 
 
 ```bash
-cd scenarios/covid/data
+cd scenarios/mnist/data
 ./6-download-decrypt-model.sh
 ```
 

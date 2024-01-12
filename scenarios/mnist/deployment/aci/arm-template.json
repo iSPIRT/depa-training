@@ -3,7 +3,7 @@
   "contentVersion": "1.0.0.0",
   "parameters": {
     "name": {
-      "defaultValue": "depa-training-covid",
+      "defaultValue": "depa-training-mnist",
       "type": "string",
       "metadata": {
         "description": "Name for the container group"
