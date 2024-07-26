@@ -1,0 +1,63 @@
+{
+  "version": "1.0",
+  "containers": [
+    {
+      "containerImage": "ispirt/depa-training:latest",
+      "command": [
+        "/bin/bash",
+        "run.sh"
+      ],
+      "environmentVariables": [],
+      "mounts": [
+        {
+          "mountType": "emptyDir",
+          "mountPath": "/mnt/remote",
+          "readonly": false
+        }
+      ]
+    },
+    {
+      "containerImage": "ispirt/depa-training-encfs:latest",
+      "environmentVariables": [
+        {
+          "name" : "EncfsSideCarArgs",
+          "value" : ".+",
+          "strategy" : "re2"
+        },
+        {
+          "name": "ContractService",
+          "value": ".+",
+          "strategy": "re2" 
+        },
+        {
+          "name": "ContractServiceParameters",
+          "value": "eyJzZXJ2aWNlQ2VydGlmaWNhdGUiOiJNSUlCdmpDQ0FVT2dBd0lCQWdJUU1oaFVlVmZNRVp3ZnZoYXhrUWxGVlRBS0JnZ3Foa2pPUFFRREF6QVdNUlF3RWdZRFZRUUREQXREUTBZZ1RtVjBkMjl5YXpBZUZ3MHlOREEzTWpBd05qQXhOVFZhRncweU5EQTNNakV3TmpBeE5UUmFNQll4RkRBU0JnTlZCQU1NQzBORFJpQk9aWFIzYjNKck1IWXdFQVlIS29aSXpqMENBUVlGSzRFRUFDSURZZ0FFRlBid3E2Tnp3QWRWTnM4WnQ4eFdYTkVKZ3JjbCtJOWNLVWIwalppNWN4NThmQ1RNVGc5dmdweWhwcjZpWlBpelNMeC8rZnowNUM0YkZLd2ZyMEliYlcveWxSNWxmM0xuUzRJSlhuRkpSQzFGZGRHVkM5Ym1mM0VsMlJISXJCVTVvMVl3VkRBU0JnTlZIUk1CQWY4RUNEQUdBUUgvQWdFQU1CMEdBMVVkRGdRV0JCVDZWYUZCRWYreXV2VmJpUldqbGlwbDdUNlIwVEFmQmdOVkhTTUVHREFXZ0JUNlZhRkJFZit5dXZWYmlSV2psaXBsN1Q2UjBUQUtCZ2dxaGtqT1BRUURBd05wQURCbUFqRUFobWcxYktyQ05tanlGNVAyMjltb2hWQ01xSmxTd1duVm80aGJJbW5hNTVWM2wrNU0wcmVUMWdZOUgyUURZcXFLQWpFQWk0eWNXcThKRE0wOXp4TVNsWnVUTVZNcDRNOWlqVjdaZExJVDQ4YlZpZEpES1BPZHpnYkZqVWt5alhvVWFKcVMiLCJzZXJ2aWNlSWQiOiJiZWM0NzViNzE2MGFmZDUyMWZmN2RjMDNhM2FhODEwMmMxNDI3MTA0OWI4NzkzNmMwZDEzY2RiMGJhNTlhNGI4Iiwic2lnbmF0dXJlQWxnb3JpdGhtIjoiRVMyNTYiLCJ0cmVlQWxnb3JpdGhtIjoiQ0NGIn0=",
+          "strategy": "string" 
+        },
+        {
+          "name": "Contracts",
+          "value": ".+",
+          "strategy": "re2"
+        },
+        {
+          "name": "PipelineConfiguration",
+          "value": ".+",
+          "strategy": "re2"
+        }
+      ],
+      "command": [
+        "/encfs.sh"
+      ],
+      "securityContext": {
+	      "privileged": "true"
+      },
+      "mounts": [
+        {
+          "mountType": "emptyDir",
+          "mountPath": "/mnt/remote",
+          "readonly": false
+        }
+      ]
+    }
+  ]
+}
