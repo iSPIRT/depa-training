@@ -22,7 +22,7 @@ variable "contract_service_url" {
 
 variable "depa_home" {
   description = "Path to the directory containing the 'securitypolicydigest' tool"
-  default     = "/Users/mukeshjoshi/gitprojects/depa-training" # No default; make it required if needed
+  default     = "./depa-training" # No default; make it required if needed
 }
 
 variable "container_registry" {
