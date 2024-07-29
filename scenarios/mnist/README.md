@@ -18,9 +18,10 @@ Build container images required for this sample as follows.
 ```bash
 cd scenarios/mnist
 ./ci/build.sh
+./ci/push-containers.sh 
 ```
 
-These scripts build the following containers. 
+These scripts build the following containers and push them to the container registry set in $CONTAINER_REGISTRY. 
 
 - ```depa-mnist-preprocess```: Container for pre-processing MNIST dataset. 
 - ```depa-mnist-save-model```: Container that saves the model to be trained in ONNX format. 
