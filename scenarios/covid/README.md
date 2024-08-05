@@ -97,7 +97,7 @@ If you wish to use your own container images, login to docker hub and push conta
 
 ```bash
 export CONTAINER_REGISTRY=<container-registry-name>
-docker login 
+docker login -u ${USERNAME} -p ${PASSWORD} ${CONTAINER_REGISTRY}
 ./ci/push-containers.sh
 cd scenarios/covid
 ./ci/push-containers.sh
