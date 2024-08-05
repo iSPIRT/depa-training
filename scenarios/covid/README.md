@@ -93,10 +93,10 @@ We will be creating the following resources as part of the deployment.
 
 If you wish to use your own container images, login to docker hub and push containers to your container registry. 
 
-> **Note:** Replace `<docker-hub-registry-name>` the name of your docker hub registry name.
+> **Note:** Replace `<container-registry-name>` the name of your container registry name, preferably use registry services other than docker hub as throttling restrictions will cause delays (or) image push/pull failures
 
 ```bash
-export CONTAINER_REGISTRY=<docker-hub-registry-name>
+export CONTAINER_REGISTRY=<container-registry-name>
 docker login 
 ./ci/push-containers.sh
 cd scenarios/covid
@@ -173,7 +173,7 @@ Acting as a TDC, use the following script to deploy the CCR using Confidential C
 
 ```bash
 cd scenarios/covid/deployment/aci
-./deploy.sh -c <contract-sequence-number> -m ../../config/model_config.json -q ../../config/query_config.json
+./deploy.sh -c <contract-sequence-number> -p ../../config/pipeline_config.json
 ```
 
 This script will deploy the container images from your container registry, including the encrypted filesystem sidecar. The sidecar will generate an SEV-SNP attestation report, generate an attestation token using the Microsoft Azure Attestation (MAA) service, retrieve dataset, model and output encryption keys from the TDP and TDC's Azure Key Vault, train the model, and save the resulting model into TDC's output filesystem image, which the TDC can later decrypt. 
