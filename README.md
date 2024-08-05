@@ -19,6 +19,7 @@ Alternatively, you can build and develop locally in a Linux environment (we have
 - [docker](https://docs.docker.com/engine/install/ubuntu/) and docker-compose. After installing docker, add your user to the docker group using `sudo usermod -aG docker $USER`, and log back in to a shell. 
 - make (install using ```sudo apt-get install make```)
 - Python 3.6.9 and pip 
+- [Go](https://go.dev/doc/install). Follow the instructions to install Go. After installing, ensure that the PATH environment variable is set to include ```go``` runtime.
 - Python wheel package (install using ```pip install wheel```)
 
 Clone this repo as follows. 
