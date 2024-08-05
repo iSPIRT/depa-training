@@ -40,9 +40,9 @@ This scripts build the following containers.
 - ```depa-training```: Container with the core CCR logic for joining datasets and running differentially private training. 
 - ```depa-training-encfs```: Container for loading encrypted data into the CCR. 
 
-Alternatively, you can use pre-built container images from the ```ispirt``` repository by setting the following environment variable. 
+Alternatively, you can use pre-built container images from the ispirt repository by setting the following environment variable. Docker hub has started throttling which may effect the upload/download time, especially when images are bigger size. So, It is advisable to use other container registries, we are using azure container registry as shown below
 ```bash
-export CONTAINER_REGISTRY=ispirt
+export CONTAINER_REGISTRY=ispirt.azurecr.io
 ```
 
 # Scenarios
