@@ -19,6 +19,7 @@ Alternatively, you can build and develop locally in a Linux environment (we have
 - [docker](https://docs.docker.com/engine/install/ubuntu/) and docker-compose. After installing docker, add your user to the docker group using `sudo usermod -aG docker $USER`, and log back in to a shell. 
 - make (install using ```sudo apt-get install make```)
 - Python 3.6.9 and pip 
+- [Go](https://go.dev/doc/install). Follow the instructions to install Go. After installing, ensure that the PATH environment variable is set to include ```go``` runtime.
 - Python wheel package (install using ```pip install wheel```)
 
 Clone this repo as follows. 
@@ -40,9 +41,9 @@ This scripts build the following containers.
 - ```depa-training```: Container with the core CCR logic for joining datasets and running differentially private training. 
 - ```depa-training-encfs```: Container for loading encrypted data into the CCR. 
 
-Alternatively, you can use pre-built container images from the ```ispirt``` repository by setting the following environment variable. 
+Alternatively, you can use pre-built container images from the ispirt repository by setting the following environment variable. Docker hub has started throttling which may effect the upload/download time, especially when images are bigger size. So, It is advisable to use other container registries, we are using azure container registry as shown below
 ```bash
-export CONTAINER_REGISTRY=ispirt
+export CONTAINER_REGISTRY=ispirt.azurecr.io
 ```
 
 # Scenarios
