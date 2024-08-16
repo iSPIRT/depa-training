@@ -21,6 +21,7 @@ env:
   CONTAINER_REGISTRY_USERNAME: ${{ secrets.CONTAINER_REGISTRY_USERNAME }}
   CONTAINER_REGISTRY_PASSWORD: ${{ secrets.CONTAINER_REGISTRY_ACCESS_TOKEN }}
   AZURE_RESOURCE_GROUP: ${{ vars.AZURE_RESOURCE_GROUP }}
+  AZURE_LOCATION: ${{ vars.AZURE_LOCATION }}
   AZURE_STORAGE_ACCOUNT_NAME: ${{ vars.AZURE_STORAGE_ACCOUNT_NAME }}
   AZURE_ICMR_CONTAINER_NAME: ${{ vars.AZURE_ICMR_CONTAINER_NAME }}
   AZURE_COWIN_CONTAINER_NAME: ${{ vars.AZURE_COWIN_CONTAINER_NAME }}
@@ -31,6 +32,7 @@ env:
   TOOLS_HOME: ${{ github.workspace }}/external/confidential-sidecar-containers/tools
   DATA_DIRECTORY: ${{ github.workspace}}/scenarios/covid/data
   CONTRACT_SERVICE_URL: ${{ vars.CONTRACT_SERVICE_URL }}
+  
 
 permissions:
   id-token: write
@@ -85,6 +87,12 @@ jobs:
       - name: Pull container images for generating policy
         run: cd ${{ github.workspace }}/ci && ./pull-containers.sh
 
+      - name: create storage and containers 
+        run: cd ${{ github.workspace }}/scenarios/covid/data && ./1-create-storage-containers.sh
+
+      - name: create azure key vault
+        run: cd ${{ github.workspace }}/scenarios/covid/data && ./2-create-akv.sh 
+
       - name: Import data and model encryption keys with key release policies
         run: cd ${{ github.workspace }}/scenarios/covid/data && ./3-import-keys.sh
 
@@ -95,7 +103,7 @@ jobs:
         run: cd ${{ github.workspace }}/scenarios/covid/data && ./5-upload-encrypted-data.sh
 
       - name: Run training
-        run: cd ${{ github.workspace }}/scenarios/covid/deployment/aci && ./deploy.sh -c ${{ github.event.inputs.contract }} -q ../../config/query_config.json -m ../../config/model_config.json
+        run: cd ${{ github.workspace }}/scenarios/covid/deployment/aci && ./deploy.sh -c ${{ github.event.inputs.contract }} -p ../../config/pipeline_config.json 
 
       - name: Dump training container logs
         run: sleep 200 && az container logs --name depa-training-covid --resource-group $AZURE_RESOURCE_GROUP --container-name depa-training
