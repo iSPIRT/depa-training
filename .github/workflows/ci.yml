@@ -32,6 +32,10 @@ env:
   DATA_DIRECTORY: ${{ github.workspace}}/scenarios/covid/data
   CONTRACT_SERVICE_URL: ${{ vars.CONTRACT_SERVICE_URL }}
 
+permissions:
+  id-token: write
+  contents: read
+
 jobs:
   deploy-ccr-covid-aci:
     runs-on: [self-hosted, linux, X64]
