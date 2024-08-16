@@ -1,7 +1,7 @@
 #!/bin/bash
 
 az group create \
-    --location westeurope \
+    --location $AZURE_LOCATION\\
     --name $AZURE_RESOURCE_GROUP
 
 az storage account create \
