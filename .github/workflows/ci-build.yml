@@ -59,6 +59,25 @@ jobs:
         with:
           submodules: recursive
 
+      - uses: pietrobolcato/install-azure-cli-action@main
+
+      - name: Update submodules
+        run: git submodule update --init --recursive
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.19.x'
+
+      - name: Install jq
+        run: sudo apt install -y jq
+
+      - name: Install make
+        run: sudo apt install make
+
+      - name: Install wheel
+        run: pip install wheel 
+
       - name: Build encrypted filesystem artifacts
         run: cd ${{ github.workspace }}/external/confidential-sidecar-containers && ./buildall.sh
 
