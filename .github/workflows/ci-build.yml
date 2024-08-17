@@ -10,7 +10,9 @@
 name: Build and Test Images
 
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - '**'
 
 env:
   REGISTRY: ${{ vars.CONTAINER_REGISTRY }}
