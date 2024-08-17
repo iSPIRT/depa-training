@@ -101,9 +101,6 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
-      - name: Build contract service container
-        run: cd ${{ github.workspace }}/external/contract-ledger && ./docker/build.sh
-
       - name: Run pre-processing
         run: cd ./scenarios/covid/deployment/docker && ./preprocess.sh
 
