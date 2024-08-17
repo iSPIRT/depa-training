@@ -31,9 +31,9 @@ jobs:
       - name: Login to ACR
         uses: docker/login-action@v3
         with:
-          registry: ${{ env.CONTAINER_REGISTRY }} 
-          username: ${{ env.CONTAINER_REGISTRY_USERNAME }}
-          password: ${{ env.CONTAINER_REGISTRY_ACCESS_TOKEN }}
+          registry: ${{ vars.CONTAINER_REGISTRY }} 
+          username: ${{ secrets.CONTAINER_REGISTRY_USERNAME }}
+          password: ${{ secrets.CONTAINER_REGISTRY_ACCESS_TOKEN }}
 
       - name: Add user to docker group
         run: sudo usermod -aG docker $USER
