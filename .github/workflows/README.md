@@ -5,7 +5,7 @@ This repository contains several CI workflows designed for deployment in a self-
 ## Workflows
 
 ### `ci-build.yml` 
-**Trigger:** Automatically on every pull request
+**Trigger:** Automatically on every pull request or Manually
 
 - Builds the `depa-training-encfs`, `depa-training`, and other containers required for the COVID scenario.
 - Runs containers locally to perform preprocessing, save the model, and train the model.
@@ -27,7 +27,7 @@ This repository contains several CI workflows designed for deployment in a self-
 - Runs containers locally to perform preprocessing, save the model, and train the model.
 
 ### `release.yml`
-**Trigger:** Manually
+**Trigger:** Release Event 
 
 - Builds the `depa-training-encfs`, `depa-training`, contract service container, and other containers required for the COVID scenario.
 - Pushes the built containers to ACR.

@@ -9,13 +9,12 @@
 
 name: Build and Test Images
 
-#on:
-#  pull_request:
-
 on:
-  push:
+  pull_request:
     branches:
-      - '**'
+      - main
+  workflow_dispatch:
+
 jobs:
   build-and-test-image:
     runs-on: ubuntu-latest
