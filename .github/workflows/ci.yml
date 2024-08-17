@@ -114,6 +114,9 @@ jobs:
       - name: Download and decrypt model
         run: cd ${{ github.workspace }}/scenarios/covid/data && ./6-download-decrypt-model.sh
 
+      - name: Clean up resource group and all resources 
+        run: az group delete --yes --name $AZURE_RESOURCE_GROUP
+
       - name: Cleanup data directory
         run: sudo rm -rf $DATA_DIRECTORY
         if: ${{ always() }}
