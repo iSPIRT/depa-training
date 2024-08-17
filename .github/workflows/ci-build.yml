@@ -57,7 +57,7 @@ jobs:
         run: pip install wheel 
 
       - name: Build encrypted filesystem artifacta, contract ledger client & depa-training container
-        run: cd ${{ github.workspace }} && .ci/build.sh
+        run:  ci/build.sh
 
       - name: Build container images
         run: cd ${{ github.workspace }}/scenarios/covid && ./ci/build.sh
