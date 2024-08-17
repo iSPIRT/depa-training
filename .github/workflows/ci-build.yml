@@ -80,7 +80,7 @@ jobs:
         run: cd ${{ github.workspace }}/external/confidential-sidecar-containers && ./buildall.sh
 
       - name: Build contract ledger client library
-        run: cd ${{ github.workspace }}//external/contract-ledger/pyscitt && python3 setup.py bdist_wheel
+        run: cd ${{ github.workspace }}/external/contract-ledger/pyscitt && python3 setup.py bdist_wheel
         
       - name: Build container images
         uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
@@ -91,17 +91,17 @@ jobs:
           push: false 
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-  
-      - name: Set SCITT_VERSION_OVERRIDE
-        run: echo "SCITT_VERSION_OVERRIDE=$(git describe --tags --match="*.*.*")" >> "$GITHUB_ENV"
-    
+
       - name: Build contract service container
-        uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
-        with:
-          file: ${{ github.workspace }}/external/contract-ledger/docker/virtual.Dockerfile
-          context: ${{ github.workspace }}/external/contract-ledger
-          push: false 
-          build-args: SCITT_VERSION_OVERRIDE=${{ env.SCITT_VERSION_OVERRIDE }}
-          tags: ${{ env.REGISTRY }}/contract-ledger
-    
+        run: cd ${{ github.workspace }}/external/contract-ledger && ./docker/build.sh
+
+      - name: Run pre-processing
+        run: cd ./scenarios/covid/deployment/docker && ./preprocess.sh
+
+      - name: Run model saving
+        run: cd ./scenarios/covid/deployment/docker && ./save-model.sh
+
+      - name: Run training
+        run: cd ./scenarios/covid/deployment/docker && ./train.sh
+~                                                                                                                                                                                          
     
