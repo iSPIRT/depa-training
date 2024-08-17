@@ -9,7 +9,8 @@
 
 name: Build and Test Images
 
-on: [release]
+on:
+  workflow_dispatch:
 
 env:
   REGISTRY: ${{ vars.CONTAINER_REGISTRY }}
