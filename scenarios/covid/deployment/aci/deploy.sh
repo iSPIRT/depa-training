@@ -140,9 +140,16 @@ echo $TMP > /tmp/aci-parameters.json
 
 echo Deploying training clean room...
 
-az group create \
-    --location westeurope \
-    --name $AZURE_RESOURCE_GROUP
+echo "Checking if resource group $AZURE_RESOURCE_GROUP exists..."
+RG_EXISTS=$(az group exists --name $AZURE_RESOURCE_GROUP)
+
+if [ "$RG_EXISTS" == "false" ]; then
+  echo "Resource group $AZURE_RESOURCE_GROUP does not exist. Creating it now..."
+  # Create the resource group
+  az group create --name $AZURE_RESOURCE_GROUP --location $AZURE_LOCATION
+else
+  echo "Resource group $AZURE_RESOURCE_GROUP already exists. Skipping creation."
+fi
 
 az deployment group create \
   --resource-group $AZURE_RESOURCE_GROUP \

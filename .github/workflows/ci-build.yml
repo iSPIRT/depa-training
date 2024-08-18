@@ -7,39 +7,47 @@
 # To get a newer version, you will need to update the SHA.
 # You can also reference a tag or branch, but the action may change without warning.
 
-name: Deploy COVID scenario in Docker
+name: Build and Test Images
 
-on: 
+on:
+  pull_request:
+    branches:
+      - main
   workflow_dispatch:
 
-env:
-  CONTAINER_REGISTRY: ${{ vars.CONTAINER_REGISTRY }}
-  CONTAINER_REGISTRY_USERNAME: ${{ secrets.CONTAINER_REGISTRY_USERNAME }}
-  CONTAINER_REGISTRY_PASSWORD: ${{ secrets.CONTAINER_REGISTRY_ACCESS_TOKEN }}
-
 jobs:
-  deploy-ccr-covid:
-    runs-on: [self-hosted, linux, X64]
-
+  build-and-test-image:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
     steps:
-      - uses: AutoModality/action-clean@v1
-      - uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
 
       - name: Update submodules
         run: git submodule update --init --recursive
 
-      - name: Login to ACR
-        uses: docker/login-action@v3
+      - name: Set up Go
+        uses: actions/setup-go@v4
         with:
-          registry: ${{ vars.CONTAINER_REGISTRY }} 
-          username: ${{ secrets.CONTAINER_REGISTRY_USERNAME }}
-          password: ${{ secrets.CONTAINER_REGISTRY_ACCESS_TOKEN }}
+          go-version: '1.19.x'
 
-      - name: Add user to docker group
-        run: sudo usermod -aG docker $USER
+      - name: Install jq
+        run: sudo apt install -y jq
 
-      - name: Pull container images
-        run: cd ${{ github.workspace }}/ci && ./pull-containers.sh
+      - name: Install make
+        run: sudo apt install make
+
+      - name: Install wheel
+        run: pip install wheel 
+
+      - name: Build encrypted filesystem artifacta, contract ledger client & depa-training container
+        run:  ci/build.sh
+
+      - name: Build container images
+        run: cd ${{ github.workspace }}/scenarios/covid && ./ci/build.sh
 
       - name: Run pre-processing
         run: cd ./scenarios/covid/deployment/docker && ./preprocess.sh
@@ -49,3 +57,4 @@ jobs:
 
       - name: Run training
         run: cd ./scenarios/covid/deployment/docker && ./train.sh
+    
