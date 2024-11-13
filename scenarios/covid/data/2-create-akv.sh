@@ -9,7 +9,7 @@ if [[ "$AZURE_KEYVAULT_ENDPOINT" == *".vault.azure.net" ]]; then
     # Check if the Key Vault already exists
     echo "Checking if Key Vault $KEY_VAULT_NAME exists..."
     NAME_AVAILABLE=$(az rest --method post \
-	  --uri 'https://management.azure.com/subscriptions/AZURE_SUBSCRIPTION_ID/providers/Microsoft.KeyVault/checkNameAvailability?api-version=2019-09-01' \
+	  --uri 'https://management.azure.com/subscriptions/$AZURE_SUBSCRIPTION_ID/providers/Microsoft.KeyVault/checkNameAvailability?api-version=2019-09-01' \
 	  --headers 'Content-Type=application/json' \
 	  --body '{"name": "depa-training-pavan","type": "Microsoft.KeyVault/vaults"}' | jq -r '.nameAvailable')
     if [ "$NAME_AVAILABLE" == true ]; then
