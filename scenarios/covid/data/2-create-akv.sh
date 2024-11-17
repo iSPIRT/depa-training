@@ -8,8 +8,11 @@ if [[ "$AZURE_KEYVAULT_ENDPOINT" == *".vault.azure.net" ]]; then
     AZURE_AKV_RESOURCE_NAME=`echo $AZURE_KEYVAULT_ENDPOINT | awk '{split($0,a,"."); print a[1]}'`
     # Check if the Key Vault already exists
     echo "Checking if Key Vault $KEY_VAULT_NAME exists..."
-    KEY_VAULT_EXISTS=$(az keyvault list --resource-group $AZURE_RESOURCE_GROUP --query "[?name=='$AZURE_AKV_RESOURCE_NAME'].name" --output tsv)
-    if [ -z "$KEY_VAULT_EXISTS" ]; then
+    NAME_AVAILABLE=$(az rest --method post \
+  	--uri "https://management.azure.com/subscriptions/$AZURE_SUBSCRIPTION_ID/providers/Microsoft.KeyVault/checkNameAvailability?api-version=2019-09-01" \
+  	--headers "Content-Type=application/json" \
+  	--body "{\"name\": \"$AZURE_AKV_RESOURCE_NAME\", \"type\": \"Microsoft.KeyVault/vaults\"}" | jq -r '.nameAvailable')
+    if [ "$NAME_AVAILABLE" == true ]; then
         echo "Key Vault $KEY_VAULT_NAME does not exist. Creating it now..."
         # Create Azure key vault with RBAC authorization
         az keyvault create --name $AZURE_AKV_RESOURCE_NAME --resource-group $AZURE_RESOURCE_GROUP --sku "Premium" --enable-rbac-authorization
