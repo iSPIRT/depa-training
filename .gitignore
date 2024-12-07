@@ -1,1 +1,4 @@
 **/*.onnx
+**/*.tfstate*
+**/.terraform*
+**/.terraform.lock.hcl
