@@ -15,7 +15,7 @@ locals {
   keyid                          = "YOUR_KEYID"                          # Get this from your env
   azure_akv_key_type             = "YOUR_AZURE_AKV_KEY_TYPE"             # Get this from your env
   azure_akv_key_derivation_label = "YOUR_AZURE_AKV_KEY_DERIVATION_LABEL" # Get this from your env
-  policy_template                = "${var.depa_home}/policy-in-template-tf.json"
+  policy_template                = "./policy-in-template-tf.json"
   key_type                       = can(regex(".vault.azure.net", var.azure_keyvault_endpoint)) ? "RSA-HSM" : "oct-HSM"
 }
 # Create Resource Group
@@ -179,13 +179,13 @@ resource "local_file" "policy_file" {
 
 #########=====
 
-# data "external" "get_cce_policy" {
-#   program = [
-#     "bash",
-#     "-c",
-#     "az confcom acipolicygen -i ${local_file.policy_file.filename} --debug"
-#   ]
-# }
+ data "external" "get_cce_policy" {
+   program = [
+     "bash",
+     "-c",
+     "az confcom acipolicygen -i ${local_file.policy_file.filename} --debug"
+   ]
+ }
 
 # output "cce_policy_result" {
 #  value     = data.external.get_cce_policy.result

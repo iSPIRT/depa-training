@@ -10,19 +10,19 @@ variable "azure_keyvault_endpoint" {
 
 variable "depa_keyvault_endpoint" {
   type    = string
-  default = "depakv.vault.azure.net"
+  default = "depakv1.vault.azure.net"
 }
 
 variable "contract_service_url" {
   description = "URL of the contract service"
-  default     = "https://20.42.118.35:8000/parameters" # Provide a default if not set
+  default     = "https://localhost:8000/parameters" # Provide a default if not set
 }
   #default     = "https://contract-service.westeurope.cloudapp.azure.com:8000/parameters" # Provide a default if not set
 
 
 variable "depa_home" {
   description = "Path to the directory containing the 'securitypolicydigest' tool"
-  default     = "./depa-training" # No default; make it required if needed
+  default     = "/home/azure/depa-training" # No default; make it required if needed
 }
 
 variable "container_registry" {
