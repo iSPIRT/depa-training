@@ -15,9 +15,8 @@ variable "depa_keyvault_endpoint" {
 
 variable "contract_service_url" {
   description = "URL of the contract service"
-  default     = "https://localhost:8000/parameters" # Provide a default if not set
+  default     = "https://contract-service.eastus.cloudapp.azure.com:8000/parameters" # Provide a default if not set
 }
-  #default     = "https://contract-service.westeurope.cloudapp.azure.com:8000/parameters" # Provide a default if not set
 
 
 variable "depa_home" {
