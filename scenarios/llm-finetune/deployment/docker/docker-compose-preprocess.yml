@@ -1,0 +1,19 @@
+services:
+  medqa:
+    image: ${CONTAINER_REGISTRY:+$CONTAINER_REGISTRY/}preprocess-medqa:latest
+    volumes:
+      - $MEDQA_OUTPUT_PATH:/mnt/output/medqa
+      - $CONFIG_PATH:/mnt/config/
+    command: ["python3", "load_medqa_dataset.py"]
+  chatdoctor:
+    image: ${CONTAINER_REGISTRY:+$CONTAINER_REGISTRY/}preprocess-chatdoctor:latest
+    volumes:
+      - $CHATDOCTOR_OUTPUT_PATH:/mnt/output/chatdoctor
+      - $CONFIG_PATH:/mnt/config/
+    command: ["python3", "load_chatdoctor_dataset.py"]
+  medquad:
+    image: ${CONTAINER_REGISTRY:+$CONTAINER_REGISTRY/}preprocess-medquad:latest
+    volumes:
+      - $MEDQUAD_OUTPUT_PATH:/mnt/output/medquad
+      - $CONFIG_PATH:/mnt/config/
+    command: ["python3", "load_medquad_dataset.py"]

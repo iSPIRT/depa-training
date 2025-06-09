@@ -1,0 +1,72 @@
+{
+    "pipeline": [
+      {
+        "name": "TextJoin",
+        "config": {
+          "datasets": [
+            {
+              "id": "19517ba8-bab8-11ed-afa1-0242ac120002",
+              "name": "medqa",
+              "file": "medical-question-answering-datasets.csv",
+              "select_variables": ["input", "output"],
+              "num_rows": 200,
+              "mount_path": "/mnt/remote/medqa/"
+            },
+            {
+              "id": "216d5cc6-bab8-11ed-afa1-0242ac120002",
+              "name": "chatdoctor",
+              "file": "ChatDoctor-HealthCareMagic-100k.csv",
+              "select_variables": ["input", "output"],
+              "num_rows": 200,
+              "mount_path": "/mnt/remote/chatdoctor/"
+            },
+            {
+              "id": "2830a144-bab8-11ed-afa1-0242ac120002",
+              "name": "medquad",
+              "file": "MedQuad-MedicalQnADataset.csv",
+              "select_variables": ["Question", "Answer"],
+              "num_rows": 200,
+              "mount_path": "/mnt/remote/medquad/"
+            }
+          ],
+          "joined_dataset": {
+            "output_folder": "/tmp/",
+            "output_file": "medqa_chatdoctor_medquad_joined.csv"
+          }
+        }
+      },
+      {
+        "name": "PrivateLLMFineTune",
+        "config": {
+          "device": "cpu",
+          "saved_model_dir": "/mnt/remote/model",
+          "model_name": "facebook/opt-350m",
+          "trained_model_output_path": "/mnt/remote/output",
+          "input_dataset_path": "/tmp/medqa_chatdoctor_medquad_joined.csv",
+          "sample_prompts": [
+            "What is the treatment for diabetes?",
+            "How can I manage my hypertension?",
+            "What are the symptoms of asthma?",
+            "What is the best diet for heart health?"
+          ],
+          "MODEL_REPO_CONFIG": "location/to/model_repo_config",
+          "MAX_TOKENS": 64,
+          "BATCH_SIZE": 4,
+          "NUM_EPOCHS": 1,
+          "Q_PRECISION": null,
+          "LEARNING_RATE": 5e-5,
+          "EPSILON": 7.5,
+          "DELTA": 1e-5,
+          "MAX_GRAD_NORM": 1.0,
+          "MAX_PHYSICAL_BATCH_SIZE": 4,
+          "LORA_RANK": 8,
+          "LORA_ALPHA": 32,
+          "LORA_TARGET_MODULES": null,
+          "LORA_DROPOUT": 0.05,
+          "LORA_BIAS": "none",
+          "LOG_FREQ_STEPS": 50
+        }
+      }
+    ]
+  }
+  

@@ -1,0 +1,5 @@
+{
+    "DATASET_NAME": "keivalya/MedQuad-MedicalQnADataset",
+    "SAVE_DIR": "/mnt/output/medquad/",
+    "FORMAT": "csv"
+}

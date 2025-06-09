@@ -1,0 +1,6 @@
+{
+    "DATASET_NAME": "Malikeh1375/medical-question-answering-datasets",
+    "DATASET_SPLIT": "all-processed",
+    "SAVE_DIR": "/mnt/output/medqa/",
+    "FORMAT": "csv"
+}

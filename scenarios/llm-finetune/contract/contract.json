@@ -1,0 +1,92 @@
+{
+    "id": "f4f72a88-bab1-11ed-afa1-0242ac120002",
+    "schemaVersion": "0.1",
+    "startTime": "2023-03-14T00:00:00.000Z",
+    "expiryTime": "2024-03-14T00:00:00.000Z",
+    "tdc": "",
+    "tdps": [],
+    "ccrp": "did:web:ccrprovider.github.io",
+    "datasets": [
+      {
+        "id": "19517ba8-bab8-11ed-afa1-0242ac120002",
+        "name": "medqa",
+        "url": "https://ccrcontainer.blob.core.windows.net/medqa/data.img",
+        "provider": "",
+        "key": {
+          "type": "azure",
+          "properties": {
+            "kid": "MEDQAFilesystemEncryptionKey",
+            "authority": {
+              "endpoint": "sharedneu.neu.attest.azure.net"
+            },
+            "endpoint": ""
+          }
+        }
+      },
+      {
+        "id": "216d5cc6-bab8-11ed-afa1-0242ac120002",
+        "name": "chatdoctor",
+        "url": "https://ccrcontainer.blob.core.windows.net/chatdoctor/data.img",
+        "provider": "",
+        "key": {
+          "type": "azure",
+          "properties": {
+            "kid": "CHATDOCTORFilesystemEncryptionKey",
+            "authority": {
+              "endpoint": "sharedneu.neu.attest.azure.net"
+            },
+            "endpoint": ""
+          }
+        }
+      },
+      {
+        "id": "2830a144-bab8-11ed-afa1-0242ac120002",
+        "name": "medquad",
+        "url": "https://ccrcontainer.blob.core.windows.net/medquad/data.img",
+        "provider": "",
+        "key": {
+          "type": "azure",
+          "properties": {
+            "kid": "MEDQUADFilesystemEncryptionKey",
+            "authority": {
+              "endpoint": "sharedneu.neu.attest.azure.net"
+            },
+            "endpoint": ""
+          }
+        }
+      }
+    ],
+    "purpose": "TRAINING",
+    "constraints": [
+      {
+        "privacy": [
+          {
+            "dataset": "19517ba8-bab8-11ed-afa1-0242ac120002",
+            "epsilon_threshold": "1.5",
+            "noise_multiplier": "2.0",
+            "delta": "0.01",
+            "epochs_per_report": "2"
+          },
+          {
+            "dataset": "216d5cc6-bab8-11ed-afa1-0242ac120002",
+            "epsilon_threshold": "1.5",
+            "noise_multiplier": "2.0",
+            "delta": "0.01",
+            "epochs_per_report": "2"
+          },
+          {
+            "dataset": "2830a144-bab8-11ed-afa1-0242ac120002",
+            "epsilon_threshold": "1.5",
+            "noise_multiplier": "2.0",
+            "delta": "0.01",
+            "epochs_per_report": "2"
+          }
+        ]
+      }
+    ],
+    "terms": {
+      "payment": {},
+      "revocation": {}
+    }
+  }
+  

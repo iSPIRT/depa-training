@@ -15,6 +15,9 @@ RUN python3.9 get-pip.py
 RUN pip3 install torch torchvision --index-url https://download.pytorch.org/whl/cpu
 RUN pip3 --default-timeout=1000 install pyspark pandas opacus onnx onnx2pytorch scikit-learn scipy matplotlib 
 
+## ADDED: For language tasks
+RUN pip3 install transformers datasets peft
+
 RUN apt-get install -y jq
 
 # Install contract ledger client
