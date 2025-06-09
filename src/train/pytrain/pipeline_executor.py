@@ -9,6 +9,10 @@ from .train import Train
 from .private_llm_finetune import PrivateLLMFineTune
 from .join_text import TextJoin
 
+# ADDED: For vision tasks
+from .private_train_vision import PrivateTrainVision
+from .join_img import ImageJoin
+
 class PipelineExecutor:
     def __init__(self):
         self.steps = []
