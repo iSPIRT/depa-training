@@ -5,7 +5,7 @@ ENV DEBIAN_FRONTEND="noninteractive"
 RUN apt-get update && apt-get -y upgrade \
     && apt-get install -y curl \
     && apt-get install -y python3.9 python3.9-dev python3.9-distutils \
-    && apt-get install -y openjdk-8-jdk
+    && apt-get install -y openjdk-17-jdk
 
 ## Install pip
 RUN curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
@@ -13,15 +13,18 @@ RUN python3.9 get-pip.py
 
 ## Install dependencies
 RUN pip3 install torch torchvision --index-url https://download.pytorch.org/whl/cpu
-RUN pip3 --default-timeout=1000 install pyspark pandas opacus onnx onnx2pytorch scikit-learn scipy matplotlib 
+RUN pip3 --default-timeout=1000 install pyspark pandas opacus==1.5.3 onnx onnx2pytorch scikit-learn scipy matplotlib 
 
 ## ADDED: For language tasks
 RUN pip3 install transformers datasets peft
 
 ## ADDED: For vision tasks
-RUN pip3 install --default-timeout=100 opencv-python pillow monai tqdm
+RUN pip3 install --default-timeout=100 opencv-python pillow monai==1.4.0 tqdm
 
 RUN apt-get install -y jq
+
+ENV JAVA_HOME /usr/lib/jvm/java-17-openjdk-amd64/
+RUN export JAVA_HOME
 
 # Install contract ledger client
 COPY train/dist/pytrain-0.0.1-py3-none-any.whl .

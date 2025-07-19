@@ -2,10 +2,10 @@ services:
   train:
     image: ${CONTAINER_REGISTRY:+$CONTAINER_REGISTRY/}depa-training:latest
     volumes:
-      - $BRATS_A_INPUT_PATH:/mnt/remote/brats_A
-      - $BRATS_B_INPUT_PATH:/mnt/remote/brats_B
-      - $BRATS_C_INPUT_PATH:/mnt/remote/brats_C
-      - $BRATS_D_INPUT_PATH:/mnt/remote/brats_D
+      - $BRATS_A_INPUT_PATH:/mnt/remote/brats_a
+      - $BRATS_B_INPUT_PATH:/mnt/remote/brats_b
+      - $BRATS_C_INPUT_PATH:/mnt/remote/brats_c
+      - $BRATS_D_INPUT_PATH:/mnt/remote/brats_d
       - $BRATS_OUTPUT_PATH:/mnt/remote/brats_joined
       - $MODEL_INPUT_PATH:/mnt/remote/model
       - $MODEL_OUTPUT_PATH:/mnt/remote/output

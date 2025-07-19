@@ -1,6 +1,6 @@
 services:
   model_save:
-    image: ${CONTAINER_REGISTRY:+$CONTAINER_REGISTRY/}ccr-model-save:latest
+    image: ${CONTAINER_REGISTRY:+$CONTAINER_REGISTRY/}brats-model-save:latest
     volumes:
       - $MODEL_OUTPUT_PATH:/mnt/model
     command: ["python3.9", "load_base_model.py"]

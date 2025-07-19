@@ -1,50 +1,50 @@
 {
-    "pipeline": [
-        {
-            "name": "ImageJoin",
-            "config": {
-                "datasets": [
-                    {
-                        "id": "19517ba8-bab8-11ed-afa1-0242ac120002",
-                        "name": "brats_A",
-                        "mount_path": "/mnt/remote/brats_A/"
-                    },
-                    {
-                        "id": "216d5cc6-bab8-11ed-afa1-0242ac120002",
-                        "name": "brat_B",
-                        "mount_path": "/mnt/remote/brats_B/"
-                    },
-                    {
-                        "id": "2830a144-bab8-11ed-afa1-0242ac120002",
-                        "name": "brats_C",
-                        "mount_path": "/mnt/remote/brats_C/"
-                    },
-                    {
-                        "id": "2a3b0c4e-bab8-11ed-afa1-0242ac120002",
-                        "name": "brats_D",
-                        "mount_path": "/mnt/remote/brats_D/"
-                    }
-                ],
-                "joined_dataset":  "/mnt/remote/brats_joined/"
-            }
-        },
-        {
-            "name": "PrivateTrainVision",
-            "config": {
-                "DEVICE": "cpu",
-                "input_dataset_path": "/mnt/remote/brats_joined/",
-                "saved_model_path": "/mnt/remote/model/model.pth",
-                "trained_model_output_path": "/mnt/remote/output/",
-                "sample_predictions_path": "/mnt/remote/output/",
-                "BATCH_SIZE": 4,
-                "LEARNING_RATE": 1e-4,
-                "MAX_LR": 1e-2,
-                "NUM_EPOCHS": 3,
-                "MAX_GRAD_NORM": 0.1,
-                "EPSILON": 15,
-                "DELTA": 0.005,
-                "test_train_split": 0.2
-            }
-        }
-    ]
+  "pipeline": [
+    {
+      "name": "ImageJoin",
+      "config": {
+        "datasets": [
+          {
+            "id": "19517ba8-bab8-11ed-afa1-0242ac120002",
+            "name": "brats_A",
+            "mount_path": "/mnt/remote/brats_a"
+          },
+          {
+            "id": "216d5cc6-bab8-11ed-afa1-0242ac120002",
+            "name": "brat_B",
+            "mount_path": "/mnt/remote/brats_b"
+          },
+          {
+            "id": "2830a144-bab8-11ed-afa1-0242ac120002",
+            "name": "brats_C",
+            "mount_path": "/mnt/remote/brats_c"
+          },
+          {
+            "id": "2a3b0c4e-bab8-11ed-afa1-0242ac120002",
+            "name": "brats_D",
+            "mount_path": "/mnt/remote/brats_d"
+          }
+        ],
+        "joined_dataset": "/tmp/"
+      }
+    },
+    {
+      "name": "PrivateTrainVision",
+      "config": {
+        "DEVICE": "cpu",
+        "input_dataset_path": "/tmp/",
+        "saved_model_path": "/mnt/remote/model/model.pth",
+        "trained_model_output_path": "/mnt/remote/output/",
+        "sample_predictions_path": "/mnt/remote/output/",
+        "BATCH_SIZE": 4,
+        "LEARNING_RATE": 1e-4,
+        "MAX_LR": 1e-2,
+        "NUM_EPOCHS": 3,
+        "MAX_GRAD_NORM": 0.1,
+        "EPSILON": 15,
+        "DELTA": 0.005,
+        "test_train_split": 0.2
+      }
+    }
+  ]
 }

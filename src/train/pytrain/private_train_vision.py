@@ -222,6 +222,8 @@ class PrivateTrainVision(TaskBase):
         self.model = AnatomyUNet(in_ch=1, out_ch=1, base_ch=8, final_act='sigmoid').to(self.config['DEVICE'])
         self.model.load_state_dict(torch.load(self.config["saved_model_path"]))
 
+        print("Model loaded")
+
         # ## Option 2 - load entire model using TorchScript
         # self.model = torch.jit.load(self.config["saved_model_path"])
         

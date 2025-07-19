@@ -13,7 +13,7 @@ RUN python3.9 get-pip.py
 RUN pip3 install torch torchvision --index-url https://download.pytorch.org/whl/cpu
 RUN pip3 --default-timeout=1000 install numpy opencv-python pillow nibabel matplotlib
 
-ENV JAVA_HOME /usr/lib/jvm/java-8-openjdk-amd64/
-RUN export JAVA_HOME
+# ENV JAVA_HOME /usr/lib/jvm/java-8-openjdk-amd64/
+# RUN export JAVA_HOME
 
 COPY load_brats_D.py load_brats_D.py
