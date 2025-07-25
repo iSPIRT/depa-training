@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import onnx
+# import onnx
 
 # Model architecture and components for Anatomy UNet
 class ConvBlock2d(nn.Module):
