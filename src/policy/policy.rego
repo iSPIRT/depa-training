@@ -51,6 +51,10 @@ last_stage_is_private_training if {
 	input.pipeline[count(input.pipeline) - 1].name == "PrivateTrain"
 }
 
+last_stage_is_private_training if {
+	input.pipeline[count(input.pipeline) - 1].name == "PrivateTrainVision"
+}
+
 last_stage_is_training if {
 	input.pipeline[count(input.pipeline) - 1].name == "Train"
 }
