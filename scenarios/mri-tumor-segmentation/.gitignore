@@ -3,3 +3,5 @@
 *.pth
 *.pt
 /output/
+*.bin
+*.img
