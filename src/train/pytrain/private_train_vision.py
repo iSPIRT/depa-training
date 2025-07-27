@@ -200,7 +200,7 @@ class PrivateTrainVision(TaskBase):
         print(f"Total samples: {n_samples}")
         train_size = int(train_ratio*n_samples)
 
-        self.config['DELTA'] = 1/train_size
+        self.config['delta'] = 1/train_size
 
         train_dataset = Subset(dataset, range(train_size))
         val_dataset = Subset(dataset, range(train_size, n_samples))
@@ -208,8 +208,8 @@ class PrivateTrainVision(TaskBase):
         print(f"Training samples: {len(train_dataset)}")
         print(f"Validation samples: {len(val_dataset)}")
 
-        self.train_loader = DataLoader(train_dataset, batch_size=self.config["BATCH_SIZE"], shuffle=True, num_workers=0)#, collate_fn=lambda batch: [x for x in batch if x[0] is not None and x[1] is not None])
-        self.val_loader = DataLoader(val_dataset, batch_size=self.config["BATCH_SIZE"], shuffle=True, num_workers=0)#, collate_fn=lambda batch: [x for x in batch if x[0] is not None and x[1] is not None])
+        self.train_loader = DataLoader(train_dataset, batch_size=self.config["batch_size"], shuffle=True, num_workers=0)#, collate_fn=lambda batch: [x for x in batch if x[0] is not None and x[1] is not None])
+        self.val_loader = DataLoader(val_dataset, batch_size=self.config["batch_size"], shuffle=True, num_workers=0)#, collate_fn=lambda batch: [x for x in batch if x[0] is not None and x[1] is not None])
 
     def join_datasets(self, dataset1, dataset2):
         # Join two datasets
@@ -251,10 +251,10 @@ class PrivateTrainVision(TaskBase):
             module=self.model,
             optimizer=self.optimizer,
             data_loader=self.train_loader,
-            epochs=self.config['NUM_EPOCHS'],
-            target_delta=self.config['DELTA'],  # Privacy budget
-            target_epsilon=self.config['EPSILON'],  # Probability of privacy breach
-            max_grad_norm=self.config['MAX_GRAD_NORM'], # threshold for clipping the norm of per-sample gradients
+            epochs=self.config['total_epochs'],
+            target_delta=self.config['delta'],  # Privacy budget
+            target_epsilon=self.config['epsilon_threshold'],  # Probability of privacy breach
+            max_grad_norm=self.config['max_grad_norm'], # threshold for clipping the norm of per-sample gradients
         )
 
     def loss_fn(self, pred, mask):
@@ -266,7 +266,7 @@ class PrivateTrainVision(TaskBase):
 
     def train(self):
         self.model = self.model.train()
-        for epoch in range(self.config['NUM_EPOCHS']):
+        for epoch in range(self.config['total_epochs']):
             for [image, mask] in tqdm(self.train_loader):
                 image = image.to(self.device)
                 mask = mask.to(self.device)
@@ -282,7 +282,7 @@ class PrivateTrainVision(TaskBase):
                 self.optimizer.step()
                 self.scheduler.step()
                 
-            print(f"Epoch [{epoch+1}/{self.config['NUM_EPOCHS']}], Loss: {loss.item():.4f}")
+            print(f"Epoch [{epoch+1}/{self.config['total_epochs']}], Loss: {loss.item():.4f}")
 
         # Extract the underlying model from GradSampleModule
         if isinstance(self.model, opacus.grad_sample.GradSampleModule):
@@ -334,7 +334,7 @@ class PrivateTrainVision(TaskBase):
             self.load_data()
             self.load_model()
             self.load_optimizer()
-            # self.make_dprivate()  # Differential privacy is not necessary for this task, but can be enabled if needed.
+            self.make_dprivate()  # Differential privacy is not necessary for this task, but can be enabled if needed.
             self.train()
             print("Training complete!")
             # --- END OF TRAINING ---
