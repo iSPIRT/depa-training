@@ -36,13 +36,13 @@
         "saved_model_path": "/mnt/remote/model/model.pth",
         "trained_model_output_path": "/mnt/remote/output/",
         "sample_predictions_path": "/mnt/remote/output/",
-        "BATCH_SIZE": 4,
+        "batch_size": 4,
         "LEARNING_RATE": 1e-4,
         "MAX_LR": 1e-2,
-        "NUM_EPOCHS": 3,
-        "MAX_GRAD_NORM": 0.1,
-        "EPSILON": 15,
-        "DELTA": 0.005,
+        "total_epochs": 3,
+        "max_grad_norm": 0.1,
+        "epsilon_threshold": 15,
+        "delta": 0.005,
         "test_train_split": 0.2
       }
     }
