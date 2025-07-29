@@ -5,7 +5,7 @@ ACCOUNT_KEY=$(az storage account keys list --account-name $AZURE_STORAGE_ACCOUNT
 az storage blob upload \
   --account-name $AZURE_STORAGE_ACCOUNT_NAME \
   --container $AZURE_BRATS_A_CONTAINER_NAME \
-  --file brats_a.img \
+  --file brats_A.img \
   --name data.img \
   --type page \
   --overwrite \
@@ -14,7 +14,7 @@ az storage blob upload \
 az storage blob upload \
   --account-name $AZURE_STORAGE_ACCOUNT_NAME \
   --container $AZURE_BRATS_B_CONTAINER_NAME \
-  --file brats_b.img \
+  --file brats_B.img \
   --name data.img \
   --type page \
   --overwrite \
@@ -23,7 +23,7 @@ az storage blob upload \
 az storage blob upload \
   --account-name $AZURE_STORAGE_ACCOUNT_NAME \
   --container $AZURE_BRATS_C_CONTAINER_NAME \
-  --file brats_c.img \
+  --file brats_C.img \
   --name data.img \
   --type page \
   --overwrite \
@@ -32,7 +32,7 @@ az storage blob upload \
 az storage blob upload \
   --account-name $AZURE_STORAGE_ACCOUNT_NAME \
   --container $AZURE_BRATS_D_CONTAINER_NAME \
-  --file brats_d.img \
+  --file brats_D.img \
   --name data.img \
   --type page \
   --overwrite \

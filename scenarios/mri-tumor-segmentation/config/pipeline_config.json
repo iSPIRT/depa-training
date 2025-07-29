@@ -7,22 +7,22 @@
           {
             "id": "19517ba8-bab8-11ed-afa1-0242ac120002",
             "name": "brats_A",
-            "mount_path": "/mnt/remote/brats_a"
+            "mount_path": "/mnt/remote/brats_A"
           },
           {
             "id": "216d5cc6-bab8-11ed-afa1-0242ac120002",
             "name": "brat_B",
-            "mount_path": "/mnt/remote/brats_b"
+            "mount_path": "/mnt/remote/brats_B"
           },
           {
             "id": "2830a144-bab8-11ed-afa1-0242ac120002",
             "name": "brats_C",
-            "mount_path": "/mnt/remote/brats_c"
+            "mount_path": "/mnt/remote/brats_C"
           },
           {
             "id": "2a3b0c4e-bab8-11ed-afa1-0242ac120002",
             "name": "brats_D",
-            "mount_path": "/mnt/remote/brats_d"
+            "mount_path": "/mnt/remote/brats_D"
           }
         ],
         "joined_dataset": "/tmp/"

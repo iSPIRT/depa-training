@@ -76,7 +76,7 @@ function generate_encrypted_filesystem_information() {
   TMP=$(jq . encrypted-filesystem-config-template.json)
   TMP=`echo $TMP | \
     jq '.azure_filesystems[0].azure_url = "https://" + env.AZURE_STORAGE_ACCOUNT_NAME + ".blob.core.windows.net/" + env.AZURE_BRATS_A_CONTAINER_NAME + "/data.img" + env.BRATS_A_SAS_TOKEN' | \
-    jq '.azure_filesystems[0].mount_point = "/mnt/remote/brats_a"' | \
+    jq '.azure_filesystems[0].mount_point = "/mnt/remote/brats_A"' | \
     jq '.azure_filesystems[0].key.kid = "BRATSAFilesystemEncryptionKey"' | \
     jq '.azure_filesystems[0].key.kty = env.AZURE_AKV_KEY_TYPE' | \
     jq '.azure_filesystems[0].key.akv.endpoint = env.AZURE_KEYVAULT_ENDPOINT' | \
@@ -86,7 +86,7 @@ function generate_encrypted_filesystem_information() {
 
   TMP=`echo $TMP | \
     jq '.azure_filesystems[1].azure_url = "https://" + env.AZURE_STORAGE_ACCOUNT_NAME + ".blob.core.windows.net/" + env.AZURE_BRATS_B_CONTAINER_NAME + "/data.img" + env.BRATS_B_SAS_TOKEN' | \
-    jq '.azure_filesystems[1].mount_point = "/mnt/remote/brats_b"' | \
+    jq '.azure_filesystems[1].mount_point = "/mnt/remote/brats_B"' | \
     jq '.azure_filesystems[1].key.kid = "BRATSBFilesystemEncryptionKey"' | \
     jq '.azure_filesystems[1].key.kty = env.AZURE_AKV_KEY_TYPE' | \
     jq '.azure_filesystems[1].key.akv.endpoint = env.AZURE_KEYVAULT_ENDPOINT' | \
@@ -96,7 +96,7 @@ function generate_encrypted_filesystem_information() {
 
   TMP=`echo $TMP | \
     jq '.azure_filesystems[2].azure_url = "https://" + env.AZURE_STORAGE_ACCOUNT_NAME + ".blob.core.windows.net/" + env.AZURE_BRATS_C_CONTAINER_NAME + "/data.img" + env.BRATS_C_SAS_TOKEN' | \
-    jq '.azure_filesystems[2].mount_point = "/mnt/remote/brats_c"' | \
+    jq '.azure_filesystems[2].mount_point = "/mnt/remote/brats_C"' | \
     jq '.azure_filesystems[2].key.kid = "BRATSCFilesystemEncryptionKey"' | \
     jq '.azure_filesystems[2].key.kty = env.AZURE_AKV_KEY_TYPE' | \
     jq '.azure_filesystems[2].key.akv.endpoint = env.AZURE_KEYVAULT_ENDPOINT' | \
@@ -106,7 +106,7 @@ function generate_encrypted_filesystem_information() {
 
   TMP=`echo $TMP | \
     jq '.azure_filesystems[3].azure_url = "https://" + env.AZURE_STORAGE_ACCOUNT_NAME + ".blob.core.windows.net/" + env.AZURE_BRATS_D_CONTAINER_NAME + "/data.img" + env.BRATS_D_SAS_TOKEN' | \
-    jq '.azure_filesystems[3].mount_point = "/mnt/remote/brats_d"' | \
+    jq '.azure_filesystems[3].mount_point = "/mnt/remote/brats_D"' | \
     jq '.azure_filesystems[3].key.kid = "BRATSDFilesystemEncryptionKey"' | \
     jq '.azure_filesystems[3].key.kty = env.AZURE_AKV_KEY_TYPE' | \
     jq '.azure_filesystems[3].key.akv.endpoint = env.AZURE_KEYVAULT_ENDPOINT' | \

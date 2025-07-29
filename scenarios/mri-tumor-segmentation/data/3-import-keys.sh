@@ -45,10 +45,10 @@ elif [[ "$AZURE_KEYVAULT_ENDPOINT" == *".managedhsm.azure.net" ]]; then
 fi
 
 DATADIR=`pwd`
-import_key "BRATSAFilesystemEncryptionKey" $DATADIR/brats_a_key.bin
-import_key "BRATSBFilesystemEncryptionKey" $DATADIR/brats_b_key.bin
-import_key "BRATSCFilesystemEncryptionKey" $DATADIR/brats_c_key.bin
-import_key "BRATSDFilesystemEncryptionKey" $DATADIR/brats_d_key.bin
+import_key "BRATSAFilesystemEncryptionKey" $DATADIR/brats_A_key.bin
+import_key "BRATSBFilesystemEncryptionKey" $DATADIR/brats_B_key.bin
+import_key "BRATSCFilesystemEncryptionKey" $DATADIR/brats_C_key.bin
+import_key "BRATSDFilesystemEncryptionKey" $DATADIR/brats_D_key.bin
 import_key "ModelFilesystemEncryptionKey" $DATADIR/model_key.bin
 import_key "OutputFilesystemEncryptionKey" $DATADIR/output_key.bin
 
