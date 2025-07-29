@@ -41,7 +41,7 @@
         "MAX_LR": 1e-2,
         "total_epochs": 3,
         "max_grad_norm": 0.1,
-        "epsilon_threshold": 15,
+        "epsilon_threshold": 1.5,
         "delta": 0.005,
         "test_train_split": 0.2
       }
