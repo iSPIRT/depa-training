@@ -1,5 +1,4 @@
-# 2023, The DEPA CCR DP Training Reference Implementation
-# authors shyam@ispirt.in, sridhar.avs@ispirt.in
+# 2025, DEPA Foundation
 #
 # Licensed TBD
 #
@@ -10,14 +9,10 @@
 # limitations under the License.
 
 # Key references / Attributions: https://depa.world/training/reference-implementation
-# Key frameworks used : DEPA CCR,Opacus, PyTorch,ONNX, onnx2pytorch
+# Key frameworks used : DEPA, CCR, Opacus, PyTorch, Scikit-Learn, ONNX
 
 # torch related imports
-from typing import Optional
 import torch
-from torchvision import datasets, transforms
-
-# from tqdm import tqdm
 import torch.utils.data as data
 from torch.utils.data import DataLoader
 import torch.nn as nn
@@ -43,9 +38,7 @@ from onnx2pytorch import ConvertModel
 # other imports
 import os
 import json
-import argparse
-from pathlib import Path
-
+from tqdm import tqdm
 from .task_base import TaskBase
 
 logger = {
@@ -176,7 +169,8 @@ class PrivateTrain(TaskBase):
             print(
                 f'Epoch [{epoch+1}/{config["total_epochs"]}], Loss: {loss.item():.4f}'
             )
-        output_path = config["trained_model_output_path"]
+
+        output_path = os.path.join(self.config["trained_model_output_path"], "trained_model.pth")
         print("Writing training model to " + output_path)
         torch.onnx.export(
             self.model,

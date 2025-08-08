@@ -1,1 +1,10 @@
 **/*.onnx
+**/*.pth
+**/*.pt
+**/*.img
+**/*.bin
+**/*.pem
+
+scenarios/llm-finetune
+
+venv/

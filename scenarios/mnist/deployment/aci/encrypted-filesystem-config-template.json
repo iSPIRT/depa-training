@@ -5,69 +5,66 @@
       "azure_url_private": false,
       "read_write": false,
       "mount_point": "",
-      "key":{
+      "key": {
         "kid": "",
         "kty": "",
         "authority": {
-            "endpoint": "sharedneu.neu.attest.azure.net"
+          "endpoint": "sharedneu.neu.attest.azure.net"
         },
         "akv": {
-            "endpoint": "",
-            "api_version": "api-version=7.3-preview",
-            "bearer_token": ""
+          "endpoint": "",
+          "api_version": "api-version=7.3-preview",
+          "bearer_token": ""
         }
       },
-      "key_derivation":
-      {
+      "key_derivation": {
         "salt": "",
         "label": ""
-      }      
+      }
     },
     {
       "azure_url": "",
       "azure_url_private": false,
       "read_write": false,
       "mount_point": "",
-      "key":{
+      "key": {
         "kid": "",
         "kty": "",
         "authority": {
-            "endpoint": "sharedneu.neu.attest.azure.net"
+          "endpoint": "sharedneu.neu.attest.azure.net"
         },
         "akv": {
-            "endpoint": "",
-            "api_version": "api-version=7.3-preview",
-            "bearer_token": ""
+          "endpoint": "",
+          "api_version": "api-version=7.3-preview",
+          "bearer_token": ""
         }
       },
-      "key_derivation":
-      {
+      "key_derivation": {
         "salt": "",
         "label": ""
-      }      
+      }
     },
     {
       "azure_url": "",
       "azure_url_private": false,
-      "read_write": false,
+      "read_write": true,
       "mount_point": "",
-      "key":{
+      "key": {
         "kid": "",
         "kty": "",
         "authority": {
-            "endpoint": "sharedneu.neu.attest.azure.net"
+          "endpoint": "sharedneu.neu.attest.azure.net"
         },
         "akv": {
-            "endpoint": "",
-            "api_version": "api-version=7.3-preview",
-            "bearer_token": ""
+          "endpoint": "",
+          "api_version": "api-version=7.3-preview",
+          "bearer_token": ""
         }
       },
-      "key_derivation":
-      {
+      "key_derivation": {
         "salt": "",
         "label": ""
-      }      
+      }
     }
-  ]  
+  ]
 }

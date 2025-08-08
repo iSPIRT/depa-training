@@ -1,0 +1,16 @@
+# Ignore model and binary files
+*.img
+*.bin
+*.pth
+*.pt
+*.onnx
+*.npy
+*.png
+*.nii.gz
+*.nii
+
+# Ignore modeller output folder (relative to repo root)
+modeller/output/
+
+# Ignore any folder named preprocessed (anywhere)
+preprocessed/

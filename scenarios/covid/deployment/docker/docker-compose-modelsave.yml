@@ -1,6 +1,6 @@
 services:
   model_save:
-    image: ${CONTAINER_REGISTRY:+$CONTAINER_REGISTRY/}ccr-model-save:latest
+    image: ${CONTAINER_REGISTRY:+$CONTAINER_REGISTRY/}covid-model-save:latest
     volumes:
       - $MODEL_OUTPUT_PATH:/mnt/model
-    command: ["python3.9", "ccr_dpsgd_model_saving_template_v2.py"]
+    command: ["python3", "load_base_model.py"]

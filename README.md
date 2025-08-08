@@ -43,7 +43,8 @@ This scripts build the following containers.
 
 Alternatively, you can use pre-built container images from the ispirt repository by setting the following environment variable. Docker hub has started throttling which may effect the upload/download time, especially when images are bigger size. So, It is advisable to use other container registries, we are using azure container registry as shown below
 ```bash
-export CONTAINER_REGISTRY=ispirt.azurecr.io
+export CONTAINER_REGISTRY=depatraindevacr.azurecr.io
+./ci/pull-containers.sh
 ```
 
 # Scenarios
@@ -51,6 +52,7 @@ export CONTAINER_REGISTRY=ispirt.azurecr.io
 This repository contains two samples that illustrate the kinds of scenarios DEPA for Training can support. 
 
 - [Training a differentially private COVID prediction model on private datasets](./scenarios/covid/README.md)
+- [Training a differentially private Brain Tumor segmentation model on aggregate Brain MRI datasets](./scenarios/brats/README.md)
 - [Convolutional Neural Network training on MNIST dataset](./scenarios/mnist/README.md)
 
 Follow these links to build and deploy these scenarios. 

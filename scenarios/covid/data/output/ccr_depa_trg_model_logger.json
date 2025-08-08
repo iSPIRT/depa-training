@@ -1,8 +1,0 @@
-Model Architecture
-GradSampleModule(ConvertModel(
-  (Gemm_/fc1/Gemm_output_0): Linear(in_features=10, out_features=128, bias=True)
-  (Relu_/Relu_output_0): ReLU(inplace=True)
-  (Gemm_/fc2/Gemm_output_0): Linear(in_features=128, out_features=64, bias=True)
-  (Relu_/Relu_1_output_0): ReLU(inplace=True)
-  (Gemm_11): Linear(in_features=64, out_features=1, bias=True)
-))Epoch [{epoch+1}/{self.model_config["total_epochs"]}], Loss: {loss.item():.4f}Epoch [{epoch+1}/{self.model_config["total_epochs"]}], Loss: {loss.item():.4f}Epoch [{epoch+1}/{self.model_config["total_epochs"]}], Loss: {loss.item():.4f}Epoch [{epoch+1}/{self.model_config["total_epochs"]}], Loss: {loss.item():.4f}Epoch [{epoch+1}/{self.model_config["total_epochs"]}], Loss: {loss.item():.4f}

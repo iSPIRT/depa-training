@@ -1,6 +1,0 @@
-services:
-  model_save:
-    image: ${CONTAINER_REGISTRY:+$CONTAINER_REGISTRY/}depa-mnist-save-model:latest
-    volumes:
-      - $MODEL_OUTPUT_PATH:/mnt/model
-    command: ["python3.9", "save_model.py"]

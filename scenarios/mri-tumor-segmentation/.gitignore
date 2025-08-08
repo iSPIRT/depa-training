@@ -1,7 +1,0 @@
-*.nii.gz
-*.nii
-*.pth
-*.pt
-/output/
-*.bin
-*.img

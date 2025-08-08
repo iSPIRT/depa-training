@@ -3,22 +3,18 @@
     {
       "name": "Train",
       "config": {
-        "input_dataset_path": "/mnt/remote/mnist/cifar10-dataset.pth", 
+        "input_dataset_path": "/mnt/remote/mnist/cifar10-dataset.pth",
         "saved_model_path": "/mnt/remote/model/model.onnx",
-        "saved_model_optimizer": "/mnt/remote/model/dpsgd_model_opimizer.pth",
-        "trained_model_output_path":"/mnt/remote/output/model.onnx",
+        "trained_model_output_path": "/mnt/remote/output",
         "saved_weights_path": "",
         "batch_size": 4,
         "total_epochs": 2,
-        "max_grad_norm": 0.1,
-        "sample_size": 60000, 
-        "target_variable": "icmr_a_icmr_test_result",
         "test_train_split": 0.2,
         "metrics": [
           "accuracy",
           "precision",
           "recall"
-        ]      
+        ]
       }
     }
   ]

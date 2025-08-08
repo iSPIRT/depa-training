@@ -81,7 +81,7 @@
       "defaultValue": "secureString",
       "type": "string",
       "metadata": {
-        "description": "Configuration representing the pipeline to be trained"
+        "description": "Pipeline configuration"
       }
     }
   },
@@ -154,9 +154,9 @@
                   "mountPath": "/mnt/remote"
                 }
               ],
-	            "securityContext": {
-		            "privileged": "true"
-	            },
+              "securityContext": {
+                "privileged": "true"
+              },
               "resources": {
                 "requests": {
                   "cpu": 0.5,
