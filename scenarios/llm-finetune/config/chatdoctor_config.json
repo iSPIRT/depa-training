@@ -1,5 +1,0 @@
-{
-    "DATASET_NAME": "lavita/ChatDoctor-HealthCareMagic-100k",
-    "SAVE_DIR": "/mnt/output/chatdoctor/",
-    "FORMAT": "csv"
-}

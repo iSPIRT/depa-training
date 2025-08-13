@@ -14,3 +14,6 @@ modeller/output/
 
 # Ignore any folder named preprocessed (anywhere)
 preprocessed/
+
+# Ignore pycache
+__pycache__/

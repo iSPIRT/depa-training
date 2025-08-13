@@ -1,17 +1,22 @@
+# Copyright (c) 2025 DEPA Foundation
+#
+# Licensed under CC0 1.0 Universal (https://creativecommons.org/publicdomain/zero/1.0/)
+# 
+# This software is provided "as is", without warranty of any kind, express or implied,
+# including but not limited to the warranties of merchantability, fitness for a 
+# particular purpose and noninfringement. In no event shall the authors or copyright
+# holders be liable for any claim, damages or other liability, whether in an action
+# of contract, tort or otherwise, arising from, out of or in connection with the
+# software or the use or other dealings in the software.
+#
+# For more information about this framework, please visit:
+# https://depa.world/training/depa_training_framework/
+
 import json
 import argparse
 from .task_base import TaskBase
-from .join import Join
-from .private_train import PrivateTrain
+from .join import Join, ImageJoin
 from .train import Train
-
-# # ADDED: For language tasks
-# from .private_llm_finetune import PrivateLLMFineTune
-# from .join_text import TextJoin
-
-# ADDED: For vision tasks
-from .private_train_vision import PrivateTrainVision
-from .join_img import ImageJoin
 
 class PipelineExecutor:
     def __init__(self):

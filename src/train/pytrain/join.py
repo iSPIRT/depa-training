@@ -1,20 +1,21 @@
-# 2023, The DEPA CCR DP Training Reference Implementation
-# authors shyam@ispirt.in, sridhar.avs@ispirt.in
+# Copyright (c) 2025 DEPA Foundation
 #
-# Licensed TBD
+# Licensed under CC0 1.0 Universal (https://creativecommons.org/publicdomain/zero/1.0/)
+# 
+# This software is provided "as is", without warranty of any kind, express or implied,
+# including but not limited to the warranties of merchantability, fitness for a 
+# particular purpose and noninfringement. In no event shall the authors or copyright
+# holders be liable for any claim, damages or other liability, whether in an action
+# of contract, tort or otherwise, arising from, out of or in connection with the
+# software or the use or other dealings in the software.
 #
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
-# Key references / Attributions: https://depa.world/training/contracts
-# Key frameworks used : pyspark
+# For more information about this framework, please visit:
+# https://depa.world/training/depa_training_framework/
 
 import os
 import json
 import argparse
+import shutil
 from pathlib import Path
 
 from pyspark.sql import SparkSession
@@ -24,8 +25,6 @@ from pyspark.sql.functions import col, column
 
 from .task_base import TaskBase
 
-# Debug Enabled
-debug_poc = True
 
 class Join(TaskBase):
     
@@ -48,8 +47,7 @@ class Join(TaskBase):
         name_list = []
         for c in tdp_config_list:
             name_list.append(c["name"])
-        if debug:
-            print("Debug |get_name")
+
         return name_list
 
     def create_spark_context(self, tdp_config_list, debug=True):
@@ -60,16 +58,13 @@ class Join(TaskBase):
         context = ""
         for c in name_list:
             context = context + c + "_"
-        if debug:
-            print("Debug |create_spark_context")
+
         return SparkSession.builder.appName(context).getOrCreate()
 
     def generate_query(self, tdp_config_list, joined_dataset_config, debug=True):
         """
         Extract the query logic from the query config. Current implementation extracts query from query config.
         """
-        if debug:
-            print("Debug |generate_query")
         return joined_dataset_config["joining_query"]
 
     def dropDupeDfCols(self, df, debug=True):
@@ -89,8 +84,7 @@ class Join(TaskBase):
         df = df.toDF(*[str(i) for i in range(len(df.columns))])
         for dupcol in dupcols:
             df = df.drop(str(dupcol))
-        if debug:
-            print("Debug |dropDupeDfCols")
+
         return df.toDF(*newcols)
 
     def dp_load_data(self, spark, input_folder, data_file, load=True, debug=True):
@@ -100,14 +94,11 @@ class Join(TaskBase):
 
         if load:
             input_file = input_folder + data_file
-            if debug:
-                print("Debug | input_file", input_file)
+
             data_loaded = spark.read.csv(
                 input_file, header=True, inferSchema=True, mode="DROPMALFORMED"
             )
-        if debug:
-            print("Debug |dp_load_data | input_file", data_loaded.count())
-            data_loaded.show(2)
+
         return data_loaded
 
     def create_view(self, dataset_name, view_name):
@@ -128,9 +119,7 @@ class Join(TaskBase):
         retun_dataset = retun_dataset.drop("_c0")
         # Save the dataset
         retun_dataset.toPandas().to_csv(model_file)
-        if debug:
-            print("Debug | ccr_prepare_joined_dataset | Dataset Created ", model_file)
-            retun_dataset.show(2)
+
         return retun_dataset
 
     def ccr_prepare_joined_dataset_full(
@@ -154,32 +143,6 @@ class Join(TaskBase):
 
         return_dataset_final.toPandas().to_csv(model_file)
 
-        if debug:
-            print(
-                "Debug | ccr_prepare_joined_dataset_full|joint_dataset| count =",
-                return_dataset.count(),
-            )
-            print(
-                "Debug | ccr_prepare_joined_dataset_full|joint_dataset|step1 count =",
-                return_dataset_step1.count(),
-            )
-            print(
-                "Debug | ccr_prepare_joined_dataset_full|joint_dataset|step2 count =",
-                return_dataset_step2.count(),
-            )
-            print(
-                "Debug | ccr_prepare_joined_dataset_full|joint_dataset|step3 count =",
-                return_dataset_step3.count(),
-            )
-            print(
-                "Debug | ccr_prepare_joined_dataset_full|joint_dataset|final count =",
-                return_dataset_final.count(),
-            )
-            return_dataset.show(2)
-            print(
-                "Debug | ccr_prepare_joined_dataset_full |Dataset Created ", model_file
-            )
-
         return return_dataset_final
 
     def ccr_create_joined_dataset_wo_identifiers(
@@ -189,17 +152,6 @@ class Join(TaskBase):
         return_dataset = joined_dataset.drop(*identifiers)
         # Modeling dataset
         return_dataset.toPandas().to_csv(modelfile)
-
-        if debug_poc:
-            print(
-                "Debug | ccr_create_joined_dataset_wo_identifiers|joint_dataset| count  =",
-                joined_dataset.count(),
-            )
-            print(
-                "Debug | ccr_create_joined_dataset_wo_identifiers|return_dataset| count =",
-                return_dataset.count(),
-            )
-            return_dataset.show(2)
 
         return return_dataset
 
@@ -226,9 +178,6 @@ class Join(TaskBase):
             file_str = file_str + c[1] + "_"
         file_str = file_str + "linked_anon.csv"
 
-        if debug_poc:
-            print("Debug | generate_base_query_dataset | file generated ", file_str)
-
         return file_str
 
     def execute(self, config):
@@ -240,13 +189,14 @@ class Join(TaskBase):
         spark = self.create_spark_context(
             tdp_config_list
         )  # currently treated as a global instance but can be converted into a specific instance for multiple pipelines
+        spark.sparkContext.setLogLevel("ERROR")
         query = self.generate_query(tdp_config_list, joined_dataset_config)
         dataset_info = self.generate_data_info(spark, tdp_config_list)
         model_output_folder = joined_dataset_config["model_output_folder"]
         # sandbox_joined_anon_simplified=ccr_prepare_joined_dataset_full(dataset_info,query,joined_dataset_config["model_file"],debug=True)
         model_file = joined_dataset_config["joined_dataset"]
         sandbox_joined_anon_simplified = self.ccr_prepare_joined_dataset_full(
-            spark, dataset_info, joined_dataset_config, query, model_file, debug=True
+            spark, dataset_info, joined_dataset_config, query, model_file, debug=False
         )
         print("Generating aggregated data in " + model_output_folder + model_file)
         sandbox_joined_without_key_identifiers = (
@@ -257,4 +207,39 @@ class Join(TaskBase):
                 True,
             )
         )
+
+
+
+class ImageJoin(TaskBase):
+    
+    def join_datasets(self, config):
+        output_path = config["joined_dataset"]
+        os.makedirs(output_path, exist_ok=True)
+
+        for dataset in config["datasets"]:
+            dataset_path = dataset["mount_path"]
+            dataset_name = dataset["name"]
+
+            if os.path.isdir(dataset_path):
+                for root, dirs, files in os.walk(dataset_path):
+                    rel_path = os.path.relpath(root, dataset_path)
+                    target_root = os.path.join(output_path, rel_path)
+                    os.makedirs(target_root, exist_ok=True)
+
+                    for file in files:
+                        src_file = os.path.join(root, file)
+                        dst_file = os.path.join(target_root, file)
+
+                        if not os.path.exists(dst_file):
+                            shutil.copy2(src_file, dst_file)
+                print(f"Merged dataset '{dataset_name}' into '{output_path}'")
+            else:
+                print(f"Dataset '{dataset_name}' is not a valid directory.")
+
+        print(f"\nAll datasets joined in: {output_path}")
+
+
+    def execute(self, config):
+        # Join the datasets
+        self.join_datasets(config)
 

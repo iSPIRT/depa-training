@@ -29,22 +29,42 @@
       }
     },
     {
-      "name": "PrivateTrainVision",
+      "name": "Train",
       "config": {
-        "DEVICE": "cpu",
-        "input_dataset_path": "/tmp/",
-        "saved_model_path": "/mnt/remote/model/model.pth",
-        "helper_scripts_path": "/mnt/remote/model",
-        "trained_model_output_path": "/mnt/remote/output",
-        "sample_predictions_path": "/mnt/remote/output",
+        "paths": {
+          "input_dataset_path": "/tmp/",
+          "base_model_path": "/mnt/remote/model/model.pth",
+          "saved_weights_path": "/mnt/remote/model/model.pth",
+          "helper_scripts_path": "/mnt/remote/model",
+          "trained_model_output_path": "/mnt/remote/output",
+          "sample_predictions_path": "/mnt/remote/output"
+        },
+        "model_type": "pytorch",
+        "model_params": {
+          "in_ch": 1,
+          "out_ch": 1,
+          "base_ch": 8,
+          "final_act": "sigmoid"
+        },
+        "is_private": true,
+        "privacy_params": {
+          "max_grad_norm": 0.1,
+          "epsilon_threshold": 1.5,
+          "delta": 0.005
+        },
+        "device": "cpu",
         "batch_size": 4,
-        "LEARNING_RATE": 1e-4,
-        "MAX_LR": 1e-2,
-        "total_epochs": 3,
-        "max_grad_norm": 0.1,
-        "epsilon_threshold": 1.5,
-        "delta": 0.005,
-        "test_train_split": 0.2
+        "learning_rate": 1e-4,
+        "max_lr": 1e-2,
+        "total_epochs": 1,
+        "train_test_split": 0.8,
+        "standardize_features": false,
+        "sample_size": null,
+        "target_variable": null,
+        "metrics": [
+          "dice_score",
+          "jaccard_index"
+        ]
       }
     }
   ]

@@ -40,7 +40,7 @@
                     }
                 ],
                 "joined_dataset": {
-                    "joined_dataset": "sandbox_icmr_cowin_index_without_key_identifiers.csv",
+                    "joined_dataset": "covid_joined.csv",
                     "joining_query": "select * from icmr, index, cowin where index.pk_mobno_hashed == icmr.pk_mobno_hashed and index.pk_mobno_hashed == cowin.pk_mobno_hashed",
                     "joining_key": "pk_mobno_hashed",
                     "model_output_folder": "/tmp/",
@@ -165,24 +165,38 @@
             }
         },
         {
-            "name": "PrivateTrain",
+            "name": "Train",
             "config": {
-                "input_dataset_path": "/tmp/sandbox_icmr_cowin_index_without_key_identifiers.csv",
-                "saved_model_path": "/mnt/remote/model/model.onnx",
-                "trained_model_output_path": "/mnt/remote/output",
-                "saved_weights_path": "",
+                "paths": {
+                    "input_dataset_path": "/tmp/covid_joined.csv",
+                    "base_model_path": "/mnt/remote/model/model.onnx",
+                    "saved_weights_path": "",
+                    "helper_scripts_path": "/mnt/remote/model",
+                    "trained_model_output_path": "/mnt/remote/output",
+                    "sample_predictions_path": "/mnt/remote/output"
+                },
+                "model_type": "onnx",
+                "model_params": "",
+                "is_private": true,
+                "privacy_params": {
+                    "max_grad_norm": 0.1,
+                    "epsilon_threshold": 1.0,
+                    "delta": 0.01
+                },
+                "device": "cpu",
                 "batch_size": 2,
-                "total_epochs": 5,
-                "max_grad_norm": 0.1,
-                "epsilon_threshold": 1.0,
-                "delta": 0.01,
+                "learning_rate": 1e-4,
+                "max_lr": 1e-2,
+                "total_epochs": 1,
+                "train_test_split": 0.8,
+                "standardize_features": true,
                 "sample_size": 60000,
                 "target_variable": "icmr_a_icmr_test_result",
-                "test_train_split": 0.2,
                 "metrics": [
                     "accuracy",
                     "precision",
-                    "recall"
+                    "recall",
+                    "f1_score"
                 ]
             }
         }

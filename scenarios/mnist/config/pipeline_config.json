@@ -3,17 +3,29 @@
     {
       "name": "Train",
       "config": {
-        "input_dataset_path": "/mnt/remote/mnist/cifar10-dataset.pth",
-        "saved_model_path": "/mnt/remote/model/model.onnx",
-        "trained_model_output_path": "/mnt/remote/output",
-        "saved_weights_path": "",
+        "paths": {
+          "input_dataset_path": "/mnt/remote/mnist/cifar10-dataset.pth",
+          "base_model_path": "/mnt/remote/model/model.onnx",
+          "saved_weights_path": "",
+          "helper_scripts_path": "/mnt/remote/model",
+          "trained_model_output_path": "/mnt/remote/output",
+          "sample_predictions_path": "/mnt/remote/output"
+        },
+        "model_type": "onnx",
+        "model_params": {},
+        "is_private": false,
+        "device": "cpu",
         "batch_size": 4,
-        "total_epochs": 2,
-        "test_train_split": 0.2,
+        "learning_rate": 1e-4,
+        "max_lr": 1e-2,
+        "total_epochs": 1,
+        "train_test_split": 0.8,
+        "standardize_features": false,
         "metrics": [
           "accuracy",
           "precision",
-          "recall"
+          "recall",
+          "f1_score"
         ]
       }
     }

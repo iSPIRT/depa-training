@@ -1,3 +1,17 @@
+# Copyright (c) 2025 DEPA Foundation
+#
+# Licensed under CC0 1.0 Universal (https://creativecommons.org/publicdomain/zero/1.0/)
+# 
+# This software is provided "as is", without warranty of any kind, express or implied,
+# including but not limited to the warranties of merchantability, fitness for a 
+# particular purpose and noninfringement. In no event shall the authors or copyright
+# holders be liable for any claim, damages or other liability, whether in an action
+# of contract, tort or otherwise, arising from, out of or in connection with the
+# software or the use or other dealings in the software.
+#
+# For more information about this framework, please visit:
+# https://depa.world/training/depa_training_framework/
+
 import os
 from glob import glob
 import cv2
@@ -8,19 +22,23 @@ import torch.nn.functional as F
 from torch.utils.data import Dataset
 from torchvision.transforms import ToTensor
 from PIL import Image
-
+import matplotlib.pyplot as plt # for saving sample predictions
+import monai # for medical imaging loss functions
+from tqdm import tqdm
+import json
 
 # Created for MRI segmentation scenario, 
 class CustomDataset(Dataset):
-    def __init__(self, root_dir, transform=None, augment=True):
+    def __init__(self, data_dir, target_variable=None, transform=None, augment=False):
         self.transform = transform
-        self.root_dir = root_dir
+        self.data_dir = data_dir
+        self.target_variable = target_variable
         self.augment = augment
         
         # self.base_path = 'BraTS2020_Training_png'
         self.folder_pattern = 'BraTS20_Training_*'
         # self.image_prefix = 'BraTS20_Training_'
-        self.patient_folders = glob(os.path.join(self.root_dir, self.folder_pattern))
+        self.patient_folders = glob(os.path.join(self.data_dir, self.folder_pattern))
         
         # create pairs of images, masks
         self.samples = []
@@ -153,3 +171,126 @@ class Base_Model(nn.Module):
         else:
             x = x
         return x
+
+
+
+def custom_loss_fn(outputs, labels):
+    l1_loss = nn.L1Loss(reduction='mean')
+    mse_loss = nn.MSELoss(reduction='mean')
+    dice_loss = monai.losses.DiceLoss(sigmoid=True, squared_pred=True, reduction='mean')
+
+    return dice_loss(outputs, labels) + 2 * l1_loss(outputs, labels)
+
+def dice_score(preds, targets, threshold=0.1, eps=1e-7):
+    # If preds are logits, apply sigmoid
+    if preds.dtype.is_floating_point:
+        preds = torch.sigmoid(preds)
+
+    # Calculate per batch
+    batch_size = preds.size(0)
+    dice_scores = []
+    
+    for i in range(batch_size):
+        pred = preds[i].detach().squeeze().cpu().numpy() > threshold
+        target = targets[i].detach().squeeze().cpu().numpy() > threshold
+        
+        # Calculate intersection and sum for dice score
+        intersection = np.logical_and(target, pred)
+        dice_score = (2 * np.sum(intersection)) / (np.sum(target) + np.sum(pred))
+        dice_scores.append(dice_score)
+        
+    return np.mean(dice_scores)
+
+
+def jaccard_index(preds, targets, threshold=0.1, eps=1e-7):
+    # If preds are logits, apply sigmoid
+    if preds.dtype.is_floating_point:
+        preds = torch.sigmoid(preds)
+
+    # Calculate per batch
+    batch_size = preds.size(0)
+    jaccard_scores = []
+    
+    for i in range(batch_size):
+        pred = preds[i].detach().squeeze().cpu().numpy() > threshold
+        target = targets[i].detach().squeeze().cpu().numpy() > threshold
+        
+        # Calculate intersection and union
+        intersection = np.logical_and(target, pred)
+        union = np.logical_or(target, pred)
+        jaccard_score = np.sum(intersection) / np.sum(union)
+        jaccard_scores.append(jaccard_score)
+
+    return np.mean(jaccard_scores)
+
+
+
+def custom_inference_fn(model, val_loader, device, config):
+    """
+    Custom inference function with additional metrics
+    """
+    save_path = config.get("paths", {}).get("sample_predictions_path")
+    
+    model.eval()
+    dice_scores = []
+    jaccard_indices = []
+    total_loss = 0
+    
+    with torch.no_grad():
+        # for [image, mask] in tqdm(val_loader, desc="Running inference"):
+        for [image, mask] in val_loader:
+            image = image.to(device)
+            mask = mask.to(device)
+
+            pred = model(image)
+
+            loss = custom_loss_fn(pred, mask)
+            total_loss += loss.item()
+
+            dice = dice_score(pred, mask)
+            jaccard = jaccard_index(pred, mask)
+
+            dice_scores.append(dice)
+            jaccard_indices.append(jaccard)
+
+    # Calculate additional metrics
+    avg_loss = total_loss / len(val_loader)
+
+    # Calculate segmentation metrics
+    avg_dice = np.mean(dice_scores)
+    avg_jaccard = np.mean(jaccard_indices)
+
+    metrics_dict = {
+        'loss': avg_loss,
+        'dice_score': avg_dice,
+        'jaccard_index': avg_jaccard
+    }
+    # save as json
+    metrics_fname = os.path.join(save_path, "validation_metrics.json")
+    with open(metrics_fname, "w") as f:
+        json.dump(metrics_dict, f)
+
+    print(f"Validation Metrics: {metrics_dict}")
+
+    # Save sample predictions
+    i = 1
+    with torch.no_grad():
+        for image, mask in val_loader:
+            image = image.to(device)
+            mask = mask.to(device)
+            pred = model(image)
+
+            pred = pred[0].cpu().squeeze().numpy() > 0.1
+            image = image[0].cpu().squeeze().numpy()
+            mask = mask[0].cpu().squeeze().numpy() > 0.1
+            plt.imsave(os.path.join(save_path, f"pred_{i}.png"), pred, cmap='gray')
+            plt.imsave(os.path.join(save_path, f"image_{i}.png"), image, cmap='gray')
+            plt.imsave(os.path.join(save_path, f"mask_{i}.png"), mask, cmap='gray')
+
+            if i >= 5:
+                break
+            i += 1
+
+    print(f"Sample predictions saved to {save_path}")
+
+    return metrics_dict

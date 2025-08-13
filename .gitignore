@@ -8,3 +8,5 @@
 scenarios/llm-finetune
 
 venv/
+
+**/__pycache__/

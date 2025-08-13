@@ -12,3 +12,7 @@ workspace/
 .mypy_cache/
 **/*.cose
 **/*.cbor
+
+pytrain/old_private_train_vision.py
+pytrain/private_llm_finetune.py
+pytrain/join_text.py

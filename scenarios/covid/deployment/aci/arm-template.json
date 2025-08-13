@@ -10,7 +10,7 @@
       }
     },
     "location": {
-      "defaultValue": "[resourceGroup().location]",
+      "defaultValue": "northeurope",
       "type": "string",
       "metadata": {
         "description": "Location for all resources."
@@ -154,9 +154,9 @@
                   "mountPath": "/mnt/remote"
                 }
               ],
-	            "securityContext": {
-		            "privileged": "true"
-	            },
+              "securityContext": {
+                "privileged": "true"
+              },
               "resources": {
                 "requests": {
                   "cpu": 0.5,

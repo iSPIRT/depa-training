@@ -1,7 +1,0 @@
-services:
-  model_save:
-    image: ${CONTAINER_REGISTRY:+$CONTAINER_REGISTRY/}ccr-model-save:latest
-    volumes:
-      - $MODEL_OUTPUT_PATH:/mnt/model
-      - $CONFIG_PATH:/mnt/config/model_repo_config.json
-    command: ["python3.9", "load_base_model.py"]

@@ -1,48 +1,49 @@
-# Brain MRI Tumor Segmentation
+# Brain Tumor Segmentation
 
-This scenario demonstrates how a deep learning model can be trained for MRI Tumor Segmentation using the join of multiple (potentially PII-sensitive) medical imaging datasets. The Training Data Consumer (TDC) building the model gets into a contractual agreement with multiple Training Data Providers (TDPs) having annotated MRI data, and the model is trained on the joined datasets in a data-blind manner within the CCR, maintaining privacy guarantees (as per need) using differential privacy. For demonstration purpose, this scenario uses annotated MRI data made available through the BRaTS 2020 challenge, and a custom UNet architecture model for segmentation.
+This scenario demonstrates how a deep learning model can be trained for Brain MRI Tumor Segmentation using the join of multiple (potentially PII, due to combination of quasi-identifiers such as biodata and possiblity of volumetric facial reconstruction <add ref>, radiomics combined with biodata) medical imaging datasets. The Training Data Consumer (TDC) building the model gets into a contractual agreement with multiple Training Data Providers (TDPs) having annotated MRI data, and the model is trained on the joined datasets in a data-blind manner within the CCR, maintaining privacy guarantees (as per need, keeping in mind the utility value of the model) using differential privacy. For demonstration purpose, this scenario uses annotated MRI data made available through the BraTS 2020 challenge <add license, os>, and a custom UNet architecture model for segmentation.
 
 For this demo, we use the BraTS 2020 challenge datasets [1] [2] [3].
 
 The end-to-end training pipeline consists of the following phases:
 
 1. Data pre-processing
-2. Packaging, encryption and upload of data and model
+2. Data packaging, encryption and upload
 3. Model packaging, encryption and upload
 4. Encryption key import with key release policies
 5. Deployment and execution of CCR
-6. Model decryption
+6. Trained model decryption
 
 ## Build container images
 
 Build container images required for this sample as follows:
 
 ```bash
-cd ~/depa-training/scenarios/brats
+export SCENARIO=brats
+cd ~/depa-training/scenarios/$SCENARIO
 ./ci/build.sh
 ```
 
 This script builds the following container images:
 
 - `preprocess-brats-a, preprocess-brats-b, preprocess-brats-c`: Containers that pre-process the individual MRI datasets
-- `brats-model-save`: Container that saves the base model to be trained
+- `brats-model-save`: Container that saves the base model to be trained.
 
 Alternatively, you can pull and use pre-built container images from the ispirt container registry by setting the following environment variable. Docker hub has started throttling which may effect the upload/download time, especially when images are bigger size. So, It is advisable to use other container registries. We are using Azure container registry (ACR) as shown below:
 
 ```bash
 export CONTAINER_REGISTRY=depatraindevacr.azurecr.io
-cd ~/depa-training/scenarios/brats
+cd ~/depa-training/scenarios/$SCENARIO
 ./ci/pull-containers.sh
 ```
 
 ## Data pre-processing
 
-Acting as a Training Data Provider (TDP), prepare your datasets.
+The folder ```scenarios/brats/src``` contains scripts for extracting and pre-processing the BraTS MRI datasets. Acting as a Training Data Provider (TDP), prepare your datasets.
 
 For ease of execution, the individual preprocessed BraTS MRI datasets are already made available in the repo under `scenarios/brats/data` as `tar.gz` files. Run the following scripts to extract them:
 
 ```bash
-cd ~/depa-training/scenarios/brats/deployment/docker
+cd ~/depa-training/scenarios/$SCENARIO/deployment/docker
 ./preprocess.sh
 ```
 
@@ -52,7 +53,7 @@ The datasets are saved to the [data](./data/) directory.
 
 ## Prepare model for training
 
-Next, acting as a Training Data Consumer (TDC), define and save your base model for training using the following script:
+Next, acting as a Training Data Consumer (TDC), define and save your base model for training using the following script. Additionally, the TDC must also define their BaseModel, CustomDataset classes and custom_loss_fn() and custom_inference_fn() functions to be used in the training pipeline, within the [class_definitions.py](./src/class_definitions.py) file.
 
 ```bash
 ./save-model.sh
@@ -77,40 +78,91 @@ The script joins the datasets and trains the model using a pipeline configuratio
 If all goes well, you should see training progress output similar to:
 
 ```bash
-Epoch: 1 | Step: 50 | Train loss: 0.342 | Dice score: 0.823
-Epoch: 1 | Step: 100 | Train loss: 0.223 | Dice score: 0.856
-...
-Epoch 1 completed. Average loss: 0.256 | Average Dice: 0.845
+train-1  | Merged dataset 'brats_A' into '/tmp/'
+train-1  | Merged dataset 'brats_B' into '/tmp/'
+train-1  | Merged dataset 'brats_C' into '/tmp/'
+train-1  | Merged dataset 'brats_D' into '/tmp/'
+train-1  | All datasets joined in: /tmp/
+train-1  | Loaded helper module class_definitions from /mnt/remote/model
+train-1  | Training samples: 261
+train-1  | Validation samples: 66
+train-1  | Model loaded from PyTorch
+train-1  | Epoch 1/5 completed | Loss: 1.6092 | Epsilon: 0.3496
+train-1  | Epoch 2/5 completed | Loss: 1.2024 | Epsilon: 0.6328
+train-1  | Epoch 3/5 completed | Loss: 1.0584 | Epsilon: 0.8921
+train-1  | Epoch 4/5 completed | Loss: 0.9794 | Epsilon: 1.2342
+train-1  | Epoch 5/5 completed | Loss: 0.7554 | Epsilon: 1.4947
+train-1  | Saving trained model to /mnt/remote/output/trained_model.pth
+train-1  | Validation Metrics: {'loss': 0.9561, 'dice_score': 0.6064262974994365, 'jaccard_index': 0.3153773488562091}
+train-1  | CCR Training complete!
+train-1  | 
+train-1 exited with code 0
 ```
 
 The trained model along with sample predictions on the validation set will be saved under the [output](./modeller/output/) directory.
 
-Now that you have tested the training locally, let's move on the actual execution using a Confidential Clean Room (CCR) equipped with confidential computing, key release policies, and contract-based access control.
+Now that training has run successfully locally, let's move on to the actual execution using a Confidential Clean Room (CCR) equipped with confidential computing, key release policies, and contract-based access control.
 
 ## Deploy on CCR
 
-Follow these steps to deploy and run the DEPA-Training solution on Azure's Container Instances (ACI) with confidential computing.
+In a more realistic scenario, these datasets will not be available in the clear to the TDC, and the TDC will be required to use a CCR for training her model. The following steps describe the process of sharing encrypted datasets with TDCs and setting up a CCR in Azure for training models. Please stay tuned for CCR on other cloud platforms. 
 
-### 1. Azure and Docker Login
+To deploy in Azure, you will need the following. 
+
+- Docker Hub account to store container images. Alternatively, you can use pre-built images from the ```ispirt``` container registry. 
+- [Azure Key Vault](https://azure.microsoft.com/en-us/products/key-vault/) to store encryption keys and implement secure key release to CCR. You can either you Azure Key Vault Premium (lower cost), or [Azure Key Vault managed HSM](https://learn.microsoft.com/en-us/azure/key-vault/managed-hsm/overview) for enhanced security. Please see instructions below on how to create and setup your AKV instance. 
+- Valid Azure subscription with sufficient access to create key vault, storage accounts, storage containers, and Azure Container Instances. 
+
+If you are using your own development environment instead of a dev container or codespaces, you will to install the following dependencies. 
+
+- [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli-linux).  
+- [Azure CLI Confidential containers extension](https://learn.microsoft.com/en-us/cli/azure/confcom?view=azure-cli-latest). After installing Azure CLI, you can install this extension using ```az extension add --name confcom -y```
+- [Go](https://go.dev/doc/install). Follow the instructions to install Go. After installing, ensure that the PATH environment variable is set to include ```go``` runtime.
+- ```jq```. You can install jq using ```sudo apt-get install -y jq```
+
+We will be creating the following resources as part of the deployment. 
+
+- Azure Key Vault
+- Azure Storage account
+- Storage containers to host encrypted datasets
+- Azure Container Instances to deploy the CCR and train the model
+
+### 1\. Push Container Images
+
+Pre-built container images are available in iSPIRT's container registry, which can be pulled by setting the following environment variable.
 
 ```bash
-az login
-docker login
+export CONTAINER_REGISTRY=depatraindevacr.azurecr.io
 ```
+
+If you wish to use your own container images, login to docker hub (or your container registry of choice) and then build and push the container images to it, so that they can be pulled by the CCR. This is a one-time operation, and you can skip this step if you have already pushed the images to your container registry.
+
+```bash
+export CONTAINER_REGISTRY=<container-registry-name>
+docker login -u <docker-hub-username> -p <docker-hub-password> ${CONTAINER_REGISTRY}
+cd ~/depa-training
+./ci/push-containers.sh
+cd scenarios/$SCENARIO
+./ci/push-containers.sh
+```
+
+> **Note:** Replace `<container-registry-name>`, `<docker-hub-username>` and `<docker-hub-password>` with your container registry name, docker hub username and password respectively. Preferably use registry services other than Docker Hub as throttling restrictions will cause delays (or) image push/pull failures.
 
 ---
 
-### 2. Export Environment Variables
+### 2\. Create Resources
 
-Set up the necessary environment variables for your deployment.
+First, set up the necessary environment variables for your deployment.
 
 ```bash
+az login
+
 export SCENARIO=brats
 export CONTAINER_REGISTRY=depatraindevacr.azurecr.io
 export AZURE_LOCATION=northeurope
 export AZURE_SUBSCRIPTION_ID=<azure-subscription-id>
 export AZURE_RESOURCE_GROUP=<resource-group-name>
-export AZURE_KEYVAULT_ENDPOINT=<key-vault-endpoint-name>.vault.azure.net
+export AZURE_KEYVAULT_ENDPOINT=<key-vault-name>.vault.azure.net
 export AZURE_STORAGE_ACCOUNT_NAME=<storage-account-name>
 
 export AZURE_BRATS_A_CONTAINER_NAME=bratsacontainer
@@ -119,16 +171,36 @@ export AZURE_BRATS_C_CONTAINER_NAME=bratsccontainer
 export AZURE_BRATS_D_CONTAINER_NAME=bratsdcontainer
 export AZURE_MODEL_CONTAINER_NAME=modelcontainer
 export AZURE_OUTPUT_CONTAINER_NAME=outputcontainer
-
-export CONTRACT_SERVICE_URL=https://depa-contract-service.southindia.cloudapp.azure.com:8000
-export TOOLS_HOME=~/depa-training/external/confidential-sidecar-containers/tools
 ```
+
+Azure Naming Rules:
+- Resource Group:
+  - 1–90 characters
+  - Letters, numbers, underscores, parentheses, hyphens, periods allowed
+  - Cannot end with a period (.)
+  - Case-insensitive, unique within subscription\
+- Key Vault:
+  - 3-24 characters
+  - Globally unique name
+  - Lowercase letters, numbers, hyphens only
+  - Must start and end with letter or number
+- Storage Account:
+  - 3-24 characters
+  - Globally unique name
+  - Lowercase letters and numbers only
+- Storage Container:
+  - 3-63 characters
+  - Lowercase letters, numbers, hyphens only
+  - Must start and end with a letter or number
+  - No consecutive hyphens
+  - Unique within storage account
 
 ---
 
 **Important:**
 
-The values for the below environment variables must precisely match the namesake environment variables used during contract signing. Any mismatch will lead to execution failure.
+The values for the environment variables listed below must precisely match the namesake environment variables used during contract signing (next step). Any mismatch will lead to execution failure.
+
 -  `SCENARIO`
 - `AZURE_KEYVAULT_ENDPOINT`
 - `CONTRACT_SERVICE_URL`
@@ -139,26 +211,57 @@ The values for the below environment variables must precisely match the namesake
 - `AZURE_BRATS_D_CONTAINER_NAME`
 
 ---
-
-### 3\. Data Preparation and Key Management
-
-Navigate to the [ACI deployment](./deployment/aci/) directory and execute the scripts for storage container creation, Azure Key Vault setup, key import, data encryption and upload to Azure Blob Storage, in preparation of the CCR deployment.
+With the environment variables set, we are ready to create the resources -- Azure Key Vault and Azure Storage containers.
 
 ```bash
 cd ~/depa-training/scenarios/$SCENARIO/deployment/aci
-
 ./1-create-storage-containers.sh
-
 ./2-create-akv.sh
+```
+---
 
-./3-import-keys.sh
+### 3\. Contract Signing
 
-./4-encrypt-data.sh
+Navigate to the [contract-ledger](https://github.com/kapilvgit/contract-ledger/blob/main/README.md) repository and follow the instructions for contract signing.
 
-./5-upload-encrypted-data.sh
+Once the contract is signed, export the contract sequence number as an environment variable in the same terminal where you set the environment variables for the deployment.
+
+```bash
+export CONTRACT_SEQ_NO=<contract-sequence-number>
 ```
 
-### 4\. ACI Deployment
+---
+
+### 4\. Data Encryption and Upload
+
+Using their respective keys, the TDPs and TDC encrypt their datasets and model (respectively) and upload them to the Storage containers created in the previous step.
+
+Navigate to the [ACI deployment](./deployment/aci/) directory and execute the scripts for key import, data encryption and upload to Azure Blob Storage, in preparation of the CCR deployment.
+
+The import-keys script generates and imports encryption keys into Azure Key Vault with a policy based on [policy-in-template.json](./policy/policy-in-template.json). The policy requires that the CCRs run specific containers with a specific configuration which includes the public identity of the contract service. Only CCRs that satisfy this policy will be granted access to the encryption keys. The generated keys are available as files with the extension `.bin`. 
+
+```bash
+export CONTRACT_SERVICE_URL=https://depa-contract-service.southindia.cloudapp.azure.com:8000
+export TOOLS_HOME=~/depa-training/external/confidential-sidecar-containers/tools
+
+./3-import-keys.sh
+```
+
+The data and model are then packaged as encrypted filesystems by the TDPs and TDC using their respective keys, which are saved `.img` files.
+
+```bash
+./4-encrypt-data.sh
+```
+
+The encrypted data and model are then uploaded to the Storage containers created in the previous step. The `.img` files are uploaded to the Storage containers as blobs.
+
+```bash
+./5-upload-encrypted-data.sh
+
+
+---
+
+### 5\. ACI Deployment
 
 With the resources ready, we are ready to deploy the Confidential Clean Room (CCR) for executing the privacy-preserving model training.
 
@@ -169,6 +272,8 @@ export CONTRACT_SEQ_NO=$(./get-contract-seq-no.sh)
 
 ```
 
+This script will deploy the container images from your container registry, including the encrypted filesystem sidecar. The sidecar will generate an SEV-SNP attestation report, generate an attestation token using the Microsoft Azure Attestation (MAA) service, retrieve dataset, model and output encryption keys from the TDP and TDC's Azure Key Vault, train the model, and save the resulting model into TDC's output filesystem image, which the TDC can later decrypt. 
+
 **Note:** if the contract-ledger repository is also located at the root of the same environment where this depa-training repo is, the `$CONTRACT_SEQ_NO` variable automatically picks up the sequence number of the latest contract that was signed between the TDPs and TDC.
 
 If not, manually set the `$CONTRACT_SEQ_NO` variable to the exact value of the contract sequence number (of format 2.XX). For example, if the number was 2.15, export as:
@@ -177,9 +282,9 @@ If not, manually set the `$CONTRACT_SEQ_NO` variable to the exact value of the c
 export CONTRACT_SEQ_NO=15
 ```
 
-**Note:** The completion of this script's execution simply creates a CCR instance, and doesn't indicate whether training has completed or not. The training process might still be ongoing. Monitor the container logs to track progress until training is complete.
+**Note:** The completion of this script's execution simply creates a CCR instance, and doesn't indicate whether training has completed or not. The training process might still be ongoing. Poll the container logs (see below) to track progress until training is complete.
 
-### 5\. Monitor Container Logs
+### 6\. Monitor Container Logs
 
 Use the following commands to monitor the logs of the deployed containers. You might have to repeatedly poll this command to monitor the training progress:
 
@@ -189,6 +294,8 @@ az container logs \
   --resource-group "$AZURE_RESOURCE_GROUP" \
   --container-name depa-training
 ```
+
+You will know training has completed when the logs print "CCR Training complete!".
 
 #### Troubleshooting
 
@@ -240,7 +347,7 @@ stat ~/depa-training/scenarios/$SCENARIO/modeller/output/trained_model.pth
 
 You can use the following command to delete the resource group and clean-up all resources used in the demo. Alternatively, you can navigate to the Azure portal and delete the resource group created for this demo.
 
-```
+```bash
 az group delete --yes --name $AZURE_RESOURCE_GROUP
 ```
 
@@ -251,147 +358,3 @@ az group delete --yes --name $AZURE_RESOURCE_GROUP
 [2] S. Bakas, H. Akbari, A. Sotiras, M. Bilello, M. Rozycki, J.S. Kirby, et al., "Advancing The Cancer Genome Atlas glioma MRI collections with expert segmentation labels and radiomic features", Nature Scientific Data, 4:170117 (2017) DOI: 10.1038/sdata.2017.117(opens in a new window)
 
 [3] S. Bakas, M. Reyes, A. Jakab, S. Bauer, M. Rempfler, A. Crimi, et al., "Identifying the Best Machine Learning Algorithms for Brain Tumor Segmentation, Progression Assessment, and Overall Survival Prediction in the BRATS Challenge", arXiv preprint arXiv:1811.02629 (2018)
-
-
-
-
-
-
-
-
-
-
-
-
-
-<br>
-<br>
-<!-- 
-### Troubleshooting
-
-(work in progress)
-
-Here are some common issues (and their solutions for some of them):
-
-**Issue:** `ls: cannot access '/mnt/remote/config/pipeline_config.json': No such file or directory`
-
-**Command:**
-
-```bash
-az container logs --name depa-training-mnist --resource-group $AZURE_RESOURCE_GROUP --container-name depa-training
-```
-
-**Output:**
-
-```
-ls: cannot access '/mnt/remote/config/pipeline_config.json': No such file or directory
-```
-
-**Reason:** (Not provided in notes, but typically indicates a missing file or incorrect path for `pipeline_config.json` within the container.)
-**Fix:** (No fix provided in notes.)
-
-### Issue: `DeploymentFailed` during `deploy.sh`
-
-**Command:**
-
-```bash
-./deploy.sh -c <contract-sequence-number> -p ../../config/pipeline_config.json
-```
-
-**Output:**
-
-```json
-{
-  "status": "Failed",
-  "error": {
-    "code": "DeploymentFailed",
-    "target": "/subscriptions/2a5f1e30-b076-4cb2-9235-2036241dedf0/resourceGroups/depa-train-ccr-demo/providers/Microsoft.Resources/deployments/arm-template",
-    "message": "At least one resource deployment operation failed. Please list deployment operations for details. Please see [https://aka.ms/arm-deployment-operations](https://aka.ms/arm-deployment-operations) for usage details.",
-    "details": [
-      {
-        "code": "ResourceDeploymentFailure",
-        "target": "/subscriptions/2a5f1e30-b076-4cb2-9235-2036241dedf0/resourceGroups/depa-train-ccr-demo/providers/Microsoft.ContainerInstance/containerGroups/depa-training-brats",
-        "message": "The resource write operation failed to complete successfully, because it reached terminal provisioning state 'Failed'.",
-        "details": [{}]
-      }
-    ]
-  }
-}
-```
-
-**Reason:** The `run.sh` script inside the `depa-training-brats` container did not have execution permission.
-
-**Fix (Update: Below not solving the problem):**
-
-1.  Navigate to the source directory:
-    ```bash
-    cd ~/depa-training/src/train
-    ```
-2.  Check file permissions for `run.sh` and `setup.py`:
-    ```bash
-    ls -l
-    ```
-3.  If execution (`x`) isn't mentioned, run:
-    ```bash
-    chmod +x run.sh
-    ```
-4.  Then rebuild and push containers:
-    ```bash
-    cd ~/depa-training
-    ./ci/build.sh
-    export CONTAINER_REGISTRY=sarang10
-    ./ci/push-containers.sh
-    ```
-
-### Issue: `deploy.sh` running "Running" (endlessly)
-
-**Command:**
-
-```bash
-./deploy.sh -c <contract-sequence-number> -p ../../config/pipeline_config.json
-```
-
-**Output:**
-
-```
-“Running” (endlessly)
-```
-
-Running `az container show --resource-group depa-train-ccr-demo --name depa-training-brats --output json` shows instanceView state "pending" and provisioningstate "Creating".
-
-**Reason:** Error with container configurations.
-
-**Fix:** Ensure that in `deployment/aci/encrypted-filesystem-config-template.json` there are as many dictionaries as there are mounting paths. For example, if there are 4 TDP containers and 2 TDC containers, there must be 6 dictionaries in total, with the last one (Output container) having `read_write=true`.
-
-### Issue: `ContainerGroupTransitioning`
-
-**Command:** (Any deployment command after a previous failure)
-
-**Output:**
-
-```json
-{
-  "status": "Failed",
-  "error": {
-    "code": "DeploymentFailed",
-    "target": "/subscriptions/2a5f1e30-b076-4cb2-9235-2036241dedf0/resourceGroups/depa-train-ccr-demo/providers/Microsoft.Resources/deployments/arm-template",
-    "message": "At least one resource deployment operation failed. Please list deployment operations for details. Please see [https://aka.ms/arm-deployment-operations](https://aka.ms/arm-deployment-operations) for usage details.",
-    "details": [
-      {
-        "code": "ContainerGroupTransitioning",
-        "message": "The container group 'depa-training-brats' is still transitioning, please retry later."
-      }
-    ]
-  }
-}
-```
-
-**Reason:** You may have an existing Azure container group (e.g., `depa-training-brats`) which is broken or stuck in a transitioning state.
-
-**Fix:** Go to the Azure portal, find the problematic container group (e.g., `depa-training-brats`), stop and delete it. Then run the deploy script again.
-
----
-
-```
-
-``` -->

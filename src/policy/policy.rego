@@ -48,19 +48,15 @@ data_has_privacy_constraints if {
 }
 
 last_stage_is_private_training if {
-	input.pipeline[count(input.pipeline) - 1].name == "PrivateTrain"
-}
-
-last_stage_is_private_training if {
-	input.pipeline[count(input.pipeline) - 1].name == "PrivateTrainVision"
+	input.pipeline[count(input.pipeline) - 1].config.is_private == true
 }
 
 last_stage_is_training if {
-	input.pipeline[count(input.pipeline) - 1].name == "Train"
+	input.pipeline[count(input.pipeline) - 1].config.is_private == false
 }
 
 min_privacy_budget_allocated if {
 	threshold = min({t | t = to_number(data.constraints[_].privacy[_].epsilon_threshold)})
 	last := count(input.pipeline)
-	input.pipeline[last - 1].config.epsilon_threshold <= threshold
+	input.pipeline[last - 1].config.privacy_params.epsilon_threshold <= threshold
 }

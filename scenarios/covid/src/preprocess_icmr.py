@@ -1,15 +1,17 @@
-# 2025, DEPA Foundation
+# Copyright (c) 2025 DEPA Foundation
 #
-# Licensed TBD
+# Licensed under CC0 1.0 Universal (https://creativecommons.org/publicdomain/zero/1.0/)
+# 
+# This software is provided "as is", without warranty of any kind, express or implied,
+# including but not limited to the warranties of merchantability, fitness for a 
+# particular purpose and noninfringement. In no event shall the authors or copyright
+# holders be liable for any claim, damages or other liability, whether in an action
+# of contract, tort or otherwise, arising from, out of or in connection with the
+# software or the use or other dealings in the software.
 #
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# For more information about this framework, please visit:
+# https://depa.world/training/depa_training_framework/
 
-# Key references / Attributions: https://depa.world/training/contracts
-# Key frameworks used : pyspark
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import *
 from pyspark.sql.types import *
@@ -19,7 +21,7 @@ from pyspark.sql.functions import col , column
 ##**Key Configuration Variables**"""
 
 # Debug Enabled
-debug_poc=True
+debug_poc=False
 
 # Model Input folder
 icmr_input_folder='/mnt/input/data/'
@@ -39,6 +41,7 @@ dp_icmr_std_anon_file ='dp_icmr_standardised_anon.csv'
 """# Setting up spark session"""
 
 spark = SparkSession.builder.appName('CCR_DEPA_COVID_POC_Code').getOrCreate()
+spark.sparkContext.setLogLevel("ERROR")
 
 """# Common Utility Functions
 

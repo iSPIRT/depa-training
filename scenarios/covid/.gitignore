@@ -8,3 +8,5 @@
 
 # Ignore modeller output folder (relative to repo root)
 modeller/output/
+
+**/__pycache__/
