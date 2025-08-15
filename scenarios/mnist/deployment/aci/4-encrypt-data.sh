@@ -1,7 +1,7 @@
 #!/bin/bash
 
-DATADIR=~/depa-training/scenarios/$SCENARIO/data
-MODELDIR=~/depa-training/scenarios/$SCENARIO/modeller
+DATADIR=$REPO_ROOT/scenarios/$SCENARIO/data
+MODELDIR=$REPO_ROOT/scenarios/$SCENARIO/modeller
 
 ./generatefs.sh -d $DATADIR/preprocessed -k $DATADIR/mnist_key.bin -i $DATADIR/mnist.img
 ./generatefs.sh -d $MODELDIR/models -k $MODELDIR/model_key.bin -i $MODELDIR/model.img

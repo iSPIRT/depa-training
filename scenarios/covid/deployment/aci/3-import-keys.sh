@@ -44,8 +44,8 @@ elif [[ "$AZURE_KEYVAULT_ENDPOINT" == *".managedhsm.azure.net" ]]; then
     export AZURE_AKV_KEY_TYPE="oct-HSM"
 fi
 
-DATADIR=~/depa-training/scenarios/$SCENARIO/data
-MODELDIR=~/depa-training/scenarios/$SCENARIO/modeller
+DATADIR=$REPO_ROOT/scenarios/$SCENARIO/data
+MODELDIR=$REPO_ROOT/scenarios/$SCENARIO/modeller
 
 import_key "ICMRFilesystemEncryptionKey" $DATADIR/icmr_key.bin
 import_key "COWINFilesystemEncryptionKey" $DATADIR/cowin_key.bin

@@ -3,4 +3,4 @@ services:
     image: ${CONTAINER_REGISTRY:+$CONTAINER_REGISTRY/}brats-model-save:latest
     volumes:
       - $MODEL_OUTPUT_PATH:/mnt/model
-    command: ["python3", "load_base_model.py"]
+    command: ["python3", "save_base_model.py"]

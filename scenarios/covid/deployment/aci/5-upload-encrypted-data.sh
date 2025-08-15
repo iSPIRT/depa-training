@@ -1,7 +1,7 @@
 #!/bin/bash
 
-DATADIR=~/depa-training/scenarios/$SCENARIO/data
-MODELDIR=~/depa-training/scenarios/$SCENARIO/modeller
+DATADIR=$REPO_ROOT/scenarios/$SCENARIO/data
+MODELDIR=$REPO_ROOT/scenarios/$SCENARIO/modeller
 
 ACCOUNT_KEY=$(az storage account keys list --account-name $AZURE_STORAGE_ACCOUNT_NAME --only-show-errors | jq -r .[0].value)
 

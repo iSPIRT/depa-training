@@ -1,5 +1,5 @@
-export DATA_DIR=$PWD/../../data
-export MODEL_DIR=$PWD/../../modeller
+export DATA_DIR=$REPO_ROOT/scenarios/$SCENARIO/data
+export MODEL_DIR=$REPO_ROOT/scenarios/$SCENARIO/modeller
 
 export BRATS_A_INPUT_PATH=$DATA_DIR/brats_A/preprocessed
 export BRATS_B_INPUT_PATH=$DATA_DIR/brats_B/preprocessed
@@ -15,7 +15,7 @@ rm -rf $MODEL_OUTPUT_PATH
 mkdir -p $MODEL_OUTPUT_PATH 
 
 # export CONFIGURATION_PATH=/tmp
-export CONFIGURATION_PATH=$PWD/../../config
+export CONFIGURATION_PATH=$REPO_ROOT/scenarios/$SCENARIO/config
 # cp $PWD/../../config/pipeline_config.json /tmp/pipeline_config.json
 
 docker compose -f docker-compose-train.yml up --remove-orphans

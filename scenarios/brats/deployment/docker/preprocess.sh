@@ -1,4 +1,4 @@
-export DATA_DIR=$PWD/../../data
+export DATA_DIR=$REPO_ROOT/scenarios/$SCENARIO/data
 
 tar -xzf $DATA_DIR/brats_A.tar.gz -C $DATA_DIR/
 tar -xzf $DATA_DIR/brats_B.tar.gz -C $DATA_DIR/

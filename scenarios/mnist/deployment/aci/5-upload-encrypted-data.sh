@@ -1,7 +1,7 @@
 #!/bin/bash
 
-export DATA_DIR=~/depa-training/scenarios/$SCENARIO/data
-export MODEL_DIR=~/depa-training/scenarios/$SCENARIO/modeller
+export DATA_DIR=$REPO_ROOT/scenarios/$SCENARIO/data
+export MODEL_DIR=$REPO_ROOT/scenarios/$SCENARIO/modeller
 
 ACCOUNT_KEY=$(az storage account keys list --account-name $AZURE_STORAGE_ACCOUNT_NAME --only-show-errors | jq -r .[0].value)
 

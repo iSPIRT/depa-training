@@ -1,7 +1,7 @@
 #!/bin/bash
 
-DATADIR=~/depa-training/scenarios/$SCENARIO/data
-MODELDIR=~/depa-training/scenarios/$SCENARIO/modeller
+DATADIR=$REPO_ROOT/scenarios/$SCENARIO/data
+MODELDIR=$REPO_ROOT/scenarios/$SCENARIO/modeller
 
 ./generatefs.sh -d $DATADIR/icmr/preprocessed -k $DATADIR/icmr_key.bin -i $DATADIR/icmr.img
 ./generatefs.sh -d $DATADIR/cowin/preprocessed -k $DATADIR/cowin_key.bin -i $DATADIR/cowin.img

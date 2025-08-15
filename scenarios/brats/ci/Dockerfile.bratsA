@@ -16,4 +16,4 @@ RUN pip3 --default-timeout=1000 install numpy opencv-python pillow nibabel matpl
 # ENV JAVA_HOME /usr/lib/jvm/java-17-openjdk-amd64/
 # RUN export JAVA_HOME
 
-COPY load_brats_A.py load_brats_A.py
+COPY preprocess_brats_A.py preprocess_brats_A.py

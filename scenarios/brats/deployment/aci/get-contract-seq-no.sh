@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export contract_log_file=~/depa-training/../contract-ledger/tmp/contracts/log.txt
+export contract_log_file=$REPO_ROOT/../contract-ledger/tmp/contracts/log.txt
 
 # Check if the contract log file exists
 if [ ! -f $contract_log_file ]; then

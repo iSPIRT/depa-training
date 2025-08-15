@@ -1,7 +1,10 @@
-# Copyright (c) 2025 DEPA Foundation
+# 2025 DEPA Foundation
 #
-# Licensed under CC0 1.0 Universal (https://creativecommons.org/publicdomain/zero/1.0/)
-# 
+# This work is dedicated to the public domain under the CC0 1.0 Universal license.
+# To the extent possible under law, DEPA Foundation has waived all copyright and 
+# related or neighboring rights to this work. 
+# CC0 1.0 Universal (https://creativecommons.org/publicdomain/zero/1.0/)
+#
 # This software is provided "as is", without warranty of any kind, express or implied,
 # including but not limited to the warranties of merchantability, fitness for a 
 # particular purpose and noninfringement. In no event shall the authors or copyright

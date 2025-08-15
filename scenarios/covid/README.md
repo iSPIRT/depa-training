@@ -17,7 +17,8 @@ Build container images required for this sample as follows.
 
 ```bash
 export SCENARIO=covid
-cd ~/depa-training/scenarios/$SCENARIO
+export REPO_ROOT="$(git rev-parse --show-toplevel)"
+cd $REPO_ROOT/scenarios/$SCENARIO
 ./ci/build.sh
 ```
 
@@ -30,7 +31,7 @@ Alternatively, you can pull and use pre-built container images from the ispirt c
 
 ```bash
 export CONTAINER_REGISTRY=depatraindevacr.azurecr.io
-cd ~/depa-training/scenarios/$SCENARIO
+cd $REPO_ROOT/scenarios/$SCENARIO
 ./ci/build.sh
 ```
 
@@ -39,7 +40,7 @@ cd ~/depa-training/scenarios/$SCENARIO
 The folder ```scenarios/covid/src``` contains scripts for pre-processing and de-identifying sample COVID-19 datasets. Acting as a Training Data Provider (TDP), prepare your datasets.
 
 ```bash
-cd ~/depa-training/scenarios/$SCENARIO/deployment/docker
+cd $REPO_ROOT/scenarios/$SCENARIO/deployment/docker
 ./preprocess.sh
 ```
 
@@ -123,9 +124,9 @@ If you wish to use your own container images, login to docker hub (or your conta
 ```bash
 export CONTAINER_REGISTRY=<container-registry-name>
 docker login -u <docker-hub-username> -p <docker-hub-password> ${CONTAINER_REGISTRY}
-cd ~/depa-training
+cd $REPO_ROOT
 ./ci/push-containers.sh
-cd scenarios/$SCENARIO
+cd $REPO_ROOT/scenarios/$SCENARIO
 ./ci/push-containers.sh
 ```
 
@@ -153,6 +154,13 @@ export AZURE_COWIN_CONTAINER_NAME=cowincontainer
 export AZURE_INDEX_CONTAINER_NAME=indexcontainer
 export AZURE_MODEL_CONTAINER_NAME=modelcontainer
 export AZURE_OUTPUT_CONTAINER_NAME=outputcontainer
+```
+
+Alternatively, you can edit the values in the [export-variables.sh](./export-variables.sh) script and run it to set the environment variables.
+
+```bash
+./export-variables.sh
+source export-variables.sh
 ```
 
 Azure Naming Rules:
@@ -195,7 +203,7 @@ The values for the environment variables listed below must precisely match the n
 With the environment variables set, we are ready to create the resources -- Azure Key Vault and Azure Storage containers.
 
 ```bash
-cd ~/depa-training/scenarios/$SCENARIO/deployment/aci
+cd $REPO_ROOT/scenarios/$SCENARIO/deployment/aci
 ./1-create-storage-containers.sh
 ./2-create-akv.sh
 ```
@@ -223,12 +231,12 @@ The import-keys script generates and imports encryption keys into Azure Key Vaul
 
 ```bash
 export CONTRACT_SERVICE_URL=https://depa-contract-service.southindia.cloudapp.azure.com:8000
-export TOOLS_HOME=~/depa-training/external/confidential-sidecar-containers/tools
+export TOOLS_HOME=$REPO_ROOT/external/confidential-sidecar-containers/tools
 
 ./3-import-keys.sh
 ```
 
-The data and model are then packaged as encrypted filesystems by the TDPs and TDC using their respective keys, which are saved `.img` files.
+The data and model are then packaged as encrypted filesystems by the TDPs and TDC using their respective keys, which are saved as `.img` files.
 
 ```bash
 ./4-encrypt-data.sh
@@ -238,7 +246,7 @@ The encrypted data and model are then uploaded to the Storage containers created
 
 ```bash
 ./5-upload-encrypted-data.sh
-
+```
 
 ---
 
@@ -247,21 +255,19 @@ The encrypted data and model are then uploaded to the Storage containers created
 With the resources ready, we are ready to deploy the Confidential Clean Room (CCR) for executing the privacy-preserving model training.
 
 ```bash
-export CONTRACT_SEQ_NO=$(./get-contract-seq-no.sh)
-
+export CONTRACT_SEQ_NO=<contract-sequence-number>
 ./deploy.sh -c $CONTRACT_SEQ_NO -p ../../config/pipeline_config.json
-
 ```
 
-This script will deploy the container images from your container registry, including the encrypted filesystem sidecar. The sidecar will generate an SEV-SNP attestation report, generate an attestation token using the Microsoft Azure Attestation (MAA) service, retrieve dataset, model and output encryption keys from the TDP and TDC's Azure Key Vault, train the model, and save the resulting model into TDC's output filesystem image, which the TDC can later decrypt. 
-
-**Note:** if the contract-ledger repository is also located at the root of the same environment where this depa-training repo is, the `$CONTRACT_SEQ_NO` variable automatically picks up the sequence number of the latest contract that was signed between the TDPs and TDC.
-
-If not, manually set the `$CONTRACT_SEQ_NO` variable to the exact value of the contract sequence number (of format 2.XX). For example, if the number was 2.15, export as:
+Set the `$CONTRACT_SEQ_NO` variable to the exact value of the contract sequence number (of format 2.XX). For example, if the number was 2.15, export as:
 
 ```bash
 export CONTRACT_SEQ_NO=15
 ```
+
+This script will deploy the container images from your container registry, including the encrypted filesystem sidecar. The sidecar will generate an SEV-SNP attestation report, generate an attestation token using the Microsoft Azure Attestation (MAA) service, retrieve dataset, model and output encryption keys from the TDP and TDC's Azure Key Vault, train the model, and save the resulting model into TDC's output filesystem image, which the TDC can later decrypt. 
+
+<!-- **Note:** if the contract-ledger repository is also located at the root of the same environment where this depa-training repo is, the `$CONTRACT_SEQ_NO` variable automatically picks up the sequence number of the latest contract that was signed between the TDPs and TDC. -->
 
 **Note:** The completion of this script's execution simply creates a CCR instance, and doesn't indicate whether training has completed or not. The training process might still be ongoing. Poll the container logs (see below) to track progress until training is complete.
 
@@ -320,7 +326,7 @@ The outputs will be saved to the [output](./modeller/output/) directory.
 To check if the trained model is fresh, you can run the following command:
 
 ```bash
-stat ~/depa-training/scenarios/$SCENARIO/modeller/output/trained_model.pth
+stat $REPO_ROOT/scenarios/$SCENARIO/modeller/output/trained_model.onnx
 ```
 
 ---

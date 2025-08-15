@@ -6,7 +6,7 @@
 
 ## GitHub Codespaces
 
-The simplest way to setup a development environment is using [GitHub Codespaces](https://github.com/codespaces). The repository includes a [devcontainer.json](../../.devcontainer/devcontainer.json), which customizes your codespace to install all required dependencies. Please ensure you allocate at least 64GB disk space in your codespace. Also, run the following command in the codespace to update submodules.
+The simplest way to setup a development environment is using [GitHub Codespaces](https://github.com/codespaces). The repository includes a [devcontainer.json](../../.devcontainer/devcontainer.json), which customizes your codespace to install all required dependencies. Please ensure you allocate at least 8 vCPUs and 64GB disk space in your codespace. Also, run the following command in the codespace to update submodules.
 
 ```bash
 git submodule update --init --recursive
@@ -14,19 +14,36 @@ git submodule update --init --recursive
 
 ## Local Development Environment
 
-Alternatively, you can build and develop locally in a Linux environment (we have tested with Ubuntu 20.04 and 22.04), or Windows with WSL 2. Install the following dependencies. 
+Alternatively, you can build and develop locally in a Linux environment (we have tested with Ubuntu 20.04 and 22.04), or Windows with WSL 2. 
 
-- [docker](https://docs.docker.com/engine/install/ubuntu/) and docker-compose. After installing docker, add your user to the docker group using `sudo usermod -aG docker $USER`, and log back in to a shell. 
-- make (install using ```sudo apt-get install make```)
-- Python 3.6.9 and pip 
-- [Go](https://go.dev/doc/install). Follow the instructions to install Go. After installing, ensure that the PATH environment variable is set to include ```go``` runtime.
-- Python wheel package (install using ```pip install wheel```)
-
-Clone this repo as follows. 
+Clone this repo to your local machine / virtual machine as follows. 
 
 ```bash
 git clone --recursive http://github.com/iSPIRT/depa-training
+cd depa-training
 ```
+
+Install the below listed dependencies by running the [install-prerequisites.sh](./install-prerequisites.sh) script.
+
+```bash
+./install-prerequisites.sh
+```
+
+This script installs the following core dependencies, among others, which you can also install manually as follows.
+
+- [docker](https://docs.docker.com/engine/install/ubuntu/) and docker-compose. After installing docker, add your user to the docker group using `sudo usermod -aG docker $USER`, and log back in to a shell. This may require a machine restart to take effect.
+
+```bash
+curl -fsSL https://get.docker.com -o get-docker.sh
+sudo sh get-docker.sh
+sudo apt install docker-compose
+sudo usermod -aG docker $USER
+```
+
+- Make (install using ```sudo apt-get install make```)
+- Python3 (>=3.9) and pip (install using ```sudo apt install python3``` and ```sudo apt install python3-pip```) 
+- [Go](https://go.dev/doc/install). (```sudo apt install golang-go```) Follow the instructions to install Go. After installing, ensure that the PATH environment variable is set to include ```go``` runtime.
+- Python wheel package (install using ```pip install wheel```)
 
 ## Build CCR containers
 
@@ -51,11 +68,13 @@ export CONTAINER_REGISTRY=depatraindevacr.azurecr.io
 
 This repository contains two samples that illustrate the kinds of scenarios DEPA for Training can support. 
 
-- [Training a differentially private COVID prediction model on private datasets](./scenarios/covid/README.md)
-- [Training a differentially private Brain Tumor segmentation model on aggregate Brain MRI datasets](./scenarios/brats/README.md)
-- [Convolutional Neural Network training on MNIST dataset](./scenarios/mnist/README.md)
+| Scenario name | Scenario type | Training method | Dataset type | Join type |
+|--------------|---------------|-----------------|--------------|-----------|
+| [COVID-19](./scenarios/covid/README.md) | Training | Differentially Private Classification | PII tabular dataset | Horizontal |
+| [BraTS](./scenarios/brats/README.md) | Training | Differentially Private Segmentation | PII image dataset | Vertical |
+| [MNIST](./scenarios/mnist/README.md) | Training | Classification | Non-PII image dataset | NA (no join) |
 
-Follow these links to build and deploy these scenarios. 
+Follow the links to build and deploy these scenarios. 
 
 # Contributing
 
