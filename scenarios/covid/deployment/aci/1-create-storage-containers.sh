@@ -11,14 +11,14 @@ else
   echo "Resource group $AZURE_RESOURCE_GROUP already exists. Skipping creation."
 fi
 
-#echo "Check if storage account $STORAGE_ACCOUNT_NAME exists..."
+echo "Check if storage account $STORAGE_ACCOUNT_NAME exists..."
 STORAGE_ACCOUNT_EXISTS=$(az storage account check-name --name $AZURE_STORAGE_ACCOUNT_NAME --query "nameAvailable" --output tsv)
 
 if [ "$STORAGE_ACCOUNT_EXISTS" == "true" ]; then
   echo "Storage account $AZURE_STORAGE_ACCOUNT_NAME does not exist. Creating it now..."
   az storage account create  --resource-group $AZURE_RESOURCE_GROUP  --name $AZURE_STORAGE_ACCOUNT_NAME
 else
-  echo "Storage account $AZURE_STORAGE_ACCOUNT_NAME exists"
+  echo "Storage account $AZURE_STORAGE_ACCOUNT_NAME already exists. Skipping creation."
 fi
 
 # Get the storage account key

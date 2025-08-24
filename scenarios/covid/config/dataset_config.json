@@ -1,0 +1,16 @@
+{
+    "type": "tabular",
+    "target_variable": "icmr_a_icmr_test_result",
+    "preprocessing": {
+        "scaler": "standard"
+    },
+    "missing_strategy": "fill",
+    "fill_value": 0,
+    "splits": {
+        "train": 0.7,
+        "val": 0.2,
+        "test": 0.1,
+        "random_state": 42,
+        "stratify": true
+    }
+}

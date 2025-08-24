@@ -1,0 +1,21 @@
+{
+    "task_type": "classification",
+    "metrics": [
+        "accuracy",
+        {
+            "name": "confusion_matrix",
+            "params": {}
+        },
+        {
+            "name": "f1_score",
+            "params": {
+                "average": "macro"
+            }
+        },
+        {
+            "name": "classification_report",
+            "params": {}
+        }
+    ],
+    "n_pred_samples": 5
+}

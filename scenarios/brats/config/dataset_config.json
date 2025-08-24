@@ -1,0 +1,27 @@
+{
+    "type": "directory",
+    "structure_type": "paired",
+    "data_type": "image",
+    "pairing": {
+        "folder_pattern": "BraTS20_Training_*",
+        "input_pattern": "*_flair.png",
+        "target_pattern": "*_seg.png"
+    },
+    "image_config": {
+        "use_cv2": true,
+        "convert_to_pil": true,
+        "grayscale": true,
+        "to_tensor": true,
+        "binarize": true,
+        "binarize_threshold": 0
+    },
+    "filtering": {
+        "filter_empty_targets": true
+    },
+    "splits": {
+        "train": 0.7,
+        "val": 0.2,
+        "test": 0.1,
+        "random_state": 42
+    }
+}

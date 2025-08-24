@@ -4,29 +4,79 @@
       "name": "Train",
       "config": {
         "paths": {
-          "input_dataset_path": "/mnt/remote/mnist/cifar10-dataset.pth",
+          "input_dataset_path": "/mnt/remote/mnist/mnist-dataset.pth",
           "base_model_path": "/mnt/remote/model/model.onnx",
-          "saved_weights_path": "",
-          "helper_scripts_path": "/mnt/remote/model",
           "trained_model_output_path": "/mnt/remote/output",
           "sample_predictions_path": "/mnt/remote/output"
         },
         "model_type": "onnx",
-        "model_params": {},
         "is_private": false,
         "device": "cpu",
         "batch_size": 4,
-        "learning_rate": 1e-4,
-        "max_lr": 1e-2,
+        "optimizer": {
+          "name": "Adam",
+          "params": {
+            "lr": 0.0001
+          }
+        },
+        "scheduler": {
+          "name": "CyclicLR",
+          "params": {
+            "base_lr": 0.0001,
+            "max_lr": 0.01,
+            "cycle_momentum": false
+          }
+        },
         "total_epochs": 1,
-        "train_test_split": 0.8,
-        "standardize_features": false,
+        "dataset_config": {
+          "type": "serialized",
+          "format": "torch",
+          "structure": "list_of_tuples",
+          "transforms": {
+            "normalize": true,
+            "augment": false
+          },
+          "splits": {
+            "train": 0.8,
+            "val": 0.2,
+            "random_state": 42
+          }
+        },
+        "loss_config": {
+          "expression": "alpha * (1 - torch.exp(-ce_loss))**gamma * ce_loss",
+          "components": {
+            "ce_loss": {
+              "class": "torch.nn.CrossEntropyLoss",
+              "params": {
+                "reduction": "none"
+              }
+            }
+          },
+          "variables": {
+            "alpha": 1,
+            "gamma": 2
+          },
+          "reduction": "mean"
+        },
         "metrics": [
           "accuracy",
-          "precision",
-          "recall",
-          "f1_score"
-        ]
+          {
+            "name": "confusion_matrix",
+            "params": {}
+          },
+          {
+            "name": "f1_score",
+            "params": {
+              "average": "macro"
+            }
+          },
+          {
+            "name": "classification_report",
+            "params": {}
+          }
+        ],
+        "n_pred_samples": 5,
+        "task_type": "classification"
       }
     }
   ]

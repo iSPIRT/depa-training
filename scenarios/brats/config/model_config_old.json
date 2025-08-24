@@ -1,0 +1,889 @@
+{
+    "layers": {
+        "input_conv": {
+            "type": "conv2d",
+            "params": {
+                "in_channels": 1,
+                "out_channels": 8,
+                "kernel_size": 3,
+                "stride": 1,
+                "padding": 1
+            },
+            "inputs": [
+                "input"
+            ]
+        },
+        "down_conv1_0": {
+            "type": "conv2d",
+            "params": {
+                "in_channels": 8,
+                "out_channels": 16,
+                "kernel_size": 3,
+                "stride": 1,
+                "padding": 1
+            },
+            "inputs": [
+                "input_conv"
+            ]
+        },
+        "down_norm1_0": {
+            "type": "groupnorm",
+            "params": {
+                "num_groups": 1,
+                "num_channels": 16
+            },
+            "inputs": [
+                "down_conv1_0"
+            ]
+        },
+        "down_relu1_0": {
+            "type": "leaky_relu",
+            "params": {
+                "negative_slope": 0.1
+            },
+            "inputs": [
+                "down_norm1_0"
+            ]
+        },
+        "down_conv2_0": {
+            "type": "conv2d",
+            "params": {
+                "in_channels": 16,
+                "out_channels": 16,
+                "kernel_size": 3,
+                "stride": 1,
+                "padding": 1
+            },
+            "inputs": [
+                "down_relu1_0"
+            ]
+        },
+        "down_norm2_0": {
+            "type": "groupnorm",
+            "params": {
+                "num_groups": 1,
+                "num_channels": 16
+            },
+            "inputs": [
+                "down_conv2_0"
+            ]
+        },
+        "down_relu2_0": {
+            "type": "leaky_relu",
+            "params": {
+                "negative_slope": 0.1
+            },
+            "inputs": [
+                "down_norm2_0"
+            ]
+        },
+        "down_pool_0": {
+            "type": "maxpool2d",
+            "params": {
+                "kernel_size": 2,
+                "stride": 2
+            },
+            "inputs": [
+                "down_relu2_0"
+            ]
+        },
+        "down_conv1_1": {
+            "type": "conv2d",
+            "params": {
+                "in_channels": 16,
+                "out_channels": 32,
+                "kernel_size": 3,
+                "stride": 1,
+                "padding": 1
+            },
+            "inputs": [
+                "down_pool_0"
+            ]
+        },
+        "down_norm1_1": {
+            "type": "groupnorm",
+            "params": {
+                "num_groups": 1,
+                "num_channels": 32
+            },
+            "inputs": [
+                "down_conv1_1"
+            ]
+        },
+        "down_relu1_1": {
+            "type": "leaky_relu",
+            "params": {
+                "negative_slope": 0.1
+            },
+            "inputs": [
+                "down_norm1_1"
+            ]
+        },
+        "down_conv2_1": {
+            "type": "conv2d",
+            "params": {
+                "in_channels": 32,
+                "out_channels": 32,
+                "kernel_size": 3,
+                "stride": 1,
+                "padding": 1
+            },
+            "inputs": [
+                "down_relu1_1"
+            ]
+        },
+        "down_norm2_1": {
+            "type": "groupnorm",
+            "params": {
+                "num_groups": 1,
+                "num_channels": 32
+            },
+            "inputs": [
+                "down_conv2_1"
+            ]
+        },
+        "down_relu2_1": {
+            "type": "leaky_relu",
+            "params": {
+                "negative_slope": 0.1
+            },
+            "inputs": [
+                "down_norm2_1"
+            ]
+        },
+        "down_pool_1": {
+            "type": "maxpool2d",
+            "params": {
+                "kernel_size": 2,
+                "stride": 2
+            },
+            "inputs": [
+                "down_relu2_1"
+            ]
+        },
+        "down_conv1_2": {
+            "type": "conv2d",
+            "params": {
+                "in_channels": 32,
+                "out_channels": 64,
+                "kernel_size": 3,
+                "stride": 1,
+                "padding": 1
+            },
+            "inputs": [
+                "down_pool_1"
+            ]
+        },
+        "down_norm1_2": {
+            "type": "groupnorm",
+            "params": {
+                "num_groups": 1,
+                "num_channels": 64
+            },
+            "inputs": [
+                "down_conv1_2"
+            ]
+        },
+        "down_relu1_2": {
+            "type": "leaky_relu",
+            "params": {
+                "negative_slope": 0.1
+            },
+            "inputs": [
+                "down_norm1_2"
+            ]
+        },
+        "down_conv2_2": {
+            "type": "conv2d",
+            "params": {
+                "in_channels": 64,
+                "out_channels": 64,
+                "kernel_size": 3,
+                "stride": 1,
+                "padding": 1
+            },
+            "inputs": [
+                "down_relu1_2"
+            ]
+        },
+        "down_norm2_2": {
+            "type": "groupnorm",
+            "params": {
+                "num_groups": 1,
+                "num_channels": 64
+            },
+            "inputs": [
+                "down_conv2_2"
+            ]
+        },
+        "down_relu2_2": {
+            "type": "leaky_relu",
+            "params": {
+                "negative_slope": 0.1
+            },
+            "inputs": [
+                "down_norm2_2"
+            ]
+        },
+        "down_pool_2": {
+            "type": "maxpool2d",
+            "params": {
+                "kernel_size": 2,
+                "stride": 2
+            },
+            "inputs": [
+                "down_relu2_2"
+            ]
+        },
+        "down_conv1_3": {
+            "type": "conv2d",
+            "params": {
+                "in_channels": 64,
+                "out_channels": 128,
+                "kernel_size": 3,
+                "stride": 1,
+                "padding": 1
+            },
+            "inputs": [
+                "down_pool_2"
+            ]
+        },
+        "down_norm1_3": {
+            "type": "groupnorm",
+            "params": {
+                "num_groups": 1,
+                "num_channels": 128
+            },
+            "inputs": [
+                "down_conv1_3"
+            ]
+        },
+        "down_relu1_3": {
+            "type": "leaky_relu",
+            "params": {
+                "negative_slope": 0.1
+            },
+            "inputs": [
+                "down_norm1_3"
+            ]
+        },
+        "down_conv2_3": {
+            "type": "conv2d",
+            "params": {
+                "in_channels": 128,
+                "out_channels": 128,
+                "kernel_size": 3,
+                "stride": 1,
+                "padding": 1
+            },
+            "inputs": [
+                "down_relu1_3"
+            ]
+        },
+        "down_norm2_3": {
+            "type": "groupnorm",
+            "params": {
+                "num_groups": 1,
+                "num_channels": 128
+            },
+            "inputs": [
+                "down_conv2_3"
+            ]
+        },
+        "down_relu2_3": {
+            "type": "leaky_relu",
+            "params": {
+                "negative_slope": 0.1
+            },
+            "inputs": [
+                "down_norm2_3"
+            ]
+        },
+        "down_pool_3": {
+            "type": "maxpool2d",
+            "params": {
+                "kernel_size": 2,
+                "stride": 2
+            },
+            "inputs": [
+                "down_relu2_3"
+            ]
+        },
+        "bottleneck_conv1": {
+            "type": "conv2d",
+            "params": {
+                "in_channels": 128,
+                "out_channels": 256,
+                "kernel_size": 3,
+                "stride": 1,
+                "padding": 1
+            },
+            "inputs": [
+                "down_pool_3"
+            ]
+        },
+        "bottleneck_norm1": {
+            "type": "groupnorm",
+            "params": {
+                "num_groups": 1,
+                "num_channels": 256
+            },
+            "inputs": [
+                "bottleneck_conv1"
+            ]
+        },
+        "bottleneck_relu1": {
+            "type": "leaky_relu",
+            "params": {
+                "negative_slope": 0.1
+            },
+            "inputs": [
+                "bottleneck_norm1"
+            ]
+        },
+        "bottleneck_conv2": {
+            "type": "conv2d",
+            "params": {
+                "in_channels": 256,
+                "out_channels": 256,
+                "kernel_size": 3,
+                "stride": 1,
+                "padding": 1
+            },
+            "inputs": [
+                "bottleneck_relu1"
+            ]
+        },
+        "bottleneck_norm2": {
+            "type": "groupnorm",
+            "params": {
+                "num_groups": 1,
+                "num_channels": 256
+            },
+            "inputs": [
+                "bottleneck_conv2"
+            ]
+        },
+        "bottleneck_relu2": {
+            "type": "leaky_relu",
+            "params": {
+                "negative_slope": 0.1
+            },
+            "inputs": [
+                "bottleneck_norm2"
+            ]
+        },
+        "up_interpolate_3": {
+            "type": "interpolate",
+            "params": {
+                "scale_factor": 2.0,
+                "mode": "bilinear",
+                "align_corners": false
+            },
+            "inputs": [
+                "bottleneck_relu2"
+            ]
+        },
+        "up_conv_3": {
+            "type": "conv2d",
+            "params": {
+                "in_channels": 256,
+                "out_channels": 128,
+                "kernel_size": 3,
+                "stride": 1,
+                "padding": 1
+            },
+            "inputs": [
+                "up_interpolate_3"
+            ]
+        },
+        "up_norm_3": {
+            "type": "groupnorm",
+            "params": {
+                "num_groups": 1,
+                "num_channels": 128
+            },
+            "inputs": [
+                "up_conv_3"
+            ]
+        },
+        "up_relu_3": {
+            "type": "leaky_relu",
+            "params": {
+                "negative_slope": 0.1
+            },
+            "inputs": [
+                "up_norm_3"
+            ]
+        },
+        "skip_concat_3": {
+            "type": "concat",
+            "params": {
+                "dim": 1
+            },
+            "inputs": [
+                "down_relu2_3",
+                "up_relu_3"
+            ]
+        },
+        "up_conv_block1_3": {
+            "type": "conv2d",
+            "params": {
+                "in_channels": 256,
+                "out_channels": 128,
+                "kernel_size": 3,
+                "stride": 1,
+                "padding": 1
+            },
+            "inputs": [
+                "skip_concat_3"
+            ]
+        },
+        "up_conv_norm1_3": {
+            "type": "groupnorm",
+            "params": {
+                "num_groups": 1,
+                "num_channels": 128
+            },
+            "inputs": [
+                "up_conv_block1_3"
+            ]
+        },
+        "up_conv_relu1_3": {
+            "type": "leaky_relu",
+            "params": {
+                "negative_slope": 0.1
+            },
+            "inputs": [
+                "up_conv_norm1_3"
+            ]
+        },
+        "up_conv_block2_3": {
+            "type": "conv2d",
+            "params": {
+                "in_channels": 128,
+                "out_channels": 128,
+                "kernel_size": 3,
+                "stride": 1,
+                "padding": 1
+            },
+            "inputs": [
+                "up_conv_relu1_3"
+            ]
+        },
+        "up_conv_norm2_3": {
+            "type": "groupnorm",
+            "params": {
+                "num_groups": 1,
+                "num_channels": 128
+            },
+            "inputs": [
+                "up_conv_block2_3"
+            ]
+        },
+        "up_conv_relu2_3": {
+            "type": "leaky_relu",
+            "params": {
+                "negative_slope": 0.1
+            },
+            "inputs": [
+                "up_conv_norm2_3"
+            ]
+        },
+        "up_interpolate_2": {
+            "type": "interpolate",
+            "params": {
+                "scale_factor": 2.0,
+                "mode": "bilinear",
+                "align_corners": false
+            },
+            "inputs": [
+                "up_conv_relu2_3"
+            ]
+        },
+        "up_conv_2": {
+            "type": "conv2d",
+            "params": {
+                "in_channels": 128,
+                "out_channels": 64,
+                "kernel_size": 3,
+                "stride": 1,
+                "padding": 1
+            },
+            "inputs": [
+                "up_interpolate_2"
+            ]
+        },
+        "up_norm_2": {
+            "type": "groupnorm",
+            "params": {
+                "num_groups": 1,
+                "num_channels": 64
+            },
+            "inputs": [
+                "up_conv_2"
+            ]
+        },
+        "up_relu_2": {
+            "type": "leaky_relu",
+            "params": {
+                "negative_slope": 0.1
+            },
+            "inputs": [
+                "up_norm_2"
+            ]
+        },
+        "skip_concat_2": {
+            "type": "concat",
+            "params": {
+                "dim": 1
+            },
+            "inputs": [
+                "down_relu2_2",
+                "up_relu_2"
+            ]
+        },
+        "up_conv_block1_2": {
+            "type": "conv2d",
+            "params": {
+                "in_channels": 128,
+                "out_channels": 64,
+                "kernel_size": 3,
+                "stride": 1,
+                "padding": 1
+            },
+            "inputs": [
+                "skip_concat_2"
+            ]
+        },
+        "up_conv_norm1_2": {
+            "type": "groupnorm",
+            "params": {
+                "num_groups": 1,
+                "num_channels": 64
+            },
+            "inputs": [
+                "up_conv_block1_2"
+            ]
+        },
+        "up_conv_relu1_2": {
+            "type": "leaky_relu",
+            "params": {
+                "negative_slope": 0.1
+            },
+            "inputs": [
+                "up_conv_norm1_2"
+            ]
+        },
+        "up_conv_block2_2": {
+            "type": "conv2d",
+            "params": {
+                "in_channels": 64,
+                "out_channels": 64,
+                "kernel_size": 3,
+                "stride": 1,
+                "padding": 1
+            },
+            "inputs": [
+                "up_conv_relu1_2"
+            ]
+        },
+        "up_conv_norm2_2": {
+            "type": "groupnorm",
+            "params": {
+                "num_groups": 1,
+                "num_channels": 64
+            },
+            "inputs": [
+                "up_conv_block2_2"
+            ]
+        },
+        "up_conv_relu2_2": {
+            "type": "leaky_relu",
+            "params": {
+                "negative_slope": 0.1
+            },
+            "inputs": [
+                "up_conv_norm2_2"
+            ]
+        },
+        "up_interpolate_1": {
+            "type": "interpolate",
+            "params": {
+                "scale_factor": 2.0,
+                "mode": "bilinear",
+                "align_corners": false
+            },
+            "inputs": [
+                "up_conv_relu2_2"
+            ]
+        },
+        "up_conv_1": {
+            "type": "conv2d",
+            "params": {
+                "in_channels": 64,
+                "out_channels": 32,
+                "kernel_size": 3,
+                "stride": 1,
+                "padding": 1
+            },
+            "inputs": [
+                "up_interpolate_1"
+            ]
+        },
+        "up_norm_1": {
+            "type": "groupnorm",
+            "params": {
+                "num_groups": 1,
+                "num_channels": 32
+            },
+            "inputs": [
+                "up_conv_1"
+            ]
+        },
+        "up_relu_1": {
+            "type": "leaky_relu",
+            "params": {
+                "negative_slope": 0.1
+            },
+            "inputs": [
+                "up_norm_1"
+            ]
+        },
+        "skip_concat_1": {
+            "type": "concat",
+            "params": {
+                "dim": 1
+            },
+            "inputs": [
+                "down_relu2_1",
+                "up_relu_1"
+            ]
+        },
+        "up_conv_block1_1": {
+            "type": "conv2d",
+            "params": {
+                "in_channels": 64,
+                "out_channels": 32,
+                "kernel_size": 3,
+                "stride": 1,
+                "padding": 1
+            },
+            "inputs": [
+                "skip_concat_1"
+            ]
+        },
+        "up_conv_norm1_1": {
+            "type": "groupnorm",
+            "params": {
+                "num_groups": 1,
+                "num_channels": 32
+            },
+            "inputs": [
+                "up_conv_block1_1"
+            ]
+        },
+        "up_conv_relu1_1": {
+            "type": "leaky_relu",
+            "params": {
+                "negative_slope": 0.1
+            },
+            "inputs": [
+                "up_conv_norm1_1"
+            ]
+        },
+        "up_conv_block2_1": {
+            "type": "conv2d",
+            "params": {
+                "in_channels": 32,
+                "out_channels": 32,
+                "kernel_size": 3,
+                "stride": 1,
+                "padding": 1
+            },
+            "inputs": [
+                "up_conv_relu1_1"
+            ]
+        },
+        "up_conv_norm2_1": {
+            "type": "groupnorm",
+            "params": {
+                "num_groups": 1,
+                "num_channels": 32
+            },
+            "inputs": [
+                "up_conv_block2_1"
+            ]
+        },
+        "up_conv_relu2_1": {
+            "type": "leaky_relu",
+            "params": {
+                "negative_slope": 0.1
+            },
+            "inputs": [
+                "up_conv_norm2_1"
+            ]
+        },
+        "up_interpolate_0": {
+            "type": "interpolate",
+            "params": {
+                "scale_factor": 2.0,
+                "mode": "bilinear",
+                "align_corners": false
+            },
+            "inputs": [
+                "up_conv_relu2_1"
+            ]
+        },
+        "up_conv_0": {
+            "type": "conv2d",
+            "params": {
+                "in_channels": 32,
+                "out_channels": 16,
+                "kernel_size": 3,
+                "stride": 1,
+                "padding": 1
+            },
+            "inputs": [
+                "up_interpolate_0"
+            ]
+        },
+        "up_norm_0": {
+            "type": "groupnorm",
+            "params": {
+                "num_groups": 1,
+                "num_channels": 16
+            },
+            "inputs": [
+                "up_conv_0"
+            ]
+        },
+        "up_relu_0": {
+            "type": "leaky_relu",
+            "params": {
+                "negative_slope": 0.1
+            },
+            "inputs": [
+                "up_norm_0"
+            ]
+        },
+        "skip_concat_0": {
+            "type": "concat",
+            "params": {
+                "dim": 1
+            },
+            "inputs": [
+                "down_relu2_0",
+                "up_relu_0"
+            ]
+        },
+        "up_conv_block1_0": {
+            "type": "conv2d",
+            "params": {
+                "in_channels": 32,
+                "out_channels": 16,
+                "kernel_size": 3,
+                "stride": 1,
+                "padding": 1
+            },
+            "inputs": [
+                "skip_concat_0"
+            ]
+        },
+        "up_conv_norm1_0": {
+            "type": "groupnorm",
+            "params": {
+                "num_groups": 1,
+                "num_channels": 16
+            },
+            "inputs": [
+                "up_conv_block1_0"
+            ]
+        },
+        "up_conv_relu1_0": {
+            "type": "leaky_relu",
+            "params": {
+                "negative_slope": 0.1
+            },
+            "inputs": [
+                "up_conv_norm1_0"
+            ]
+        },
+        "up_conv_block2_0": {
+            "type": "conv2d",
+            "params": {
+                "in_channels": 16,
+                "out_channels": 16,
+                "kernel_size": 3,
+                "stride": 1,
+                "padding": 1
+            },
+            "inputs": [
+                "up_conv_relu1_0"
+            ]
+        },
+        "up_conv_norm2_0": {
+            "type": "groupnorm",
+            "params": {
+                "num_groups": 1,
+                "num_channels": 16
+            },
+            "inputs": [
+                "up_conv_block2_0"
+            ]
+        },
+        "up_conv_relu2_0": {
+            "type": "leaky_relu",
+            "params": {
+                "negative_slope": 0.1
+            },
+            "inputs": [
+                "up_conv_norm2_0"
+            ]
+        },
+        "out_conv1": {
+            "type": "conv2d",
+            "params": {
+                "in_channels": 16,
+                "out_channels": 8,
+                "kernel_size": 3,
+                "stride": 1,
+                "padding": 1
+            },
+            "inputs": [
+                "up_conv_relu2_0"
+            ]
+        },
+        "out_relu": {
+            "type": "leaky_relu",
+            "params": {
+                "negative_slope": 0.1
+            },
+            "inputs": [
+                "out_conv1"
+            ]
+        },
+        "out_conv2": {
+            "type": "conv2d",
+            "params": {
+                "in_channels": 8,
+                "out_channels": 1,
+                "kernel_size": 3,
+                "stride": 1,
+                "padding": 1
+            },
+            "inputs": [
+                "out_relu"
+            ]
+        },
+        "final_output": {
+            "type": "sigmoid",
+            "inputs": [
+                "out_conv2"
+            ]
+        }
+    },
+    "outputs": [
+        "final_output"
+    ]
+}

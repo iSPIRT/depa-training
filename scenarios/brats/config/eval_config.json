@@ -1,0 +1,25 @@
+{
+    "task_type": "segmentation",
+    "threshold": 0.3,
+    "metrics": [
+        {
+            "name": "dice_score",
+            "params": {
+                "threshold": 0.3
+            }
+        },
+        {
+            "name": "jaccard_index",
+            "params": {
+                "threshold": 0.3
+            }
+        },
+        {
+            "name": "hausdorff_distance",
+            "params": {
+                "threshold": 0.3
+            }
+        }
+    ],
+    "n_pred_samples": 5
+}

@@ -1,0 +1,14 @@
+**/preprocessed/*.csv
+*.bin
+*.img
+*.pth
+*.pt
+*.onnx
+*.npy
+
+# Ignore modeller output folder (relative to repo root)
+modeller/output/
+
+data/cifar*
+
+**/__pycache__/

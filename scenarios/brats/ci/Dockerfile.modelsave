@@ -14,3 +14,4 @@ RUN python3 get-pip.py
 RUN pip3 install torch --index-url https://download.pytorch.org/whl/cpu
 RUN pip3 install onnx
 COPY save_base_model.py save_base_model.py
+COPY model_constructor.py model_constructor.py

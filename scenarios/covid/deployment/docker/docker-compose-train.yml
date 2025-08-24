@@ -1,6 +1,8 @@
 services:
   train:
     image: ${CONTAINER_REGISTRY:+$CONTAINER_REGISTRY/}depa-training:latest
+    environment:
+      - PYTHONUNBUFFERED=1
     volumes:
       - $ICMR_INPUT_PATH:/mnt/remote/icmr
       - $COWIN_INPUT_PATH:/mnt/remote/cowin

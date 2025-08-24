@@ -1,0 +1,16 @@
+{
+    "expression": "alpha * (1 - torch.exp(-ce_loss))**gamma * ce_loss",
+    "components": {
+        "ce_loss": {
+            "class": "torch.nn.CrossEntropyLoss",
+            "params": {
+                "reduction": "none"
+            }
+        }
+    },
+    "variables": {
+        "alpha": 1,
+        "gamma": 2
+    },
+    "reduction": "mean"
+}

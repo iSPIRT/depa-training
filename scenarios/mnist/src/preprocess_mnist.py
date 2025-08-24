@@ -26,10 +26,10 @@ mnist_output_folder='/mnt/output/preprocessed/'
 
 transform = transforms.Compose(
     [transforms.ToTensor(),
-     transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
+     transforms.Normalize((0.1307,), (0.3081,))])  # MNIST mean and std
 
-trainset = torchvision.datasets.CIFAR10(root=mnist_input_folder, train=True,
-                                        download=True, transform=transform)
+trainset = torchvision.datasets.MNIST(root=mnist_input_folder, train=True,
+                                    download=True, transform=transform)
 
-# Save the CIFAR10 dataset
-torch.save(trainset, mnist_output_folder + 'cifar10-dataset.pth')
+# Save the MNIST dataset
+torch.save(trainset, mnist_output_folder + 'mnist-dataset.pth')

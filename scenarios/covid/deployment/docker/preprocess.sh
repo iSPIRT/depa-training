@@ -1,3 +1,7 @@
+#!/bin/bash
+
+export REPO_ROOT="$(git rev-parse --show-toplevel)"
+export SCENARIO="covid"
 export DATA_DIR=$REPO_ROOT/scenarios/$SCENARIO/data
 export ICMR_INPUT_PATH=$DATA_DIR/icmr
 export ICMR_OUTPUT_PATH=$DATA_DIR/icmr/preprocessed

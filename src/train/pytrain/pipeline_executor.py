@@ -18,7 +18,7 @@
 import json
 import argparse
 from .task_base import TaskBase
-from .join import Join, ImageJoin
+from .join import *
 from .train import Train
 
 class PipelineExecutor:

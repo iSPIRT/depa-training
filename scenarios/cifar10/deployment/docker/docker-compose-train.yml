@@ -1,0 +1,10 @@
+services:
+  train:
+    image: ${CONTAINER_REGISTRY:+$CONTAINER_REGISTRY/}depa-training:latest
+    volumes:
+      - $CIFAR10_INPUT_PATH:/mnt/remote/cifar10
+      - $MODEL_INPUT_PATH:/mnt/remote/model
+      - $MODEL_OUTPUT_PATH:/mnt/remote/output
+      - $CONFIGURATION_PATH:/mnt/remote/config
+    command: ["/bin/bash", "run.sh"]
+ 

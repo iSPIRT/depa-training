@@ -54,13 +54,11 @@ The datasets are saved to the [data](./data/) directory.
 
 ## Prepare model for training
 
-Next, acting as a Training Data Consumer (TDC), define and save your base model for training using the following script. This calls the [save_base_model.py](./src/save_base_model.py) script, which is a custom script that saves the model to the [models](./modeller/models) directory, as an ONNX or PyTorch file.
+Next, acting as a Training Data Consumer (TDC), define and save your base model for training using the following script. This calls the [save_base_model.py](./src/save_base_model.py) script, which is a custom script that saves the model to the [models](./modeller/models) directory, as a PyTorch file.
 
 ```bash
 ./save-model.sh
 ```
-
-This script will save the base model to the [models](./modeller/models) directory.
 
 ## Deploy locally
 
@@ -70,7 +68,7 @@ Assuming you have cleartext access to all the datasets, you can train the model 
 ./train.sh
 ```
 
-The script joins the datasets and trains the model using a pipeline configuration defined in [pipeline_config.json](./config/pipeline_config.json). The training process uses:
+The script joins the datasets and trains the model using a pipeline configuration ([pipeline_config.json](./config/pipeline_config.json)) created by consolidating all the TDC's training config files. The training process uses:
 
 - Convolutional U-Net model architecture for image segmentation.
 - Differential Privacy to prevent reconstruction & membership inference attacks, using the Opacus library.
@@ -79,22 +77,29 @@ The script joins the datasets and trains the model using a pipeline configuratio
 If all goes well, you should see training progress output similar to:
 
 ```bash
-train-1  | Merged dataset 'brats_A' into '/tmp/'
-train-1  | Merged dataset 'brats_B' into '/tmp/'
-train-1  | Merged dataset 'brats_C' into '/tmp/'
-train-1  | Merged dataset 'brats_D' into '/tmp/'
-train-1  | All datasets joined in: /tmp/
-train-1  | Loaded helper module class_definitions from /mnt/remote/model
-train-1  | Training samples: 261
+train-1  | Merged dataset 'brats_A' into '/tmp/brats_joined'
+train-1  | Merged dataset 'brat_B' into '/tmp/brats_joined'
+train-1  | Merged dataset 'brats_C' into '/tmp/brats_joined'
+train-1  | Merged dataset 'brats_D' into '/tmp/brats_joined'
+train-1  | 
+train-1  | All datasets joined in: /tmp/brats_joined
+train-1  | Training samples: 228
 train-1  | Validation samples: 66
-train-1  | Model loaded from PyTorch
-train-1  | Epoch 1/5 completed | Loss: 1.6092 | Epsilon: 0.3496
-train-1  | Epoch 2/5 completed | Loss: 1.2024 | Epsilon: 0.6328
-train-1  | Epoch 3/5 completed | Loss: 1.0584 | Epsilon: 0.8921
-train-1  | Epoch 4/5 completed | Loss: 0.9794 | Epsilon: 1.2342
-train-1  | Epoch 5/5 completed | Loss: 0.7554 | Epsilon: 1.4947
+train-1  | Test samples: 33
+train-1  | Dataset constructed from config
+train-1  | Custom model loaded from PyTorch config
+train-1  | Created non-private baseline model for comparison
+train-1  | Optimizer Adam loaded from config
+train-1  | Scheduler CyclicLR loaded from config
+train-1  | Custom loss function loaded from config
+train-1  | Epoch 1/1 completed | Training Loss: 1.8462 | Epsilon: 1.4971
+train-1  | Epoch 1/1 completed | Validation Loss: 1.8034
+train-1  | 
+train-1  | Training non-private replica model for comparison...
+train-1  | Non-private baseline model - Epoch 1/1 completed | Training Loss: 1.7808
+train-1  | Non-private baseline model - Epoch 1/1 completed | Validation Loss: 1.6784
 train-1  | Saving trained model to /mnt/remote/output/trained_model.pth
-train-1  | Validation Metrics: {'loss': 0.9561, 'dice_score': 0.6064262974994365, 'jaccard_index': 0.3153773488562091}
+train-1  | Evaluation Metrics: {'test_loss': 1.8256315231323241, 'dice_score': 0.00021866214829874793, 'jaccard_index': 0.00010934302874015687, 'hausdorff_distance': 99.54396013822235}
 train-1  | CCR Training complete!
 train-1  | 
 train-1 exited with code 0

@@ -48,13 +48,11 @@ The datasets are saved to the [data](./data/) directory.
 
 ## Prepare model for training
 
-Next, acting as a Training Data Consumer (TDC), define and save your base model for training using the following script. Additionally, the TDC must also define their BaseModel, CustomDataset classes and custom_loss_fn() and custom_inference_fn() functions to be used in the training pipeline, within the [class_definitions.py](./src/class_definitions.py) file.
+Next, acting as a Training Data Consumer (TDC), define and save your base model for training using the following script. This calls the [save_base_model.py](./src/save_base_model.py) script, which is a custom script that saves the model to the [models](./modeller/models) directory, as an ONNX file.
 
 ```bash
 ./save-model.sh
 ```
-
-This script will save the model to the [models](./modeller/models) directory, as an ONNX file.
 
 ## Deploy locally
 
@@ -63,21 +61,40 @@ Assuming you have cleartext access to all the de-identified datasets, you can tr
 ```bash
 ./train.sh
 ```
-The script joins the datasets and trains the model using a pipeline configuration defined in [pipeline_config.json](./config/pipeline_config.json). If all goes well, you should see output similar to the following output, and the trained model will be saved under the folder [output](./modeller/output).
+The script joins the datasets and trains the model using a pipeline configuration ([pipeline_config.json](./config/pipeline_config.json)) created by consolidating all the TDC's training config files. If all goes well, you should see output similar to the following output, and the trained model will be saved under the folder [output](./modeller/output).
 
 ```
 train-1  | Generating aggregated data in /tmp/covid_joined.csv
-train-1  | Loaded helper module class_definitions from /mnt/remote/model
-train-1  | Training samples: 1695
+train-1  | Training samples: 1483
 train-1  | Validation samples: 424
-train-1  | Model loaded from ONNX
-train-1  | Epoch 1/5 completed | Loss: 1.6092 | Epsilon: 0.3496
-train-1  | Epoch 2/5 completed | Loss: 1.2024 | Epsilon: 0.6328
-train-1  | Epoch 3/5 completed | Loss: 1.0584 | Epsilon: 0.8921
-train-1  | Epoch 4/5 completed | Loss: 0.9794 | Epsilon: 1.2342
-train-1  | Epoch 5/5 completed | Loss: 0.7554 | Epsilon: 1.4947
+train-1  | Test samples: 212
+train-1  | Dataset constructed from config
+train-1  | Model loaded from ONNX file
+train-1  | Created non-private baseline model for comparison
+train-1  | Optimizer SGD loaded from config
+train-1  | Custom loss function loaded from config
+train-1  | Epoch 1/5 completed | Training Loss: 0.6092 | Epsilon: 0.3496
+train-1  | Epoch 1/5 completed | Validation Loss: 0.7853
+train-1  | Epoch 2/5 completed | Training Loss: 0.8024 | Epsilon: 0.6328
+train-1  | Epoch 2/5 completed | Validation Loss: 0.7784
+train-1  | Epoch 3/5 completed | Training Loss: 0.6584 | Epsilon: 0.8921
+train-1  | Epoch 3/5 completed | Validation Loss: 0.6838
+train-1  | Epoch 4/5 completed | Training Loss: 0.6794 | Epsilon: 1.2342
+train-1  | Epoch 4/5 completed | Validation Loss: 0.6140
+train-1  | Epoch 5/5 completed | Training Loss: 0.5554 | Epsilon: 1.4947
+train-1  | Epoch 5/5 completed | Validation Loss: 0.6091
+train-1  | Non-private baseline model - Epoch 1/5 completed | Training Loss: 0.4564
+train-1  | Non-private baseline model - Epoch 1/5 completed | Validation Loss: 0.6719
+train-1  | Non-private baseline model - Epoch 2/5 completed | Training Loss: 0.5467
+train-1  | Non-private baseline model - Epoch 2/5 completed | Validation Loss: 0.6719
+train-1  | Non-private baseline model - Epoch 3/5 completed | Training Loss: 0.4356
+train-1  | Non-private baseline model - Epoch 3/5 completed | Validation Loss: 0.6719
+train-1  | Non-private baseline model - Epoch 4/5 completed | Training Loss: 0.3814
+train-1  | Non-private baseline model - Epoch 4/5 completed | Validation Loss: 0.6719
+train-1  | Non-private baseline model - Epoch 5/5 completed | Training Loss: 0.3352
+train-1  | Non-private baseline model - Epoch 5/5 completed | Validation Loss: 0.4864
 train-1  | Saving trained model to /mnt/remote/output/trained_model.onnx
-train-1  | Validation Metrics: {'loss': 0.6924806400423239, 'accuracy': 0.7570754716981132, 'precision': 1.0, 'recall': 0.3223684210526316, 'f1_score': 0.48756218905472637}
+train-1  | Evaluation Metrics: {'test_loss': 0.6747791530951014, 'accuracy': 0.6415094339622641, 'f1_score': 0.5365853658536586, 'roc_auc': 0.6637159032424087}
 train-1  | CCR Training complete!
 train-1  | 
 train-1 exited with code 0

@@ -1,8 +1,6 @@
 #!/bin/bash
 
 set -e 
-
-  echo CREATING $AZURE_KEYVAULT_ENDPOINT in resouce group $AZURE_RESOURCE_GROUP
   
 if [[ "$AZURE_KEYVAULT_ENDPOINT" == *".vault.azure.net" ]]; then 
     AZURE_AKV_RESOURCE_NAME=`echo $AZURE_KEYVAULT_ENDPOINT | awk '{split($0,a,"."); print a[1]}'`
@@ -14,6 +12,7 @@ if [[ "$AZURE_KEYVAULT_ENDPOINT" == *".vault.azure.net" ]]; then
   	--body "{\"name\": \"$AZURE_AKV_RESOURCE_NAME\", \"type\": \"Microsoft.KeyVault/vaults\"}" | jq -r '.nameAvailable')
     if [ "$NAME_AVAILABLE" == true ]; then
         echo "Key Vault $KEY_VAULT_NAME does not exist. Creating it now..."
+        echo CREATING $AZURE_KEYVAULT_ENDPOINT in resouce group $AZURE_RESOURCE_GROUP
         # Create Azure key vault with RBAC authorization
         az keyvault create --name $AZURE_AKV_RESOURCE_NAME --resource-group $AZURE_RESOURCE_GROUP --sku "Premium" --enable-rbac-authorization
         # Assign RBAC roles to the resource owner so they can import keys

@@ -1,0 +1,32 @@
+{
+  "id": "f4f72a88-bab1-11ed-afa1-0242ac120002",
+  "schemaVersion": "0.1",
+  "startTime": "2023-03-14T00:00:00.000Z",
+  "expiryTime": "2024-03-14T00:00:00.000Z",
+  "tdc": "",
+  "tdps": [],
+  "ccrp": "did:web:$CCRP_USERNAME.github.io",
+  "datasets": [
+    {
+      "id": "19517ba8-bab8-11ed-afa1-0242ac120002",
+      "name": "cifar10",
+      "url": "https://$AZURE_STORAGE_ACCOUNT_NAME.blob.core.windows.net/$AZURE_CIFAR10_CONTAINER_NAME/data.img",
+      "provider": "",
+      "key": {
+        "type": "azure",
+        "properties": {
+          "kid": "CIFAR10FilesystemEncryptionKey",
+          "authority": {
+            "endpoint": "sharedneu.neu.attest.azure.net"
+          },
+          "endpoint": ""
+        }
+      }
+    }
+  ],
+  "purpose": "TRAINING",
+  "terms": {
+    "payment": {},
+    "revocation": {}
+  }
+}

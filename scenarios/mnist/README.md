@@ -48,13 +48,11 @@ The datasets are saved to the [data](./data/) directory.
 
 ## Prepare model for training
 
-Next, acting as a Training Data Consumer (TDC), define and save your base model for training using the following script. This calls the [save_base_model.py](./src/save_base_model.py) script, which is a custom script that saves the model to the [models](./modeller/models) directory, as an ONNX or PyTorch file.
+Next, acting as a Training Data Consumer (TDC), define and save your base model for training using the following script. This calls the [save_base_model.py](./src/save_base_model.py) script, which is a custom script that saves the model to the [models](./modeller/models) directory, as an ONNX file.
 
 ```bash
 ./save-model.sh
 ```
-
-This script will save the model to the [models](./modeller/models) directory, as an ONNX file.
 
 ## Deploy locally
 
@@ -63,24 +61,24 @@ Assuming you have cleartext access to all the datasets, you can train the model 
 ```bash
 ./train.sh
 ```
-The script trains a model using a pipeline configuration defined in [pipeline_config.json](./config/pipeline_config.json). If all goes well, you should see output similar to the following output, and the trained model will be saved under the folder [output](./modeller/output).
+The script joins the datasets and trains the model using a pipeline configuration ([pipeline_config.json](./config/pipeline_config.json)) created by consolidating all the TDC's training config files. If all goes well, you should see output similar to the following output, and the trained model will be saved under the folder [output](./modeller/output).
 
 ```
-train-1  | Loaded helper module class_definitions from /mnt/remote/model
-train-1  | Training samples: 40000
-train-1  | Validation samples: 10000
-train-1  | Model loaded from ONNX
-train-1  | Epoch 1/5 completed | Loss: 2.3053 | Epsilon: N/A
-train-1  | Epoch 2/5 completed | Loss: 1.4024 | Epsilon: N/A
-train-1  | Epoch 3/5 completed | Loss: 1.3584 | Epsilon: N/A
-train-1  | Epoch 4/5 completed | Loss: 1.3794 | Epsilon: N/A
-train-1  | Epoch 5/5 completed | Loss: 1.3554 | Epsilon: N/A
+train-1  | Training samples: 43636
+train-1  | Validation samples: 10909
+train-1  | Test samples: 5455
+train-1  | Dataset constructed from config
+train-1  | Model loaded from ONNX file
+train-1  | Optimizer Adam loaded from config
+train-1  | Scheduler CyclicLR loaded from config
+train-1  | Custom loss function loaded from config
+train-1  | Epoch 1/1 completed | Training Loss: 0.1586 
+train-1  | Epoch 1/1 completed | Validation Loss: 0.0860
 train-1  | Saving trained model to /mnt/remote/output/trained_model.onnx
-train-1  | Validation Metrics: {'loss': 2.305254742717743, 'accuracy': 0.0973, 'precision': 0.00946729, 'recall': 0.0973, 'f1_score': 0.017255609222637382}
+train-1  | Evaluation Metrics: {'test_loss': 0.08991911436687393, 'accuracy': 0.9523373052245646, 'f1_score': 0.9522986646537908}
 train-1  | CCR Training complete!
 train-1  | 
 train-1 exited with code 0
-...
 ```
 
 ## Deploy on CCR

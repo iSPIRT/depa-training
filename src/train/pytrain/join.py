@@ -29,7 +29,7 @@ from pyspark.sql.functions import col, column
 from .task_base import TaskBase
 
 
-class Join(TaskBase):
+class SparkJoin(TaskBase):
     
     def load_tdp_list(self, config, debug=True):
         """
@@ -195,25 +195,24 @@ class Join(TaskBase):
         spark.sparkContext.setLogLevel("ERROR")
         query = self.generate_query(tdp_config_list, joined_dataset_config)
         dataset_info = self.generate_data_info(spark, tdp_config_list)
-        model_output_folder = joined_dataset_config["model_output_folder"]
         # sandbox_joined_anon_simplified=ccr_prepare_joined_dataset_full(dataset_info,query,joined_dataset_config["model_file"],debug=True)
         model_file = joined_dataset_config["joined_dataset"]
         sandbox_joined_anon_simplified = self.ccr_prepare_joined_dataset_full(
             spark, dataset_info, joined_dataset_config, query, model_file, debug=False
         )
-        print("Generating aggregated data in " + model_output_folder + model_file)
+        print("Generating aggregated data in " + model_file)
         sandbox_joined_without_key_identifiers = (
             self.ccr_create_joined_dataset_wo_identifiers(
                 sandbox_joined_anon_simplified,
                 joined_dataset_config,
-                model_output_folder + model_file,
+                model_file,
                 True,
             )
         )
 
 
 
-class ImageJoin(TaskBase):
+class DirectoryJoin(TaskBase):
     
     def join_datasets(self, config):
         output_path = config["joined_dataset"]

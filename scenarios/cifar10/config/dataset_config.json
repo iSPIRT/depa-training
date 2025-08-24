@@ -1,0 +1,14 @@
+{
+    "type": "serialized",
+    "format": "torch",
+    "structure": "list_of_tuples",
+    "transforms": {
+        "normalize": true,
+        "augment": false
+    },
+    "splits": {
+        "train": 0.8,
+        "val": 0.2,
+        "random_state": 42
+    }
+}

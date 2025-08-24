@@ -1,0 +1,7 @@
+services:
+  cifar10:
+    image: ${CONTAINER_REGISTRY:+$CONTAINER_REGISTRY/}preprocess-cifar10:latest
+    volumes:
+      - $CIFAR10_INPUT_PATH:/mnt/input/data
+      - $CIFAR10_OUTPUT_PATH:/mnt/output/preprocessed
+    command: ["python3", "preprocess_cifar10.py"]

@@ -1,3 +1,7 @@
+#!/bin/bash
+
+export REPO_ROOT="$(git rev-parse --show-toplevel)"
+export SCENARIO="mnist"
 export DATA_DIR=$REPO_ROOT/scenarios/$SCENARIO/data
 export MNIST_INPUT_PATH=$DATA_DIR
 export MNIST_OUTPUT_PATH=$DATA_DIR/preprocessed

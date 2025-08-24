@@ -1,3 +1,7 @@
+#!/bin/bash
+
+export REPO_ROOT="$(git rev-parse --show-toplevel)"
+export SCENARIO=brats
 export DATA_DIR=$REPO_ROOT/scenarios/$SCENARIO/data
 
 tar -xzf $DATA_DIR/brats_A.tar.gz -C $DATA_DIR/

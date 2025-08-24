@@ -1,0 +1,28 @@
+{
+    "name": "Train",
+    "config": {
+        "paths": {
+            "input_dataset_path": "/tmp/covid_joined.csv",
+            "base_model_path": "/mnt/remote/model/model.onnx",
+            "trained_model_output_path": "/mnt/remote/output",
+            "sample_predictions_path": "/mnt/remote/output"
+        },
+        "model_type": "onnx",
+        "is_private": true,
+        "privacy_params": {
+            "max_grad_norm": 0.1,
+            "epsilon_threshold": 1.0,
+            "delta": 0.01
+        },
+        "device": "cpu",
+        "batch_size": 2,
+        "optimizer": {
+            "name": "SGD",
+            "params": {
+                "lr": 1e-4
+            }
+        },
+        "scheduler": null,
+        "total_epochs": 1
+    }
+}

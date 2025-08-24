@@ -1,0 +1,30 @@
+{
+    "name": "Train",
+    "config": {
+        "paths": {
+            "input_dataset_path": "/mnt/remote/mnist/mnist-dataset.pth",
+            "base_model_path": "/mnt/remote/model/model.onnx",
+            "trained_model_output_path": "/mnt/remote/output",
+            "sample_predictions_path": "/mnt/remote/output"
+        },
+        "model_type": "onnx",
+        "is_private": false,
+        "device": "cpu",
+        "batch_size": 4,
+        "optimizer": {
+            "name": "Adam",
+            "params": {
+                "lr": 1e-4
+            }
+        },
+        "scheduler": {
+            "name": "CyclicLR",
+            "params": {
+                "base_lr": 1e-4,
+                "max_lr": 1e-2,
+                "cycle_momentum": false
+            }
+        },
+        "total_epochs": 1
+    }
+}
