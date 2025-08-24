@@ -68,11 +68,12 @@ export CONTAINER_REGISTRY=depatraindevacr.azurecr.io
 
 This repository contains two samples that illustrate the kinds of scenarios DEPA for Training can support. 
 
-| Scenario name | Scenario type | Training method | Dataset type | Join type |
+| Scenario name | Scenario type | Training method | Dataset type | Join type | Model format |
 |--------------|---------------|-----------------|--------------|-----------|
-| [COVID-19](./scenarios/covid/README.md) | Training | Differentially Private Classification | PII tabular dataset | Horizontal |
-| [BraTS](./scenarios/brats/README.md) | Training | Differentially Private Segmentation | PII image dataset | Vertical |
-| [MNIST](./scenarios/mnist/README.md) | Training | Classification | Non-PII image dataset | NA (no join) |
+| [COVID-19](./scenarios/covid/README.md) | Training | Differentially Private Classification | PII tabular dataset | Horizontal | ONNX |
+| [BraTS](./scenarios/brats/README.md) | Training | Differentially Private Segmentation | PII image dataset | Vertical | PyTorch |
+| [MNIST](./scenarios/mnist/README.md) | Training | Classification | Non-PII image dataset | NA (no join) | ONNX |
+| [CIFAR-10](./scenarios/cifar10/README.md) | Training | Classification | Non-PII image dataset | NA (no join) | PyTorch |
 
 Follow the links to build and deploy these scenarios. 
 

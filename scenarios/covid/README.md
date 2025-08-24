@@ -61,7 +61,10 @@ Assuming you have cleartext access to all the de-identified datasets, you can tr
 ```bash
 ./train.sh
 ```
-The script joins the datasets and trains the model using a pipeline configuration ([pipeline_config.json](./config/pipeline_config.json)) created by consolidating all the TDC's training config files. If all goes well, you should see output similar to the following output, and the trained model will be saved under the folder [output](./modeller/output).
+
+The script joins the datasets and trains the model using a pipeline configuration. To modify the various components of the training pipeline, you can edit the training config files in the [config](./config/) directory. The training config files are used to create the pipeline configuration ([pipeline_config.json](./config/pipeline_config.json)) created by consolidating all the TDC's training config files, namely the [model config](./config/model_config.json), [dataset config](./config/dataset_config.json), [loss function config](./config/loss_config.json), [training config](./config/train_config_template.json), [evaluation config](./config/eval_config.json), and if multiple datasets are used, the [data join config](./config/join_config.json). These enable the TDC to design highly customized training pipelines without requiring review and approval of new custom code for each use case—reducing risks from potentially malicious or non-compliant code. The consolidated pipeline configuration is then attested against the signed contract using the TDP’s policy-as-code. If approved, it is executed in the CCR to train the model, which we will deploy in the next section.
+
+If all goes well, you should see output similar to the following output, and the trained model and evaluation metrics will be saved under the folder [output](./modeller/output).
 
 ```
 train-1  | Generating aggregated data in /tmp/covid_joined.csv
@@ -348,6 +351,8 @@ stat $REPO_ROOT/scenarios/$SCENARIO/modeller/output/trained_model.onnx
 
 ---
 ### Clean-up
+
+
 
 You can use the following command to delete the resource group and clean-up all resources used in the demo. Alternatively, you can navigate to the Azure portal and delete the resource group created for this demo.
 
