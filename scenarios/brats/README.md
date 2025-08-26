@@ -2,9 +2,9 @@
 
 ## Scenario Type
 
-| Scenario name | Scenario type | Training method | Dataset type | Join type | Model format |
-|--------------|---------------|-----------------|--------------|-----------|------------|
-| [BraTS](./scenarios/brats/README.md) | Training | Differentially Private Segmentation | PII image dataset | Vertical | PyTorch |
+| Scenario name | Scenario type | Training method | Dataset type | Join type | Model format | Data format |
+|--------------|---------------|-----------------|--------------|-----------|------------|------------|
+| [BraTS](./scenarios/brats/README.md) | Training | Differentially Private Segmentation | PII MRI imaging dataset | Vertical | Safetensors | NIfTI/PNG |
 
 ---
 

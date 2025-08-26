@@ -54,12 +54,12 @@ This repository contains two samples that illustrate the kinds of scenarios DEPA
 
 Follow the links to build and deploy these scenarios. 
 
-| Scenario name | Scenario type | Training method | Dataset type | Join type | Model format |
-|--------------|---------------|-----------------|--------------|-----------|------------|
-| [COVID-19](./scenarios/covid/README.md) | Training | Differentially Private Classification | PII tabular dataset | Horizontal | ONNX |
-| [BraTS](./scenarios/brats/README.md) | Training | Differentially Private Segmentation | PII image dataset | Vertical | PyTorch |
-| [MNIST](./scenarios/mnist/README.md) | Training | Classification | Non-PII image dataset | NA (no join) | ONNX |
-| [CIFAR-10](./scenarios/cifar10/README.md) | Training | Classification | Non-PII image dataset | NA (no join) | PyTorch |
+| Scenario name | Scenario type | Training method | Dataset type | Join type | Model format | Data format |
+|--------------|---------------|-----------------|--------------|-----------|------------|------------|
+| [COVID-19](./scenarios/covid/README.md) | Training | Differentially Private Classification | PII tabular dataset | Horizontal | ONNX | CSV |
+| [BraTS](./scenarios/brats/README.md) | Training | Differentially Private Segmentation | PII MRI imaging dataset | Vertical | Safetensors | NIfTI/PNG |
+| [MNIST](./scenarios/mnist/README.md) | Training | Classification | Non-PII image dataset | NA (no join) | ONNX | HDF5 |
+| [CIFAR-10](./scenarios/cifar10/README.md) | Training | Classification | Non-PII image dataset | NA (no join) | Safetensors | SafeTensors |
 
 # Contributing
 

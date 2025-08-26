@@ -2,9 +2,9 @@
 
 ## Scenario Type
 
-| Scenario name | Scenario type | Training method | Dataset type | Join type | Model format |
-|--------------|---------------|-----------------|--------------|-----------|------------|
-| [MNIST](./scenarios/mnist/README.md) | Training | Classification | Non-PII image dataset | NA (no join) | ONNX |
+| Scenario name | Scenario type | Training method | Dataset type | Join type | Model format | Data format |
+|--------------|---------------|-----------------|--------------|-----------|------------|------------|
+| [MNIST](./scenarios/mnist/README.md) | Training | Classification | Non-PII image dataset | NA (no join) | ONNX | HDF5 |
 
 ---
 

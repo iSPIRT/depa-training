@@ -2,9 +2,9 @@
 
 ## Scenario Type
 
-| Scenario name | Scenario type | Training method | Dataset type | Join type | Model format |
-|--------------|---------------|-----------------|--------------|-----------|------------|
-| [CIFAR-10](./scenarios/cifar10/README.md) | Training | Classification | Non-PII image dataset | NA (no join) | PyTorch |
+| Scenario name | Scenario type | Training method | Dataset type | Join type | Model format | Data format |
+|--------------|---------------|-----------------|--------------|-----------|------------|------------|
+| [CIFAR-10](./scenarios/cifar10/README.md) | Training | Classification | Non-PII image dataset | NA (no join) | Safetensors | SafeTensors |
 
 ---
 

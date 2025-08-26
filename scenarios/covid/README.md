@@ -2,9 +2,9 @@
 
 ## Scenario Type
 
-| Scenario name | Scenario type | Training method | Dataset type | Join type | Model format |
-|--------------|---------------|-----------------|--------------|-----------|------------|
-| [COVID-19](./scenarios/covid/README.md) | Training | Differentially Private Classification | PII tabular dataset | Horizontal | ONNX |
+| Scenario name | Scenario type | Training method | Dataset type | Join type | Model format | Data format |
+|--------------|---------------|-----------------|--------------|-----------|------------|------------|
+| [COVID-19](./scenarios/covid/README.md) | Training | Differentially Private Classification | PII tabular dataset | Horizontal | ONNX | CSV |
 
 ---
 
