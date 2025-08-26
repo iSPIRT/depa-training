@@ -4,8 +4,7 @@
         "paths": {
             "input_dataset_path": "/tmp/covid_joined.csv",
             "base_model_path": "/mnt/remote/model/model.onnx",
-            "trained_model_output_path": "/mnt/remote/output",
-            "sample_predictions_path": "/mnt/remote/output"
+            "trained_model_output_path": "/mnt/remote/output"
         },
         "model_type": "onnx",
         "is_private": true,
@@ -15,7 +14,7 @@
             "delta": 0.01
         },
         "device": "cpu",
-        "batch_size": 2,
+        "batch_size": 8,
         "optimizer": {
             "name": "SGD",
             "params": {

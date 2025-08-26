@@ -22,8 +22,8 @@ import shutil
 from pathlib import Path
 
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import *
-from pyspark.sql.types import *
+from pyspark.sql.functions import col
+from pyspark.sql.types import StructType
 from pyspark.sql.functions import col, column
 
 from .task_base import TaskBase
@@ -68,7 +68,16 @@ class SparkJoin(TaskBase):
         """
         Extract the query logic from the query config. Current implementation extracts query from query config.
         """
-        return joined_dataset_config["joining_query"]
+        # Very light validation to disallow multiple statements / dangerous tokens
+        q = joined_dataset_config["joining_query"]
+        if not isinstance(q, str):
+            raise ValueError("joining_query must be a string")
+        # Disallow semicolons and common DDL/DML keywords
+        banned = [";", "DROP ", "TRUNCATE ", "ALTER ", "CREATE ", "INSERT ", "UPDATE ", "DELETE "]
+        uq = q.upper()
+        if any(b in uq for b in banned):
+            raise ValueError("Disallowed SQL construct in joining_query")
+        return q
 
     def dropDupeDfCols(self, df, debug=True):
         """
@@ -216,7 +225,7 @@ class DirectoryJoin(TaskBase):
     
     def join_datasets(self, config):
         output_path = config["joined_dataset"]
-        os.makedirs(output_path, exist_ok=True)
+        Path(output_path).mkdir(parents=True, exist_ok=True)
 
         for dataset in config["datasets"]:
             dataset_path = dataset["mount_path"]
@@ -233,7 +242,10 @@ class DirectoryJoin(TaskBase):
                         dst_file = os.path.join(target_root, file)
 
                         if not os.path.exists(dst_file):
-                            shutil.copy2(src_file, dst_file)
+                            # Avoid following symlinks
+                            if os.path.islink(src_file):
+                                continue
+                            shutil.copy2(src_file, dst_file, follow_symlinks=False)
                 print(f"Merged dataset '{dataset_name}' into '{output_path}'")
             else:
                 print(f"Dataset '{dataset_name}' is not a valid directory.")

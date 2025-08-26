@@ -1,7 +1,9 @@
 {
     "type": "serialized",
-    "format": "torch",
+    "format": "safetensors",
     "structure": "list_of_tuples",
+    "features_key": "features",
+    "targets_key": "targets",
     "transforms": {
         "normalize": true,
         "augment": false

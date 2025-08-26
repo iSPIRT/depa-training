@@ -16,10 +16,7 @@
 # https://depa.world/training/depa_training_framework/
 
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import *
-from pyspark.sql.types import *
-from pyspark.sql.functions import sha2, concat_ws # Hashing Related functions
-from pyspark.sql.functions import col , column
+from pyspark.sql.functions import sha2, concat_ws
 
 
 """##**Key Configuration Variables**"""
@@ -84,15 +81,16 @@ def dp_load_data(input_folder,data_file,load=True,debug=True):
   """
 
   if load:
-    input_file=input_folder+data_file
-    if debug: 
-      print("Debug | input_file",input_file)
-    data_loaded= spark.read.csv(
-    input_file, 
-    header=True, 
-    inferSchema=True,
-    mode="DROPMALFORMED"
-  )
+      input_file=input_folder+data_file
+      if debug: 
+        print("Debug | input_file",input_file)
+      # Prefer schema-on-read via CSV or Parquet; keep CSV for compatibility
+      data_loaded = spark.read.csv(
+          input_file,
+          header=True,
+          inferSchema=True,
+          mode="DROPMALFORMED"
+      )
   if debug: 
       print("Debug | input_file",data_loaded.count())
       data_loaded.show()
@@ -104,21 +102,21 @@ def dp_process_cowin_full(input_folder,data_file,load=True,debug=True):
     Suggested to have some standardisations defined by the DEP/ Data Consumer (DC) for easier joining process
     """
     if load:
-      input_file=input_folder+data_file
+        input_file=input_folder+data_file
     
     if debug: 
-      print("Debug | input_file",input_file)
+        print("Debug | input_file",input_file)
     
-    data_loaded= spark.read.csv(
-      input_file, 
-      header=True, 
-      inferSchema=True,
-      mode="DROPMALFORMED"
-      )
+    data_loaded = spark.read.csv(
+        input_file,
+        header=True,
+        inferSchema=True,
+        mode="DROPMALFORMED"
+    )
     
     if debug: 
-      print("Debug | input_file",data_loaded.count())
-      data_loaded.show()
+        print("Debug | input_file",data_loaded.count())
+        data_loaded.show()
 
 
     # Standardisations
@@ -135,7 +133,7 @@ def dp_process_cowin_full(input_folder,data_file,load=True,debug=True):
       if i not in do_not_change:
         sandbox_dp_cowin = sandbox_dp_cowin.withColumnRenamed(i,'cowin_'+i)
     
-    sandbox_dp_cowin.toPandas().to_csv(dp_cowin_output_folder+dp_cowin_std_nonanon_file)
+    sandbox_dp_cowin.toPandas().to_csv(dp_cowin_output_folder + dp_cowin_std_nonanon_file, index=False)
   
     # Anonymisation of key identifiers
     sandbox_dp_cowin_anon = sandbox_dp_cowin.withColumn('pk_beneficiary_id_hashed', sha2(concat_ws("", sandbox_dp_cowin.pk_beneficiary_id),256)) \
@@ -144,7 +142,7 @@ def dp_process_cowin_full(input_folder,data_file,load=True,debug=True):
     .withColumn("ref_id_verified_hashed", sha2(concat_ws("", sandbox_dp_cowin.ref_id_verified),256)) \
     .drop("pk_mobno").drop("pk_beneficiary_id").drop("ref_uhid").drop("ref_id_verified").cache()
 
-    sandbox_dp_cowin_anon.toPandas().to_csv(dp_cowin_output_folder + dp_cowin_std_anon_file)
+    sandbox_dp_cowin_anon.toPandas().to_csv(dp_cowin_output_folder + dp_cowin_std_anon_file, index=False)
     
     if debug_poc:
       print("Debug | Dataset Created ", "sandbox_cowin_processed_anon")

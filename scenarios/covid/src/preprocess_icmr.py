@@ -16,10 +16,7 @@
 # https://depa.world/training/depa_training_framework/
 
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import *
-from pyspark.sql.types import *
-from pyspark.sql.functions import sha2, concat_ws # Hashing Related functions
-from pyspark.sql.functions import col , column
+from pyspark.sql.functions import sha2, concat_ws
 
 ##**Key Configuration Variables**"""
 
@@ -83,11 +80,11 @@ def dp_load_data(input_folder,data_file,load=True,debug=True):
     if debug: 
       print("Debug | input_file",input_file)
     data_loaded= spark.read.csv(
-    input_file, 
-    header=True, 
-    inferSchema=True,
-    mode="DROPMALFORMED"
-  )
+      input_file, 
+      header=True, 
+      inferSchema=True,
+      mode="DROPMALFORMED"
+    )
   if debug: 
       print("Debug | input_file",data_loaded.count())
       data_loaded.show()
@@ -112,7 +109,7 @@ def dp_process_icmr_full(input_folder,data_file,load=True,debug=True):
       header=True, 
       inferSchema=True,
       mode="DROPMALFORMED"
-      )
+    )
     
     if debug: 
       print("Debug | input_file",data_loaded.count())
@@ -138,7 +135,7 @@ def dp_process_icmr_full(input_folder,data_file,load=True,debug=True):
         sandbox_dp_icmr = sandbox_dp_icmr.withColumnRenamed(i,'icmr_'+i)
 
     # Create the Output
-    sandbox_dp_icmr.toPandas().to_csv(dp_icmr_output_folder+ dp_icmr_std_nonanon_file)
+    sandbox_dp_icmr.toPandas().to_csv(dp_icmr_output_folder+ dp_icmr_std_nonanon_file, index=False)
 
     # Anonymisation of key identifiers
     sandbox_dp_icmr_anon = sandbox_dp_icmr.withColumn('pk_mobno_hashed', sha2(concat_ws("", sandbox_dp_icmr.pk_mobno),256)) \
@@ -147,7 +144,7 @@ def dp_process_icmr_full(input_folder,data_file,load=True,debug=True):
     .withColumn('fk_icmr_labid_hashed', sha2(concat_ws("", sandbox_dp_icmr.fk_icmr_labid),256)) \
     .drop("pk_mobno").drop("ref_srfno").drop("pk_icmrno").drop("fk_icmr_labid").cache()
 
-    sandbox_dp_icmr_anon.toPandas().to_csv(dp_icmr_output_folder + dp_icmr_std_anon_file)
+    sandbox_dp_icmr_anon.toPandas().to_csv(dp_icmr_output_folder + dp_icmr_std_anon_file, index=False)
     if debug_poc:
       print("Debug | sandbox_icmr_anon count =", sandbox_dp_icmr_anon.count())
       print("Debug | Dataset Created ", "sandbox_icmr_processed_nonanon")

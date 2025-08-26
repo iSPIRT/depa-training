@@ -4,7 +4,7 @@
       "name": "Train",
       "config": {
         "paths": {
-          "input_dataset_path": "/mnt/remote/mnist/mnist-dataset.pth",
+          "input_dataset_path": "/mnt/remote/mnist/mnist-dataset.h5",
           "base_model_path": "/mnt/remote/model/model.onnx",
           "trained_model_output_path": "/mnt/remote/output",
           "sample_predictions_path": "/mnt/remote/output"
@@ -12,7 +12,7 @@
         "model_type": "onnx",
         "is_private": false,
         "device": "cpu",
-        "batch_size": 4,
+        "batch_size": 16,
         "optimizer": {
           "name": "Adam",
           "params": {
@@ -30,8 +30,10 @@
         "total_epochs": 1,
         "dataset_config": {
           "type": "serialized",
-          "format": "torch",
+          "format": "hdf5",
           "structure": "list_of_tuples",
+          "features_key": "features",
+          "targets_key": "targets",
           "transforms": {
             "normalize": true,
             "augment": false
@@ -43,12 +45,18 @@
           }
         },
         "loss_config": {
-          "expression": "alpha * (1 - torch.exp(-ce_loss))**gamma * ce_loss",
+          "expression": "alpha * (1 - pt)**gamma * ce_loss",
           "components": {
             "ce_loss": {
-              "class": "torch.nn.CrossEntropyLoss",
+              "class": "nn.CrossEntropyLoss",
               "params": {
                 "reduction": "none"
+              }
+            },
+            "pt": {
+              "class": "torch.exp",
+              "params": {
+                "input": "-$ce_loss"
               }
             }
           },
@@ -75,7 +83,6 @@
             "params": {}
           }
         ],
-        "n_pred_samples": 5,
         "task_type": "classification"
       }
     }

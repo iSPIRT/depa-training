@@ -218,8 +218,8 @@ def parse_metrics_config(metrics_config: Union[List[Any], None]) -> List[Dict[st
 def compute_metrics(preds_list, targets_list, test_loss, config):
     metrics = parse_metrics_config(config.get("metrics", []))
     task_type = config.get("task_type", "")
-    save_path = config.get("paths", {}).get("sample_predictions_path", "")
-    n_pred_samples = config.get("n_pred_samples", 0)
+    save_path = config.get("paths", {}).get("trained_model_output_path", "")
+    # n_pred_samples = config.get("n_pred_samples", 0)
     threshold = config.get("threshold", 0.5)
 
     if len(preds_list) == 0:
@@ -327,6 +327,10 @@ def compute_metrics(preds_list, targets_list, test_loss, config):
         with open(os.path.join(save_path, "evaluation_metrics.json"), "w") as f:
             json.dump(numeric_metrics, f, indent=4, default=_to_json_safe)
 
+
+    # TO EXPLORE: Can sample predictions be saved without breaking privacy constraints?
+
+    """
     # Save sample predictions
     if save_path and n_pred_samples > 0 and y_true_all is not None:
         nsave = min(n_pred_samples, len(y_pred_all))
@@ -372,5 +376,6 @@ def compute_metrics(preds_list, targets_list, test_loss, config):
                 }
                 with open(os.path.join(save_path, f"pred_{i+1}.txt"), "w") as f:
                     json.dump(pred_data, f, default=_to_json_safe)
+    """
 
     return numeric_metrics

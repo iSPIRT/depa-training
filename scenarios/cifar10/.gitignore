@@ -5,6 +5,9 @@
 *.pt
 *.onnx
 *.npy
+*.safetensors
+*.h5
+*.hdf5
 
 # Ignore modeller output folder (relative to repo root)
 modeller/output/

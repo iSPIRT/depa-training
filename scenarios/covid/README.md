@@ -1,5 +1,15 @@
 # COVID-19 Predictive Modelling 
 
+## Scenario Type
+
+| Scenario name | Scenario type | Training method | Dataset type | Join type | Model format |
+|--------------|---------------|-----------------|--------------|-----------|------------|
+| [COVID-19](./scenarios/covid/README.md) | Training | Differentially Private Classification | PII tabular dataset | Horizontal | ONNX |
+
+---
+
+## Scenario Description
+
 This hypothetical scenario involves three Training Data Providers (TDPs), ICMR, COWIN and a State War Room ("Index"), and a Training Data Consumer (TDC) who wishes the train a model using datasets from these TDPs. The repository contains sample datasets and a model. The model and datasets are for illustrative purposes only; none of these organizations have been involved in contributing to the code or datasets.  
 
 The end-to-end training pipeline consists of the following phases. 
@@ -40,7 +50,7 @@ cd $REPO_ROOT/scenarios/$SCENARIO
 The folder ```scenarios/covid/src``` contains scripts for pre-processing and de-identifying sample COVID-19 datasets. Acting as a Training Data Provider (TDP), prepare your datasets.
 
 ```bash
-cd $REPO_ROOT/scenarios/$SCENARIO/deployment/docker
+cd $REPO_ROOT/scenarios/$SCENARIO/deployment/local
 ./preprocess.sh
 ```
 
@@ -63,6 +73,33 @@ Assuming you have cleartext access to all the de-identified datasets, you can tr
 ```
 
 The script joins the datasets and trains the model using a pipeline configuration. To modify the various components of the training pipeline, you can edit the training config files in the [config](./config/) directory. The training config files are used to create the pipeline configuration ([pipeline_config.json](./config/pipeline_config.json)) created by consolidating all the TDC's training config files, namely the [model config](./config/model_config.json), [dataset config](./config/dataset_config.json), [loss function config](./config/loss_config.json), [training config](./config/train_config_template.json), [evaluation config](./config/eval_config.json), and if multiple datasets are used, the [data join config](./config/join_config.json). These enable the TDC to design highly customized training pipelines without requiring review and approval of new custom code for each use case—reducing risks from potentially malicious or non-compliant code. The consolidated pipeline configuration is then attested against the signed contract using the TDP’s policy-as-code. If approved, it is executed in the CCR to train the model, which we will deploy in the next section.
+
+```mermaid
+flowchart TD
+    A[Edit training config files in ./config/] --> B[Configs consolidated into pipeline_config.json]
+    
+    subgraph Config Files
+        C1[model_config.json]
+        C2[dataset_config.json]
+        C3[loss_config.json]
+        C4[train_config_template.json]
+        C5[eval_config.json]
+        C6[join_config.json (optional)]
+    end
+
+    C1 --> B
+    C2 --> B
+    C3 --> B
+    C4 --> B
+    C5 --> B
+    C6 --> B
+
+    B --> D[Pipeline configuration attested against contract<br/>using TDP's policy-as-code]
+    D --> E{Approved?}
+    E -- Yes --> F[Executed in CCR]
+    F --> G[Model trained for deployment]
+    E -- No --> H[Rejected: requires config fix]
+```
 
 If all goes well, you should see output similar to the following output, and the trained model and evaluation metrics will be saved under the folder [output](./modeller/output).
 
@@ -115,7 +152,7 @@ To deploy in Azure, you will need the following.
 
 - Docker Hub account to store container images. Alternatively, you can use pre-built images from the ```ispirt``` container registry. 
 - [Azure Key Vault](https://azure.microsoft.com/en-us/products/key-vault/) to store encryption keys and implement secure key release to CCR. You can either you Azure Key Vault Premium (lower cost), or [Azure Key Vault managed HSM](https://learn.microsoft.com/en-us/azure/key-vault/managed-hsm/overview) for enhanced security. Please see instructions below on how to create and setup your AKV instance. 
-- Valid Azure subscription with sufficient access to create key vault, storage accounts, storage containers, and Azure Container Instances. 
+- Valid Azure subscription with sufficient access to create key vault, storage accounts, storage containers, and Azure Container Instances (ACI). 
 
 If you are using your own development environment instead of a dev container or codespaces, you will to install the following dependencies. 
 
@@ -129,7 +166,7 @@ We will be creating the following resources as part of the deployment.
 - Azure Key Vault
 - Azure Storage account
 - Storage containers to host encrypted datasets
-- Azure Container Instances to deploy the CCR and train the model
+- Azure Container Instances (ACI) to deploy the CCR and train the model
 
 ### 1\. Push Container Images
 
@@ -158,6 +195,8 @@ cd $REPO_ROOT/scenarios/$SCENARIO
 
 First, set up the necessary environment variables for your deployment.
 
+Option 1: Manually set the environment variables.
+
 ```bash
 az login
 
@@ -175,6 +214,8 @@ export AZURE_INDEX_CONTAINER_NAME=indexcontainer
 export AZURE_MODEL_CONTAINER_NAME=modelcontainer
 export AZURE_OUTPUT_CONTAINER_NAME=outputcontainer
 ```
+
+Option 2: Configurable script to set the environment variables.
 
 Alternatively, you can edit the values in the [export-variables.sh](./export-variables.sh) script and run it to set the environment variables.
 
@@ -223,7 +264,7 @@ The values for the environment variables listed below must precisely match the n
 With the environment variables set, we are ready to create the resources -- Azure Key Vault and Azure Storage containers.
 
 ```bash
-cd $REPO_ROOT/scenarios/$SCENARIO/deployment/aci
+cd $REPO_ROOT/scenarios/$SCENARIO/deployment/azure
 ./1-create-storage-containers.sh
 ./2-create-akv.sh
 ```
@@ -245,7 +286,7 @@ export CONTRACT_SEQ_NO=<contract-sequence-number>
 
 Using their respective keys, the TDPs and TDC encrypt their datasets and model (respectively) and upload them to the Storage containers created in the previous step.
 
-Navigate to the [ACI deployment](./deployment/aci/) directory and execute the scripts for key import, data encryption and upload to Azure Blob Storage, in preparation of the CCR deployment.
+Navigate to the [Azure deployment](./deployment/azure/) directory and execute the scripts for key import, data encryption and upload to Azure Blob Storage, in preparation of the CCR deployment.
 
 The import-keys script generates and imports encryption keys into Azure Key Vault with a policy based on [policy-in-template.json](./policy/policy-in-template.json). The policy requires that the CCRs run specific containers with a specific configuration which includes the public identity of the contract service. Only CCRs that satisfy this policy will be granted access to the encryption keys. The generated keys are available as files with the extension `.bin`. 
 
@@ -270,7 +311,7 @@ The encrypted data and model are then uploaded to the Storage containers created
 
 ---
 
-### 5\. ACI Deployment
+### 5\. CCR Deployment
 
 With the resources ready, we are ready to deploy the Confidential Clean Room (CCR) for executing the privacy-preserving model training.
 

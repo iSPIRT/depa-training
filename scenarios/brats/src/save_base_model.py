@@ -19,6 +19,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import json
+from safetensors.torch import save_file as st_save
 
 from model_constructor import *
 
@@ -27,12 +28,11 @@ model_config_path = "/mnt/config/model_config.json"
 with open(model_config_path, 'r') as f:
     config = json.load(f)
 
-# model = TorchNNModel.from_config_dict(config)
-model = ModelBuilder.load_from_dict(config)
+model = ModelFactory.load_from_dict(config)
 
 model.eval()
-torch.save(model.state_dict(), "/mnt/model/model.pth")
-print("Model saved as pth to /mnt/model/model.pth")
+st_save(model.state_dict(), "/mnt/model/model.safetensors")
+print("Model saved as safetensors to /mnt/model/model.safetensors")
 
 
 '''

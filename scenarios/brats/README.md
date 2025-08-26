@@ -1,5 +1,15 @@
 # Brain Tumor Segmentation
 
+## Scenario Type
+
+| Scenario name | Scenario type | Training method | Dataset type | Join type | Model format |
+|--------------|---------------|-----------------|--------------|-----------|------------|
+| [BraTS](./scenarios/brats/README.md) | Training | Differentially Private Segmentation | PII image dataset | Vertical | PyTorch |
+
+---
+
+## Scenario Description
+
 This scenario demonstrates how a deep learning model can be trained for Brain MRI Tumor Segmentation using the join of multiple (potentially PII, due to combination of quasi-identifiers such as biodata and possiblity of volumetric facial reconstruction <add ref>, radiomics combined with biodata) medical imaging datasets. The Training Data Consumer (TDC) building the model gets into a contractual agreement with multiple Training Data Providers (TDPs) having annotated MRI data, and the model is trained on the joined datasets in a data-blind manner within the CCR, maintaining privacy guarantees (as per need, keeping in mind the utility value of the model) using differential privacy. For demonstration purpose, this scenario uses annotated MRI data made available through the BraTS 2020 challenge <add license, os>, and a custom UNet architecture model for segmentation.
 
 For this demo, we use the BraTS 2020 challenge datasets [1] [2] [3].
@@ -44,7 +54,7 @@ The folder ```scenarios/brats/src``` contains scripts for extracting and pre-pro
 For ease of execution, the individual preprocessed BraTS MRI datasets are already made available in the repo under `scenarios/brats/data` as `tar.gz` files. Run the following scripts to extract them:
 
 ```bash
-cd $REPO_ROOT/scenarios/$SCENARIO/deployment/docker
+cd $REPO_ROOT/scenarios/$SCENARIO/deployment/local
 ./preprocess.sh
 ```
 
@@ -121,7 +131,7 @@ To deploy in Azure, you will need the following.
 
 - Docker Hub account to store container images. Alternatively, you can use pre-built images from the ```ispirt``` container registry. 
 - [Azure Key Vault](https://azure.microsoft.com/en-us/products/key-vault/) to store encryption keys and implement secure key release to CCR. You can either you Azure Key Vault Premium (lower cost), or [Azure Key Vault managed HSM](https://learn.microsoft.com/en-us/azure/key-vault/managed-hsm/overview) for enhanced security. Please see instructions below on how to create and setup your AKV instance. 
-- Valid Azure subscription with sufficient access to create key vault, storage accounts, storage containers, and Azure Container Instances. 
+- Valid Azure subscription with sufficient access to create key vault, storage accounts, storage containers, and Azure Container Instances (ACI). 
 
 If you are using your own development environment instead of a dev container or codespaces, you will to install the following dependencies. 
 
@@ -135,7 +145,7 @@ We will be creating the following resources as part of the deployment.
 - Azure Key Vault
 - Azure Storage account
 - Storage containers to host encrypted datasets
-- Azure Container Instances to deploy the CCR and train the model
+- Azure Container Instances (ACI) to deploy the CCR and train the model
 
 ### 1\. Push Container Images
 
@@ -231,7 +241,7 @@ The values for the environment variables listed below must precisely match the n
 With the environment variables set, we are ready to create the resources -- Azure Key Vault and Azure Storage containers.
 
 ```bash
-cd $REPO_ROOT/scenarios/$SCENARIO/deployment/aci
+cd $REPO_ROOT/scenarios/$SCENARIO/deployment/azure
 ./1-create-storage-containers.sh
 ./2-create-akv.sh
 ```
@@ -253,7 +263,7 @@ export CONTRACT_SEQ_NO=<contract-sequence-number>
 
 Using their respective keys, the TDPs and TDC encrypt their datasets and model (respectively) and upload them to the Storage containers created in the previous step.
 
-Navigate to the [ACI deployment](./deployment/aci/) directory and execute the scripts for key import, data encryption and upload to Azure Blob Storage, in preparation of the CCR deployment.
+Navigate to the [Azure deployment](./deployment/azure/) directory and execute the scripts for key import, data encryption and upload to Azure Blob Storage, in preparation of the CCR deployment.
 
 The import-keys script generates and imports encryption keys into Azure Key Vault with a policy based on [policy-in-template.json](./policy/policy-in-template.json). The policy requires that the CCRs run specific containers with a specific configuration which includes the public identity of the contract service. Only CCRs that satisfy this policy will be granted access to the encryption keys. The generated keys are available as files with the extension `.bin`. 
 
@@ -278,7 +288,7 @@ The encrypted data and model are then uploaded to the Storage containers created
 
 ---
 
-### 5\. ACI Deployment
+### 5\. CCR Deployment
 
 With the resources ready, we are ready to deploy the Confidential Clean Room (CCR) for executing the privacy-preserving model training.
 

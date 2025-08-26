@@ -6,7 +6,7 @@
 
 ## GitHub Codespaces
 
-The simplest way to setup a development environment is using [GitHub Codespaces](https://github.com/codespaces). The repository includes a [devcontainer.json](../../.devcontainer/devcontainer.json), which customizes your codespace to install all required dependencies. Please ensure you allocate at least 8 vCPUs and 64GB disk space in your codespace. Also, run the following command in the codespace to update submodules.
+The simplest way to setup a development environment is using [GitHub Codespaces](https://github.com/codespaces). The repository includes a [devcontainer.json](.devcontainer/devcontainer.json), which customizes your codespace to install all required dependencies. Please ensure you allocate at least 8 vCPUs and 64GB disk space in your codespace. Also, run the following command in the codespace to update submodules.
 
 ```bash
 git submodule update --init --recursive
@@ -28,22 +28,6 @@ Install the below listed dependencies by running the [install-prerequisites.sh](
 ```bash
 ./install-prerequisites.sh
 ```
-
-This script installs the following core dependencies, among others, which you can also install manually as follows.
-
-- [docker](https://docs.docker.com/engine/install/ubuntu/) and docker-compose. After installing docker, add your user to the docker group using `sudo usermod -aG docker $USER`, and log back in to a shell. This may require a machine restart to take effect.
-
-```bash
-curl -fsSL https://get.docker.com -o get-docker.sh
-sudo sh get-docker.sh
-sudo apt install docker-compose
-sudo usermod -aG docker $USER
-```
-
-- Make (install using ```sudo apt-get install make```)
-- Python3 (>=3.9) and pip (install using ```sudo apt install python3``` and ```sudo apt install python3-pip```) 
-- [Go](https://go.dev/doc/install). (```sudo apt install golang-go```) Follow the instructions to install Go. After installing, ensure that the PATH environment variable is set to include ```go``` runtime.
-- Python wheel package (install using ```pip install wheel```)
 
 ## Build CCR containers
 
@@ -68,14 +52,14 @@ export CONTAINER_REGISTRY=depatraindevacr.azurecr.io
 
 This repository contains two samples that illustrate the kinds of scenarios DEPA for Training can support. 
 
+Follow the links to build and deploy these scenarios. 
+
 | Scenario name | Scenario type | Training method | Dataset type | Join type | Model format |
 |--------------|---------------|-----------------|--------------|-----------|------------|
 | [COVID-19](./scenarios/covid/README.md) | Training | Differentially Private Classification | PII tabular dataset | Horizontal | ONNX |
 | [BraTS](./scenarios/brats/README.md) | Training | Differentially Private Segmentation | PII image dataset | Vertical | PyTorch |
 | [MNIST](./scenarios/mnist/README.md) | Training | Classification | Non-PII image dataset | NA (no join) | ONNX |
 | [CIFAR-10](./scenarios/cifar10/README.md) | Training | Classification | Non-PII image dataset | NA (no join) | PyTorch |
-
-Follow the links to build and deploy these scenarios. 
 
 # Contributing
 

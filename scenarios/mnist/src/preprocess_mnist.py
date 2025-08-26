@@ -15,21 +15,42 @@
 # For more information about this framework, please visit:
 # https://depa.world/training/depa_training_framework/
 
+import os
 import torch
 import torchvision
 import torchvision.transforms as transforms
+import h5py
 
 mnist_input_folder='/mnt/input/data/'
 
 # Location of preprocessed MNIST dataset
 mnist_output_folder='/mnt/output/preprocessed/'
 
-transform = transforms.Compose(
-    [transforms.ToTensor(),
-     transforms.Normalize((0.1307,), (0.3081,))])  # MNIST mean and std
+transform = transforms.Compose([
+    transforms.ToTensor(),
+    transforms.Normalize((0.1307,), (0.3081,))  # MNIST mean and std
+])
 
-trainset = torchvision.datasets.MNIST(root=mnist_input_folder, train=True,
-                                    download=True, transform=transform)
+trainset = torchvision.datasets.MNIST(root=mnist_input_folder, train=True, download=True, transform=transform)
 
-# Save the MNIST dataset
-torch.save(trainset, mnist_output_folder + 'mnist-dataset.pth')
+# Build tensors (N, C, H, W) and labels (N,)
+features = []
+targets = []
+for img, label in trainset:
+    # img is a tensor (1, 28, 28)
+    features.append(img)
+    targets.append(label)
+
+features = torch.stack(features).to(torch.float32)
+targets = torch.tensor(targets, dtype=torch.int64)
+
+# Ensure output directory exists
+os.makedirs(mnist_output_folder, exist_ok=True)
+
+# Save as HDF5 with keys 'features' and 'targets'
+out_path = os.path.join(mnist_output_folder, 'mnist-dataset.h5')
+with h5py.File(out_path, 'w') as f:
+    f.create_dataset('features', data=features.numpy())
+    f.create_dataset('targets', data=targets.numpy())
+
+print(f"Saved MNIST dataset to {out_path} as HDF5 with keys 'features' and 'targets'.")

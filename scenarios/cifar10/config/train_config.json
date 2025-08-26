@@ -2,12 +2,11 @@
   "name": "Train",
   "config": {
     "paths": {
-      "input_dataset_path": "/mnt/remote/cifar10/cifar10-dataset.pth",
-      "base_model_path": "/mnt/remote/model/model.pth",
-      "trained_model_output_path": "/mnt/remote/output",
-      "sample_predictions_path": "/mnt/remote/output"
+      "input_dataset_path": "/mnt/remote/cifar10/cifar10-dataset.safetensors",
+      "base_model_path": "/mnt/remote/model/model.safetensors",
+      "trained_model_output_path": "/mnt/remote/output"
     },
-    "model_type": "pytorch",
+    "model_type": "safetensors",
     "is_private": false,
     "device": "cpu",
     "batch_size": 16,
@@ -17,6 +16,7 @@
         "lr": 0.0001
       }
     },
+    "scheduler": null,
     "total_epochs": 2,
     "model_config": {
       "layers": {
@@ -141,8 +141,10 @@
     },
     "dataset_config": {
       "type": "serialized",
-      "format": "torch",
+      "format": "safetensors",
       "structure": "list_of_tuples",
+      "features_key": "features",
+      "targets_key": "targets",
       "transforms": {
         "normalize": true,
         "augment": false
@@ -154,7 +156,7 @@
       }
     },
     "loss_config": {
-      "class": "torch.nn.CrossEntropyLoss",
+      "class": "nn.CrossEntropyLoss",
       "params": {
         "reduction": "mean"
       }
@@ -176,7 +178,6 @@
         "params": {}
       }
     ],
-    "n_pred_samples": 5,
     "task_type": "classification"
   }
 }

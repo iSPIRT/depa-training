@@ -16,10 +16,7 @@
 # https://depa.world/training/depa_training_framework/
 
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import *
-from pyspark.sql.types import *
-from pyspark.sql.functions import sha2, concat_ws # Hashing Related functions
-from pyspark.sql.functions import col , column
+from pyspark.sql.functions import sha2, concat_ws
 
 ##**Key Configuration Variables**"""
 
@@ -92,11 +89,11 @@ def dp_load_data(input_folder,data_file,load=True,debug=True):
     if debug: 
       print("Debug | input_file",input_file)
     data_loaded= spark.read.csv(
-    input_file, 
-    header=True, 
-    inferSchema=True,
-    mode="DROPMALFORMED"
-  )
+      input_file, 
+      header=True, 
+      inferSchema=True,
+      mode="DROPMALFORMED"
+    )
   if debug: 
       print("Debug | input_file",data_loaded.count())
       data_loaded.show()
@@ -120,7 +117,7 @@ def dp_process_index_full(input_folder,data_file,load=True,debug=True):
       header=True, 
       inferSchema=True,
       mode="DROPMALFORMED"
-      )
+    )
     
     if debug: 
       print("Debug | input_file",data_loaded.count())
@@ -147,7 +144,7 @@ def dp_process_index_full(input_folder,data_file,load=True,debug=True):
         sandbox_dp_index = sandbox_dp_index.withColumnRenamed(i,'index_'+i)
 
     # Create the Output
-    sandbox_dp_index.toPandas().to_csv(dp_index_output_folder+ dp_index_std_nonanon_file)
+    sandbox_dp_index.toPandas().to_csv(dp_index_output_folder+ dp_index_std_nonanon_file, index=False)
 
     # Anonymisation of key identifiers
     sandbox_dp_index_anon = sandbox_dp_index.withColumn('pk_icmrno_hashed', sha2(concat_ws("", sandbox_dp_index.pk_icmrno),256)) \
@@ -156,7 +153,7 @@ def dp_process_index_full(input_folder,data_file,load=True,debug=True):
     .withColumn("ref_labid_hashed", sha2(concat_ws("", sandbox_dp_index.ref_labid),256)) \
     .drop("pk_mobno").drop("ref_srfno").drop("pk_icmrno").drop("ref_labid").cache()
 
-    sandbox_dp_index_anon.toPandas().to_csv(dp_index_output_folder + dp_index_std_anon_file)
+    sandbox_dp_index_anon.toPandas().to_csv(dp_index_output_folder + dp_index_std_anon_file, index=False)
     
     if debug_poc:
       print("Debug | Dataset Created ", "sandbox_index_processed_anon")

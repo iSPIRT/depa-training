@@ -25,7 +25,22 @@ import monai.losses
 # import piq
 
 import importlib
+import ast
 
+# Unified approved namespace map.
+# Keys may be:
+#  - root shorthands mapped to live objects: "torch", "nn", "F"
+#  - fully-qualified approved prefixes mapped to module import strings
+APPROVED_NAMESPACE_MAP = {
+    "torch": torch,
+    "nn": nn,
+    "F": F,
+    "torch.nn": "torch.nn",
+    "torch.nn.functional": "torch.nn.functional",
+    "monai.losses": "monai.losses",
+    "kornia.losses": "kornia.losses",
+    "piq": "piq",
+}
 
 class LossComposer:
     def __init__(self, config):
@@ -54,9 +69,8 @@ class LossComposer:
 
     def _build_atomic_loss(self, config):
       cls_path = config["class"]
-      module_name, cls_name = cls_path.rsplit(".", 1)
-      module = importlib.import_module(module_name) # Only applicable for approved libraries, included in ci/Dockerfile.train
-      obj = getattr(module, cls_name)
+      # Resolve object from approved namespaces (supports deep paths like torch.nn.functional.binary_cross_entropy_with_logits)
+      obj = _resolve_obj_from_approved_path(cls_path)
 
       if callable(obj) and not isinstance(obj, type):
           # It's a function (like torch.exp)
@@ -99,12 +113,9 @@ class LossComposer:
             # Add variables/constants
             local_ctx.update(variables)
 
-            # Add torch namespace for functions (e.g., torch.exp)
-            local_ctx.update({"torch": torch})
-
-            # Evaluate expression safely
+            # Evaluate expression with a safe arithmetic parser (no calls / attributes)
             try:
-                loss_val = eval(expression, {"__builtins__": {}}, local_ctx)
+                loss_val = _safe_eval_expression(expression, local_ctx)
             except Exception as e:
                 raise RuntimeError(f"Failed to evaluate expression '{expression}': {e}")
 
@@ -122,16 +133,162 @@ class LossComposer:
     def _resolve_params(self, params, outputs, targets, cache=None):
         resolved = {}
         for k, v in params.items():
+            # Recursive resolution for nested structures
+            if isinstance(v, dict):
+                resolved[k] = self._resolve_params(v, outputs, targets, cache)
+                continue
+            if isinstance(v, (list, tuple)):
+                seq_type = list if isinstance(v, list) else tuple
+                resolved[k] = seq_type(self._resolve_params({"_": x}, outputs, targets, cache)["_"] for x in v)
+                continue
+
+            # Direct placeholders
             if v in ("output", "outputs"):
                 resolved[k] = outputs
-            elif v in ("target", "targets"):
+                continue
+            if v in ("target", "targets"):
                 resolved[k] = targets
-            elif isinstance(v, str) and v.startswith("-") and cache is not None:
-                ref = v[1:]
-                if ref in cache:
-                    resolved[k] = -cache[ref]
-                else:
+                continue
+
+            # References to cached component values
+            if isinstance(v, str) and cache is not None:
+                if v.startswith("-$"):
+                    ref = v[2:]
+                    if ref in cache:
+                        resolved[k] = -cache[ref]
+                        continue
                     raise KeyError(f"Referenced component '{ref}' not found in cache")
-            else:
-                resolved[k] = v
+                if v.startswith("$"):
+                    ref = v[1:]
+                    if ref in cache:
+                        resolved[k] = cache[ref]
+                        continue
+                    raise KeyError(f"Referenced component '{ref}' not found in cache")
+                if v.startswith("-"):
+                    # Backwards-compatible: "-name" refers to negative of cached 'name'
+                    ref = v[1:]
+                    if ref in cache:
+                        resolved[k] = -cache[ref]
+                        continue
+                    # If not found, fall through to literal string
+
+            # Literal value
+            resolved[k] = v
         return resolved
+
+
+# ----------------------------------------------------------------------
+# Security helpers
+# ----------------------------------------------------------------------
+def _resolve_obj_from_approved_path(path: str):
+    """Resolve an attribute object from an approved module path.
+    Chooses the longest approved namespace prefix and traverses attributes.
+    """
+    if not isinstance(path, str):
+        raise TypeError("Expected string path")
+
+    # Resolve via longest approved prefix from unified map
+    approved_sorted = sorted(APPROVED_NAMESPACE_MAP.keys(), key=len, reverse=True)
+    base = None
+    for ns in approved_sorted:
+        if path == ns or path.startswith(ns + "."):
+            base = ns
+            break
+    if base is None:
+        raise ValueError(f"Path '{path}' is not under approved namespaces: {list(APPROVED_NAMESPACE_MAP.keys())}")
+
+    provider = APPROVED_NAMESPACE_MAP[base]
+    if isinstance(provider, str):
+        # Import the module for string providers
+        module = importlib.import_module(provider)
+        if path == base:
+            raise ValueError(f"Path '{path}' refers to a module, expected a class or function under it")
+        remainder = path[len(base) + 1:]
+        obj = module
+    else:
+        # provider is a live module/object (torch, nn, F)
+        if path == base:
+            raise ValueError(f"Path '{path}' refers to a namespace root, expected a class or function under it")
+        remainder = path[len(base) + 1:]
+        obj = provider
+
+    for part in remainder.split('.'):
+        if part == "":
+            raise ValueError(f"Invalid path '{path}'")
+        if not hasattr(obj, part):
+            raise AttributeError(f"'{obj}' has no attribute '{part}' while resolving '{path}'")
+        obj = getattr(obj, part)
+    return obj
+
+
+def _safe_eval_expression(expression: str, names: dict):
+    """
+    Safely evaluate an arithmetic expression using AST.
+    - Supports PEDMAS: +, -, *, /, ** and parentheses
+    - Supports unary + and -
+    - Disallows function calls, attribute access, subscripting, comprehensions, etc.
+    - Names must exist in the provided names dict
+    """
+
+    def eval_node(node):
+        if isinstance(node, ast.Expression):
+            return eval_node(node.body)
+
+        # Constants / numbers
+        if isinstance(node, ast.Constant):
+            if isinstance(node.value, (int, float)):
+                return node.value
+            raise ValueError("Only numeric constants are allowed in expressions")
+
+        # Variables (component outputs or variables)
+        if isinstance(node, ast.Name):
+            if node.id in names:
+                return names[node.id]
+            raise NameError(f"Unknown name in expression: {node.id}")
+
+        # Parentheses are represented implicitly via AST structure
+
+        # Unary operations
+        if isinstance(node, ast.UnaryOp):
+            operand = eval_node(node.operand)
+            if isinstance(node.op, ast.UAdd):
+                return +operand
+            if isinstance(node.op, ast.USub):
+                return -operand
+            raise ValueError("Unsupported unary operator in expression")
+
+        # Binary operations
+        if isinstance(node, ast.BinOp):
+            left = eval_node(node.left)
+            right = eval_node(node.right)
+            if isinstance(node.op, ast.Add):
+                return left + right
+            if isinstance(node.op, ast.Sub):
+                return left - right
+            if isinstance(node.op, ast.Mult):
+                return left * right
+            if isinstance(node.op, ast.Div):
+                return left / right
+            if isinstance(node.op, ast.Pow):
+                return left ** right
+            # Optional: uncomment if you want to support floor-div or mod
+            # if isinstance(node.op, ast.FloorDiv):
+            #     return left // right
+            # if isinstance(node.op, ast.Mod):
+            #     return left % right
+            raise ValueError("Unsupported binary operator in expression")
+
+        # Anything else is forbidden
+        forbidden = (
+            ast.Call, ast.Attribute, ast.Subscript, ast.Dict, ast.List, ast.Tuple,
+            ast.BoolOp, ast.Compare, ast.IfExp, ast.Lambda, ast.ListComp, ast.DictComp,
+            ast.GeneratorExp, ast.SetComp, ast.Await, ast.Yield, ast.YieldFrom,
+            ast.FormattedValue, ast.JoinedStr
+        )
+        if isinstance(node, forbidden):
+            raise ValueError("Disallowed construct in expression")
+
+        raise ValueError(f"Unsupported expression element: {type(node).__name__}")
+
+    tree = ast.parse(expression, mode='eval')
+    return eval_node(tree)

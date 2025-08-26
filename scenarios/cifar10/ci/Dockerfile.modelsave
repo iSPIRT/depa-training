@@ -12,7 +12,7 @@ RUN python3 get-pip.py
 
 ## Install dependencies
 RUN pip3 install torch --index-url https://download.pytorch.org/whl/cpu
-RUN pip3 --default-timeout=1000 install onnx 
+RUN pip3 --default-timeout=1000 install safetensors packaging numpy
 
 COPY save_base_model.py save_base_model.py
 COPY model_constructor.py model_constructor.py

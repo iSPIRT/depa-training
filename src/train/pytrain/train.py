@@ -31,9 +31,10 @@ import opacus
 from opacus import PrivacyEngine  # For differential privacy
 from opacus.utils.batch_memory_manager import BatchMemoryManager  # For large batch sizes
 
-# Onnx for saving trained models
+# Onnx for loading and saving trained models
 import onnx
 from onnx2pytorch import ConvertModel
+from safetensors.torch import load_file as st_load, save_file as st_save
 
 from .task_base import TaskBase
 
@@ -111,15 +112,18 @@ class Train(TaskBase):
                 self.model_non_dp = model_non_dp.to(self.device)
                 print("Created non-private baseline model for comparison")
 
-        elif model_type == "pytorch":
-            # self.model = TorchNNModel.from_config_dict(self.config.get("model_config"))
-            # self.model.load_state_dict(torch.load(self.config.get("paths", {}).get("saved_weights_path")))
+        elif model_type == "safetensors":
             self.model = ModelFactory.load_from_dict(self.config.get("model_config"))
-            self.model = self.model.to(self.device)
             print("Custom model loaded from PyTorch config")
+            if self.config.get("paths", {}).get("saved_weights_path") is not None:
+                self.model.load_state_dict(st_load(self.config.get("paths", {}).get("saved_weights_path")))
+                print("Loaded weights from " + self.config.get("paths", {}).get("saved_weights_path"))
+            self.model = self.model.to(self.device)
 
             if self.is_private:
                 self.model_non_dp = ModelFactory.load_from_dict(self.config.get("model_config"))
+                if self.config.get("paths", {}).get("saved_weights_path") is not None:
+                    self.model_non_dp.load_state_dict(st_load(self.config.get("paths", {}).get("saved_weights_path")))
                 self.model_non_dp = self.model_non_dp.to(self.device)
                 print("Created non-private baseline model for comparison")
 
@@ -260,10 +264,10 @@ class Train(TaskBase):
         self.model.eval()
 
         # save the model
-        if self.config.get("model_type") == "pytorch":
-            output_path = os.path.join(self.config.get("paths", {}).get("trained_model_output_path"), "trained_model.pth")
+        if self.config.get("model_type") == "safetensors":
+            output_path = os.path.join(self.config.get("paths", {}).get("trained_model_output_path"), "trained_model.safetensors")
             print("Saving trained model to " + output_path)
-            torch.save(self.model.state_dict(), output_path)
+            st_save(self.model.state_dict(), output_path)
 
         elif self.config.get("model_type") == "onnx":
             output_path = os.path.join(self.config.get("paths", {}).get("trained_model_output_path"), "trained_model.onnx")
@@ -281,11 +285,6 @@ class Train(TaskBase):
         if self.test_loader is None:
             print("Test loader is not defined. Skipping inference.")
             return
-
-        save_path = self.config.get("paths", {}).get("sample_predictions_path", None)
-        metrics = parse_metrics_config(self.config.get("metrics", []))
-        task_type = self.config.get("task_type", "classification")
-        n_pred_samples = self.config.get("n_pred_samples", 5)
 
         self.model.eval()
         preds_list = []

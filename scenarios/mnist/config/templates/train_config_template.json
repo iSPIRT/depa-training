@@ -2,15 +2,14 @@
     "name": "Train",
     "config": {
         "paths": {
-            "input_dataset_path": "/mnt/remote/mnist/mnist-dataset.pth",
+            "input_dataset_path": "/mnt/remote/mnist/mnist-dataset.h5",
             "base_model_path": "/mnt/remote/model/model.onnx",
-            "trained_model_output_path": "/mnt/remote/output",
-            "sample_predictions_path": "/mnt/remote/output"
+            "trained_model_output_path": "/mnt/remote/output"
         },
         "model_type": "onnx",
         "is_private": false,
         "device": "cpu",
-        "batch_size": 4,
+        "batch_size": 16,
         "optimizer": {
             "name": "Adam",
             "params": {

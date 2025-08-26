@@ -20,6 +20,5 @@
                 "threshold": 0.3
             }
         }
-    ],
-    "n_pred_samples": 5
+    ]
 }

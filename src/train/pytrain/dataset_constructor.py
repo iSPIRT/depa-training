@@ -29,7 +29,8 @@ from torchvision.transforms import ToTensor
 from glob import glob
 from pathlib import Path
 from typing import Dict, Any, Tuple, Optional, List, Union
-import pickle
+from safetensors.torch import load_file as st_load
+import h5py
 
 def create_dataset(config: str, data_path: str) -> Dict[str, Dataset]:
     """
@@ -489,12 +490,71 @@ class SerializedDataset(BaseDataset):
         self._load_and_split_data()
     
     def _load_and_split_data(self):
-        """Load serialized data and create splits"""
-        if self.serialization_format == 'torch':
-            self.dataset = torch.load(self.data_path, weights_only=False)
-        elif self.serialization_format == 'pickle':
-            with open(self.data_path, 'rb') as f:
-                self.dataset = pickle.load(f)
+        """Load serialized data and create splits using safe formats only.
+
+        Supported formats:
+        - safetensors: expects tensor keys (default 'features', 'targets')
+        - hdf5: expects dataset keys provided via config ('features_key', 'targets_key')
+        - parquet: expects columns provided via config ('features_key', 'targets_key') or defaults
+
+        Deprecated/disabled formats for security: pickle, raw torch .pt/.pth (use safetensors instead).
+        """
+        fmt = self.serialization_format.lower()
+        structure = self.config.get('structure', 'list_of_tuples')
+        features_key = self.config.get('features_key', 'features')
+        targets_key = self.config.get('targets_key', 'targets')
+
+        if fmt in ('pt', 'pth', 'torch'):
+            raise RuntimeError("Loading raw PyTorch checkpoint files is disabled. Please export as safetensors, hdf5, or parquet.")
+        if fmt in ('pkl', 'pickle'):
+            raise RuntimeError("Loading datasets via pickle is disabled for security. Use safetensors, hdf5, or parquet.")
+
+        data = None
+
+        if fmt == 'safetensors':
+           
+            tensors = st_load(self.data_path, device='cpu')
+            if features_key not in tensors or targets_key not in tensors:
+                raise KeyError(f"safetensors file must contain '{features_key}' and '{targets_key}' keys")
+            feats = tensors[features_key]
+            targs = tensors[targets_key]
+            if structure == 'list_of_tuples':
+                n = feats.shape[0]
+                if targs.shape[0] != n:
+                    raise ValueError("features and targets must have the same first dimension")
+                data = [(feats[i], targs[i]) for i in range(n)]
+            elif structure in ('dict', 'separate_tensors'):
+                self.dataset = {features_key: feats, targets_key: targs}
+            else:
+                raise ValueError(f"Unsupported structure '{structure}' for safetensors")
+
+        elif fmt == 'hdf5':
+            with h5py.File(self.data_path, 'r') as f:
+                if features_key not in f or targets_key not in f:
+                    raise KeyError(f"HDF5 file must contain '{features_key}' and '{targets_key}' datasets")
+                feats = f[features_key][...]
+                targs = f[targets_key][...]
+            if structure == 'list_of_tuples':
+                if len(feats) != len(targs):
+                    raise ValueError("features and targets must have the same length")
+                data = list(zip(feats, targs))
+            elif structure in ('dict', 'separate_tensors'):
+                self.dataset = {features_key: feats, targets_key: targs}
+            else:
+                raise ValueError(f"Unsupported structure '{structure}' for hdf5")
+
+        elif fmt == 'parquet':
+            # Read with pandas; require feature/target column names
+            df = pd.read_parquet(self.data_path)
+            if features_key not in df.columns or targets_key not in df.columns:
+                raise KeyError(f"Parquet file must contain columns '{features_key}' and '{targets_key}'")
+            if structure == 'list_of_tuples':
+                data = list(zip(df[features_key].to_list(), df[targets_key].to_list()))
+            elif structure in ('dict', 'separate_tensors'):
+                self.dataset = {features_key: df[features_key].to_numpy(), targets_key: df[targets_key].to_numpy()}
+            else:
+                raise ValueError(f"Unsupported structure '{structure}' for parquet")
+
         else:
             raise ValueError(f"Unsupported serialization format: {self.serialization_format}")
         
@@ -502,15 +562,28 @@ class SerializedDataset(BaseDataset):
         structure = self.config.get('structure', 'list_of_tuples')
         
         if structure == 'list_of_tuples':
-            # Dataset is already a list of (input, target) tuples
-            data = self.dataset
+            # Dataset is a list of (input, target) tuples; if not yet built, convert now
+            if data is None:
+                # Convert dict of arrays/tensors into list of tuples
+                if isinstance(self.dataset, dict):
+                    feats = self.dataset.get(features_key)
+                    targs = self.dataset.get(targets_key)
+                    if feats is None or targs is None:
+                        raise KeyError("Missing features/targets in dataset for list_of_tuples structure")
+                    n = len(feats)
+                    if len(targs) != n:
+                        raise ValueError("features and targets must have the same length")
+                    data = [(feats[i], targs[i]) for i in range(n)]
+                else:
+                    data = self.dataset
+            # else: data already prepared above
         elif structure == 'dict':
             # Dataset is a dictionary with 'data' and 'targets' keys
             data = list(zip(self.dataset['data'], self.dataset['targets']))
         elif structure == 'separate_tensors':
             # Dataset has separate feature and target tensors
-            features = self.dataset[self.config.get('features_key', 'features')]
-            targets = self.dataset[self.config.get('targets_key', 'targets')]
+            features = self.dataset[features_key]
+            targets = self.dataset[targets_key]
             data = list(zip(features, targets))
         
         # Create splits

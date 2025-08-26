@@ -1,5 +1,15 @@
 # MNIST Handwritten Digits Classification
 
+## Scenario Type
+
+| Scenario name | Scenario type | Training method | Dataset type | Join type | Model format |
+|--------------|---------------|-----------------|--------------|-----------|------------|
+| [MNIST](./scenarios/mnist/README.md) | Training | Classification | Non-PII image dataset | NA (no join) | ONNX |
+
+---
+
+## Scenario Description
+
 This scenario involves training a CNN using the MNIST handwritten digits dataset. It involves one Training Data Provider (TDP), and a Training Data Consumer (TDC) who wishes to train a model on the dataset. 
 
 The end-to-end training pipeline consists of the following phases. 
@@ -40,7 +50,7 @@ cd $REPO_ROOT/scenarios/$SCENARIO
 The folder ```scenarios/mnist/src``` contains scripts for downloading and pre-processing the MNIST dataset. Acting as a Training Data Provider (TDP), prepare your datasets.
 
 ```bash
-cd $REPO_ROOT/scenarios/$SCENARIO/deployment/docker
+cd $REPO_ROOT/scenarios/$SCENARIO/deployment/local
 ./preprocess.sh
 ```
 
@@ -92,7 +102,7 @@ To deploy in Azure, you will need the following.
 
 - Docker Hub account to store container images. Alternatively, you can use pre-built images from the ```ispirt``` container registry. 
 - [Azure Key Vault](https://azure.microsoft.com/en-us/products/key-vault/) to store encryption keys and implement secure key release to CCR. You can either you Azure Key Vault Premium (lower cost), or [Azure Key Vault managed HSM](https://learn.microsoft.com/en-us/azure/key-vault/managed-hsm/overview) for enhanced security. Please see instructions below on how to create and setup your AKV instance. 
-- Valid Azure subscription with sufficient access to create key vault, storage accounts, storage containers, and Azure Container Instances. 
+- Valid Azure subscription with sufficient access to create key vault, storage accounts, storage containers, and Azure Container Instances (ACI). 
 
 If you are using your own development environment instead of a dev container or codespaces, you will to install the following dependencies. 
 
@@ -106,7 +116,7 @@ We will be creating the following resources as part of the deployment.
 - Azure Key Vault
 - Azure Storage account
 - Storage containers to host encrypted datasets
-- Azure Container Instances to deploy the CCR and train the model
+- Azure Container Instances (ACI) to deploy the CCR and train the model
 
 ### 1. Push Container Images
 
@@ -194,7 +204,7 @@ The values for the environment variables listed below must precisely match the n
 With the environment variables set, we are ready to create the resources -- Azure Key Vault and Azure Storage containers.
 
 ```bash
-cd $REPO_ROOT/scenarios/$SCENARIO/deployment/aci
+cd $REPO_ROOT/scenarios/$SCENARIO/deployment/azure
 ./1-create-storage-containers.sh
 ./2-create-akv.sh
 ```
@@ -216,7 +226,7 @@ export CONTRACT_SEQ_NO=<contract-sequence-number>
 
 Using their respective keys, the TDPs and TDC encrypt their datasets and model (respectively) and upload them to the Storage containers created in the previous step.
 
-Navigate to the [ACI deployment](./deployment/aci/) directory and execute the scripts for key import, data encryption and upload to Azure Blob Storage, in preparation of the CCR deployment.
+Navigate to the [Azure deployment](./deployment/azure/) directory and execute the scripts for key import, data encryption and upload to Azure Blob Storage, in preparation of the CCR deployment.
 
 The import-keys script generates and imports encryption keys into Azure Key Vault with a policy based on [policy-in-template.json](./policy/policy-in-template.json). The policy requires that the CCRs run specific containers with a specific configuration which includes the public identity of the contract service. Only CCRs that satisfy this policy will be granted access to the encryption keys. The generated keys are available as files with the extension `.bin`. 
 
@@ -241,7 +251,7 @@ The encrypted data and model are then uploaded to the Storage containers created
 
 ---
 
-### 5\. ACI Deployment
+### 5\. CCR Deployment
 
 With the resources ready, we are ready to deploy the Confidential Clean Room (CCR) for executing the privacy-preserving model training.
 

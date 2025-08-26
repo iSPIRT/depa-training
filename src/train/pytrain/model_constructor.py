@@ -23,14 +23,36 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 
-ROOT_NAMESPACES = {
+APPROVED_NAMESPACES = {
     "torch": torch,
     "nn": nn,
     "F": F,
 }
 
+# Security controls
+ALLOWED_OP_PREFIXES = {"F.", "torch.nn.functional."}  # Allow only torch.nn.functional.* by default
+ALLOWED_OPS = {
+    "torch.cat", "torch.stack", "torch.concat", "torch.flatten", "torch.reshape", "torch.permute", "torch.transpose", 
+    "torch.unsqueeze", "torch.squeeze", "torch.chunk", "torch.split", "torch.gather", "torch.index_select", "torch.narrow",
+    "torch.sum", "torch.mean", "torch.std", "torch.var", "torch.max", "torch.min", "torch.argmax", "torch.argmin", "torch.norm",
+    "torch.exp", "torch.log", "torch.log1p", "torch.sigmoid", "torch.tanh", "torch.softmax", "torch.log_softmax", "torch.relu", "torch.gelu",
+    "torch.matmul", "torch.mm", "torch.bmm", "torch.addmm", "torch.einsum",
+    "torch.roll", "torch.flip", "torch.rot90", "torch.rot180", "torch.rot270", "torch.rot360",
+}
 
-def _resolve_dotted(path: str) -> Any:
+# Denylist of potentially dangerous kwarg names (case-insensitive)
+DENYLIST_ARG_NAMES = {
+    "out",  # in-place writes to user-provided buffers
+    "file", "filename", "path", "dir", "directory",  # filesystem
+    "map_location",  # avoid device remap surprises
+}
+
+# DoS safeguards
+MAX_FORWARD_STEPS = 200
+MAX_OPS_PER_STEP = 10
+
+
+def _resolve_submodule(path: str) -> Any:
     """Resolve dotted path like 'nn.Conv2d' or 'torch.sigmoid' to an object.
     Raises AttributeError if resolution fails.
     """
@@ -38,8 +60,8 @@ def _resolve_dotted(path: str) -> Any:
         if not isinstance(path, str):
             raise TypeError("path must be a string")
         parts = path.split(".")
-        if parts[0] in ROOT_NAMESPACES:
-            obj = ROOT_NAMESPACES[parts[0]]
+        if parts[0] in APPROVED_NAMESPACES:
+            obj = APPROVED_NAMESPACES[parts[0]]
         else:
             # allow direct module names like 'math' if needed
             raise AttributeError(f"Unknown root namespace '{parts[0]}' in path '{path}'")
@@ -141,7 +163,9 @@ class ModelFactory:
                         for name, entry in layers_cfg.items():
                             try:
                                 if "class" in entry:
-                                    cls_obj = _resolve_dotted(entry["class"])  # e.g. nn.Conv2d
+                                    cls_obj = _resolve_submodule(entry["class"])  # e.g. nn.Conv2d
+                                    if not (isinstance(cls_obj, type) and issubclass(cls_obj, nn.Module)):
+                                        raise TypeError(f"Layer '{name}' class must be an nn.Module subclass, got {cls_obj}")
                                     params = entry.get("params", {})
                                     inst_params = _replace_placeholders(params, {})  # top-level layers likely have no placeholders
                                     module = cls_obj(**inst_params)
@@ -177,9 +201,14 @@ class ModelFactory:
                                 raise ValueError(f"Missing input '{in_name}' for forward; provided args={len(args)}, kwargs keys={list(kwargs.keys())}")
 
                         # Execute forward graph
-                        for step in self._forward_cfg:
+                        if len(self._forward_cfg) > MAX_FORWARD_STEPS:
+                            raise RuntimeError(f"Too many forward steps: {len(self._forward_cfg)} > {MAX_FORWARD_STEPS}. This is a security feature to prevent infinite loops.")
+
+                        for idx, step in enumerate(self._forward_cfg):
                             try:
                                 ops = step.get("ops", [])
+                                if isinstance(ops, (list, tuple)) and len(ops) > MAX_OPS_PER_STEP:
+                                    raise RuntimeError(f"Too many ops in step {idx}: {len(ops)} > {MAX_OPS_PER_STEP}")
                                 inputs_spec = step.get("input", [])
                                 out_name = step.get("output", None)
 
@@ -197,6 +226,10 @@ class ModelFactory:
                                         # op can be string like 'conv1' or dotted 'F.relu'
                                         # or can be a list like ['torch.flatten', {'start_dim':1}]
                                         op_callable, op_kwargs = self._resolve_op(op)
+                                        # Validate kwargs denylist
+                                        for k in op_kwargs.keys():
+                                            if isinstance(k, str) and k.lower() in DENYLIST_ARG_NAMES:
+                                                raise PermissionError(f"Denied kwarg '{k}' for op '{op}'")
 
                                         # If op_callable is a module in self._layers, call with module semantics
                                         if isinstance(op_callable, str) and op_callable in self._layers:
@@ -263,7 +296,9 @@ class ModelFactory:
                             if op_spec in self._layers:
                                 return (op_spec, {})
                             # dotted function (F.relu, torch.sigmoid)
-                            callable_obj = _resolve_dotted(op_spec)
+                            if not _is_allowed_op_path(op_spec):
+                                raise PermissionError(f"Operation '{op_spec}' is not allowed")
+                            callable_obj = _resolve_submodule(op_spec)
                             if not callable(callable_obj):
                                 raise TypeError(f"Resolved object for '{op_spec}' is not callable")
                             return (callable_obj, {})
@@ -272,7 +307,9 @@ class ModelFactory:
                                 raise ValueError("Empty op_spec list")
                             path = op_spec[0]
                             kwargs = op_spec[1] if len(op_spec) > 1 else {}
-                            callable_obj = _resolve_dotted(path)
+                            if not _is_allowed_op_path(path):
+                                raise PermissionError(f"Operation '{path}' is not allowed")
+                            callable_obj = _resolve_submodule(path)
                             if not callable(callable_obj):
                                 raise TypeError(f"Resolved object for '{path}' is not callable")
                             return (callable_obj, kwargs)
@@ -317,3 +354,9 @@ class ModelFactory:
             return cls._build_module_from_config(replaced, submodules_defs)
         except Exception as e:
             raise RuntimeError(f"Error instantiating submodule: {str(e)}") from e
+
+
+def _is_allowed_op_path(path: str) -> bool:
+    if any(path.startswith(p) for p in ALLOWED_OP_PREFIXES):
+        return True
+    return path in ALLOWED_OPS

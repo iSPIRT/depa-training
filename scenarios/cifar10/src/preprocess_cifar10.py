@@ -15,9 +15,11 @@
 # For more information about this framework, please visit:
 # https://depa.world/training/depa_training_framework/
 
+import os
 import torch
 import torchvision
 import torchvision.transforms as transforms
+from safetensors.torch import save_file as st_save
 
 cifar10_input_folder='/mnt/input/data/'
 
@@ -28,8 +30,23 @@ transform = transforms.Compose(
     [transforms.ToTensor(),
      transforms.Normalize((0.1307,), (0.3081,))])  # CIFAR-10 mean and std
 
-trainset = torchvision.datasets.CIFAR10(root=cifar10_input_folder, train=True,
-                                    download=True, transform=transform)
+trainset = torchvision.datasets.CIFAR10(root=cifar10_input_folder, train=True, download=True, transform=transform)
 
-# Save the CIFAR-10 dataset
-torch.save(trainset, cifar10_output_folder + 'cifar10-dataset.pth')
+# Build tensors (N, C, H, W) and labels (N,)
+features = []
+targets = []
+for img, label in trainset:
+    features.append(img)
+    targets.append(label)
+
+features = torch.stack(features).to(torch.float32)
+targets = torch.tensor(targets, dtype=torch.int64)
+
+# Ensure output directory exists
+os.makedirs(cifar10_output_folder, exist_ok=True)
+
+# Save as SafeTensors with keys 'features' and 'targets'
+out_path = os.path.join(cifar10_output_folder, 'cifar10-dataset.safetensors')
+st_save({'features': features, 'targets': targets}, out_path)
+
+print(f"Saved CIFAR-10 dataset to {out_path} as SafeTensors with keys 'features' and 'targets'.")

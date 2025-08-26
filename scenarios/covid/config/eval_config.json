@@ -20,6 +20,5 @@
             "name": "roc_auc",
             "params": {}
         }
-    ],
-    "n_pred_samples": 5
+    ]
 }

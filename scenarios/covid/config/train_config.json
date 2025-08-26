@@ -15,7 +15,7 @@
       "delta": 0.01
     },
     "device": "cpu",
-    "batch_size": 2,
+    "batch_size": 8,
     "optimizer": {
       "name": "SGD",
       "params": {
@@ -67,7 +67,6 @@
         "params": {}
       }
     ],
-    "n_pred_samples": 5,
     "task_type": "classification"
   }
 }

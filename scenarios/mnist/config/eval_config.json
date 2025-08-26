@@ -16,6 +16,5 @@
             "name": "classification_report",
             "params": {}
         }
-    ],
-    "n_pred_samples": 5
+    ]
 }

@@ -2,12 +2,11 @@
     "name": "Train",
     "config": {
         "paths": {
-            "input_dataset_path": "/mnt/remote/cifar10/cifar10-dataset.pth",
-            "base_model_path": "/mnt/remote/model/model.pth",
-            "trained_model_output_path": "/mnt/remote/output",
-            "sample_predictions_path": "/mnt/remote/output"
+            "input_dataset_path": "/mnt/remote/cifar10/cifar10-dataset.safetensors",
+            "base_model_path": "/mnt/remote/model/model.safetensors",
+            "trained_model_output_path": "/mnt/remote/output"
         },
-        "model_type": "pytorch",
+        "model_type": "safetensors",
         "is_private": false,
         "device": "cpu",
         "batch_size": 16,

@@ -3,11 +3,11 @@
   "config": {
     "paths": {
       "input_dataset_path": "/tmp/brats_joined",
-      "saved_weights_path": "/mnt/remote/model/model.pth",
+      "saved_weights_path": "/mnt/remote/model/model.safetensors",
       "trained_model_output_path": "/mnt/remote/output",
       "sample_predictions_path": "/mnt/remote/output"
     },
-    "model_type": "pytorch",
+    "model_type": "safetensors",
     "is_private": true,
     "privacy_params": {
       "max_grad_norm": 0.1,
@@ -665,7 +665,6 @@
         }
       }
     ],
-    "n_pred_samples": 5,
     "task_type": "segmentation",
     "threshold": 0.3
   }

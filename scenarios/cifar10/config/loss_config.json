@@ -1,5 +1,5 @@
 {
-    "class": "torch.nn.CrossEntropyLoss",
+    "class": "nn.CrossEntropyLoss",
     "params": {
         "reduction": "mean"
     }
