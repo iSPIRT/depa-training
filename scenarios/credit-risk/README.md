@@ -10,7 +10,7 @@
 
 ## Scenario Description
 
-This scenario involves training an XGBoost model using the [Home Credit Default Risk](https://www.kaggle.com/c/home-credit-default-risk) datasets [[1, 2]](README.md#references). We frame this scenario as involving four Training Data Providers (TDPs) - Bank A providing data for clients' credit applications, previous applications and payment installments, Bank B providing data on credit card balance, the Credit Bureau providing data on previous loans, and a Fintech providing data on point of sale (POS) cash balance. Here, Bank A is also the Training Data Consumer (TDC) who wishes to train the model on the joined datasets, in order to build a default risk prediction model.
+This scenario involves training an XGBoost model on the [Home Credit Default Risk](https://www.kaggle.com/c/home-credit-default-risk) datasets [[1, 2]](README.md#references). We frame this scenario as involving four Training Data Providers (TDPs) - Bank A providing data for clients' credit applications, previous applications and payment installments, Bank B providing data on credit card balance, the Credit Bureau providing data on previous loans, and a Fintech providing data on point of sale (POS) cash balance. Here, Bank A is also the Training Data Consumer (TDC) who wishes to train the model on the joined datasets, in order to build a default risk prediction model.
 
 The end-to-end training pipeline consists of the following phases: 
 
