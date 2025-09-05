@@ -62,11 +62,11 @@ class BaseModel(nn.Module):
 
 def main():
     # Load and preprocess data
-    data = pd.DataFrame(np.random.randint(0, 100, size=(2119, 11)), 
-                       columns=['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K'])
+    data = pd.DataFrame(np.random.randint(0, 100, size=(2119, 10)), 
+                       columns=['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'])
     
-    features = data.drop(columns=["K"])
-    target = (data["K"] > 50).astype(float)  # Binary classification
+    features = data.drop(columns=["J"])
+    target = (data["J"] > 50).astype(float)  # Binary classification
 
     # Split data
     train_features, val_features, train_target, val_target = train_test_split(

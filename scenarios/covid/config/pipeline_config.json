@@ -6,7 +6,8 @@
         "datasets": [
           {
             "id": "19517ba8-bab8-11ed-afa1-0242ac120002",
-            "name": "icmr",
+            "provider": "icmr",
+            "name": "icmr_test_results",
             "file": "dp_icmr_standardised_anon.csv",
             "select_variables": [
               "icmr_test_result",
@@ -18,7 +19,8 @@
           },
           {
             "id": "216d5cc6-bab8-11ed-afa1-0242ac120002",
-            "name": "cowin",
+            "provider": "cowin",
+            "name": "cowin_vaccine_data",
             "file": "dp_cowin_standardised_anon.csv",
             "select_variables": [
               "age",
@@ -28,7 +30,8 @@
           },
           {
             "id": "2830a144-bab8-11ed-afa1-0242ac120002",
-            "name": "index",
+            "provider": "index",
+            "name": "index_patient_records",
             "file": "dp_index_standardised_anon.csv",
             "select_variables": [
               "pasymp",
@@ -41,7 +44,7 @@
         ],
         "joined_dataset": {
           "joined_dataset": "/tmp/covid_joined.csv",
-          "joining_query": "select * from icmr, index, cowin where index.pk_mobno_hashed == icmr.pk_mobno_hashed and index.pk_mobno_hashed == cowin.pk_mobno_hashed",
+          "joining_query": "SELECT * FROM icmr_test_results AS icmr JOIN index_patient_records AS idx ON idx.pk_mobno_hashed = icmr.pk_mobno_hashed JOIN cowin_vaccine_data AS cowin ON idx.pk_mobno_hashed = cowin.pk_mobno_hashed",
           "joining_key": "pk_mobno_hashed",
           "drop_columns": [
             "pk_icmrno",
@@ -164,19 +167,18 @@
       }
     },
     {
-      "name": "Train",
+      "name": "Train_DL",
       "config": {
         "paths": {
           "input_dataset_path": "/tmp/covid_joined.csv",
           "base_model_path": "/mnt/remote/model/model.onnx",
-          "trained_model_output_path": "/mnt/remote/output",
-          "sample_predictions_path": "/mnt/remote/output"
+          "trained_model_output_path": "/mnt/remote/output"
         },
         "model_type": "onnx",
         "is_private": true,
         "privacy_params": {
           "max_grad_norm": 0.1,
-          "epsilon_threshold": 1.0,
+          "epsilon": 1.0,
           "delta": 0.01
         },
         "device": "cpu",
@@ -203,7 +205,8 @@
             "test": 0.1,
             "random_state": 42,
             "stratify": true
-          }
+          },
+          "data_type": "tensor"
         },
         "loss_config": {
           "class": "torch.nn.BCELoss",

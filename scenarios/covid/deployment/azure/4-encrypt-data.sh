@@ -8,6 +8,6 @@ MODELDIR=$REPO_ROOT/scenarios/$SCENARIO/modeller
 ./generatefs.sh -d $DATADIR/index/preprocessed -k $DATADIR/index_key.bin -i $DATADIR/index.img
 ./generatefs.sh -d $MODELDIR/models -k $MODELDIR/model_key.bin -i $MODELDIR/model.img
 
-rm -rf $MODELDIR/output
+sudo rm -rf $MODELDIR/output
 mkdir -p $MODELDIR/output
 ./generatefs.sh -d $MODELDIR/output -k $MODELDIR/output_key.bin -i $MODELDIR/output.img

@@ -27,6 +27,13 @@ set -e
 
 echo "=== Checking and installing prerequisites ==="
 
+# Check if apt is installed
+if ! command -v apt >/dev/null 2>&1; then
+    echo "apt is not installed. Installing it using apt-get."
+    sudo apt-get update
+    sudo apt-get install -y apt
+fi
+
 # Update apt package index
 sudo apt update -y
 

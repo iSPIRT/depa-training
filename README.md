@@ -29,6 +29,8 @@ Install the below listed dependencies by running the [install-prerequisites.sh](
 ./install-prerequisites.sh
 ```
 
+Note: You may need to restart your machine to ensure that the changes take effect.
+
 ## Build CCR containers
 
 To build your own CCR container images, use the following command from the root of the repository. 
@@ -44,7 +46,7 @@ This scripts build the following containers.
 
 Alternatively, you can use pre-built container images from the ispirt repository by setting the following environment variable. Docker hub has started throttling which may effect the upload/download time, especially when images are bigger size. So, It is advisable to use other container registries, we are using azure container registry as shown below
 ```bash
-export CONTAINER_REGISTRY=depatraindevacr.azurecr.io
+export CONTAINER_REGISTRY=ispirt.azurecr.io
 ./ci/pull-containers.sh
 ```
 
@@ -54,12 +56,30 @@ This repository contains two samples that illustrate the kinds of scenarios DEPA
 
 Follow the links to build and deploy these scenarios. 
 
-| Scenario name | Scenario type | Training method | Dataset type | Join type | Model format | Data format |
-|--------------|---------------|-----------------|--------------|-----------|------------|------------|
-| [COVID-19](./scenarios/covid/README.md) | Training | Differentially Private Classification | PII tabular dataset | Horizontal | ONNX | CSV |
-| [BraTS](./scenarios/brats/README.md) | Training | Differentially Private Segmentation | PII MRI imaging dataset | Vertical | Safetensors | NIfTI/PNG |
-| [MNIST](./scenarios/mnist/README.md) | Training | Classification | Non-PII image dataset | NA (no join) | ONNX | HDF5 |
-| [CIFAR-10](./scenarios/cifar10/README.md) | Training | Classification | Non-PII image dataset | NA (no join) | Safetensors | SafeTensors |
+| Scenario name | Scenario type | Task type | Privacy | No. of TDPs* | Data type (format) | Model type (format) | Join type (No. of datasets) | 
+|--------------|---------------|-----------------|--------------|-----------|------------|------------|------------|
+| [COVID-19](./scenarios/covid/README.md) | Training - Deep Learning | Binary Classification | Differentially Private | 3 | PII tabular data (CSV) | MLP (ONNX) | Horizontal (3)|
+| [BraTS](./scenarios/brats/README.md) | Training - Deep Learning | Image Segmentation | Differentially Private | 4 | MRI scans data (NIfTI/PNG) | UNet (Safetensors) | Vertical (4)|
+| [Credit Risk](./scenarios/credit-risk/README.md) | Training - Classical ML | Binary Classification | Differentially Private | 4 | PII tabular data (Parquet) | XGBoost (JSON) | Horizontal (4)|
+| [CIFAR-10](./scenarios/cifar10/README.md) | Training - Deep Learning | Multi-class Image Classification | NA | 1 | Non-PII image data (SafeTensors) | CNN (Safetensors) | NA (1)|
+| [MNIST](./scenarios/mnist/README.md) | Training - Deep Learning | Multi-class Image Classification | NA | 1 | Non-PII image data (HDF5) | CNN (ONNX) | NA (1)|
+
+_NA: Not Applicable_ <br>
+_DL: Deep Learning, ML: Classical Machine Learning_ <br>
+_*Training Data Providers (TDPs) involved in the scenario._
+
+## Build your own Scenarios
+
+A guide to build your own scenarios is coming soon. Stay tuned!
+
+Currently, DEPA for Training supports the following training frameworks, libraries and file formats (more will be included soon):
+
+- Training frameworks: PyTorch, Scikit-learn, XGBoost
+- Libraries: Opacus, PySpark, Pandas
+- File formats (for models and datasets): ONNX, Safetensors, Parquet, CSV, HDF5, PNG
+
+Note: Due to security reasons, we do not support Pickle based file formats such as .pkl, .pt/.pth, .npy/.npz, .joblib, etc.
+
 
 # Contributing
 

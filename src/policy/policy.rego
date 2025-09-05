@@ -5,7 +5,7 @@ import future.keywords.if
 
 allowed if {
 	all_datasets_in_contract_included
-	output_filesystem_mounted
+	modeller_filesystem_mounted
 	valid_pipeline
 }
 
@@ -27,9 +27,11 @@ all_datasets_in_contract_included if {
 	}
 }
 
-output_filesystem_mounted if {
-	# expect two additional filesystems
-	count(input.azure_filesystems) == count(data.datasets) + 2
+modeller_filesystem_mounted if {
+	# expect two additional filesystems (or one if model is instantiated from config in CCR)
+	providers = {p | p = data.datasets[_].name}
+	count(input.azure_filesystems) <= count(providers) + 2
+	count(input.azure_filesystems) > count(providers)
 }
 
 valid_pipeline if {
@@ -58,5 +60,5 @@ last_stage_is_training if {
 min_privacy_budget_allocated if {
 	threshold = min({t | t = to_number(data.constraints[_].privacy[_].epsilon_threshold)})
 	last := count(input.pipeline)
-	input.pipeline[last - 1].config.privacy_params.epsilon_threshold <= threshold
+	input.pipeline[last - 1].config.privacy_params.epsilon <= threshold
 }

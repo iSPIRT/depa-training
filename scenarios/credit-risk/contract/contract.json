@@ -1,0 +1,148 @@
+{
+  "id": "f4f72a88-bab1-11ed-afa1-0242ac120002",
+  "schemaVersion": "0.1",
+  "startTime": "2023-03-14T00:00:00.000Z",
+  "expiryTime": "2024-03-14T00:00:00.000Z",
+  "tdc": "",
+  "tdps": [],
+  "ccrp": "did:web:$CCRP_USERNAME.github.io",
+  "datasets": [
+    {
+      "id": "19517ba8-bab8-11ed-afa1-0242ac120002",
+      "name": "bank_a",
+      "url": "https://$AZURE_STORAGE_ACCOUNT_NAME.blob.core.windows.net/$AZURE_BANK_A_CONTAINER_NAME/data.img",
+      "provider": "",
+      "key": {
+        "type": "azure",
+        "properties": {
+          "kid": "BankAFilesystemEncryptionKey",
+          "authority": {
+            "endpoint": "sharedneu.neu.attest.azure.net"
+          },
+          "endpoint": ""
+        }
+      }
+    },
+    {
+      "id": "216d5cc6-bab8-11ed-afa1-0242ac120002",
+      "name": "bank_a",
+      "url": "https://$AZURE_STORAGE_ACCOUNT_NAME.blob.core.windows.net/$AZURE_BANK_A_CONTAINER_NAME/data.img",
+      "provider": "",
+      "key": {
+        "type": "azure",
+        "properties": {
+          "kid": "BankAFilesystemEncryptionKey",
+          "authority": {
+            "endpoint": "sharedneu.neu.attest.azure.net"
+          },
+          "endpoint": ""
+        }
+      }
+    },
+    {
+      "id": "2830a144-bab8-11ed-afa1-0242ac120002",
+      "name": "bank_a",
+      "url": "https://$AZURE_STORAGE_ACCOUNT_NAME.blob.core.windows.net/$AZURE_BANK_A_CONTAINER_NAME/data.img",
+      "provider": "",
+      "key": {
+        "type": "azure",
+        "properties": {
+          "kid": "BankAFilesystemEncryptionKey",
+          "authority": {
+            "endpoint": "sharedneu.neu.attest.azure.net"
+          },
+          "endpoint": ""
+        }
+      }
+    },
+    {
+      "id": "45647e76-bab8-11ed-afa1-0242ac120002",
+      "name": "bank_b",
+      "url": "https://$AZURE_STORAGE_ACCOUNT_NAME.blob.core.windows.net/$AZURE_BANK_B_CONTAINER_NAME/data.img",
+      "provider": "",
+      "key": {
+        "type": "azure",
+        "properties": {
+          "kid": "BankBFilesystemEncryptionKey",
+          "authority": {
+            "endpoint": "sharedneu.neu.attest.azure.net"
+          },
+          "endpoint": ""
+        }
+      }
+    },
+    {
+      "id": "3187712c-bab8-11ed-afa1-0242ac120002",
+      "name": "bureau",
+      "url": "https://$AZURE_STORAGE_ACCOUNT_NAME.blob.core.windows.net/$AZURE_BUREAU_CONTAINER_NAME/data.img",
+      "provider": "",
+      "key": {
+        "type": "azure",
+        "properties": {
+          "kid": "BureauFilesystemEncryptionKey",
+          "authority": {
+            "endpoint": "sharedneu.neu.attest.azure.net"
+          },
+          "endpoint": ""
+        }
+      }
+    },
+    {
+      "id": "40e82c74-bab8-11ed-afa1-0242ac120002",
+      "name": "fintech",
+      "url": "https://$AZURE_STORAGE_ACCOUNT_NAME.blob.core.windows.net/$AZURE_FINTECH_CONTAINER_NAME/data.img",
+      "provider": "",
+      "key": {
+        "type": "azure",
+        "properties": {
+          "kid": "FintechFilesystemEncryptionKey",
+          "authority": {
+            "endpoint": "sharedneu.neu.attest.azure.net"
+          },
+          "endpoint": ""
+        }
+      }
+    }
+  ],
+  "purpose": "TRAINING",
+  "constraints": [
+    {
+      "privacy": [
+        {
+          "dataset": "19517ba8-bab8-11ed-afa1-0242ac120002",
+          "epsilon_threshold": "7.5",
+          "delta": "0.01"
+        },
+        {
+          "dataset": "216d5cc6-bab8-11ed-afa1-0242ac120002",
+          "epsilon_threshold": "7.5",
+          "delta": "0.01"
+        },
+        {
+          "dataset": "2830a144-bab8-11ed-afa1-0242ac120002",
+          "epsilon_threshold": "9",
+          "delta": "0.01"
+        },
+        {
+          "dataset": "45647e76-bab8-11ed-afa1-0242ac120002",
+          "epsilon_threshold": "5",
+          "delta": "0.01"
+        },
+        {
+          "dataset": "3187712c-bab8-11ed-afa1-0242ac120002",
+          "epsilon_threshold": "4.5",
+          "delta": "0.01"
+        },
+        {
+          "dataset": "40e82c74-bab8-11ed-afa1-0242ac120002",
+          "epsilon_threshold": "4",
+          "delta": "0.01"
+        }
+      ]
+    }
+  ],
+  "terms": {
+    "payment": {},
+    "revocation": {}
+  }
+}

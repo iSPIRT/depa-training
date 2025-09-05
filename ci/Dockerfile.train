@@ -14,13 +14,13 @@ RUN python3 get-pip.py
 ## Install dependencies
 RUN pip3 install torch torchvision --index-url https://download.pytorch.org/whl/cpu
 RUN pip3 --default-timeout=1000 install pyspark pandas opacus==1.5.3 onnx onnx2pytorch scikit-learn scipy matplotlib 
-RUN pip3 install safetensors h5py pyarrow
+RUN pip3 install safetensors h5py pyarrow xgboost
 
-## ADDED: For language tasks
-# RUN pip3 install transformers datasets peft
-
-## ADDED: For vision tasks
+# For computer vision tasks
 RUN pip3 install --default-timeout=100 opencv-python pillow monai==1.4.0
+
+# # For natural language processing tasks
+# RUN pip3 install transformers datasets peft
 
 RUN apt-get install -y jq
 

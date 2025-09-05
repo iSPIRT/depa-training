@@ -1,0 +1,45 @@
+{
+  "name": "Train_XGB",
+  "config": {
+    "paths": {
+      "input_dataset_path": "/tmp/credit_risk_joined.parquet",
+      "trained_model_output_path": "/mnt/remote/output"
+    },
+    "is_private": true,
+    "privacy_params": {
+      "epsilon": 4.0,
+      "mechanism": "gaussian",
+      "delta": 0.00001,
+      "clip_value": 1.0
+    },
+    "model_config": {
+      "num_boost_round": 250,
+      "booster_params": {
+        "max_depth": 6,
+        "learning_rate": 0.05,
+        "objective": "binary:logistic",
+        "eval_metric": "auc"
+      }
+    },
+    "dataset_config": {
+      "type": "tabular",
+      "target_variable": "TARGET",
+      "missing_strategy": "drop",
+      "splits": {
+        "train": 0.8,
+        "val": 0.1,
+        "test": 0.1,
+        "random_state": 42,
+        "stratify": true
+      },
+      "data_type": "numpy"
+    },
+    "metrics": [
+      "accuracy",
+      "roc_auc",
+      "confusion_matrix",
+      "classification_report"
+    ],
+    "task_type": "classification"
+  }
+}

@@ -6,22 +6,26 @@
         "datasets": [
           {
             "id": "19517ba8-bab8-11ed-afa1-0242ac120002",
-            "name": "brats_A",
+            "provider": "brats_A",
+            "name": "BraTS_Brain_MRI_set_A",
             "mount_path": "/mnt/remote/brats_A"
           },
           {
             "id": "216d5cc6-bab8-11ed-afa1-0242ac120002",
-            "name": "brat_B",
+            "provider": "brats_B",
+            "name": "BraTS_Brain_MRI_set_B",
             "mount_path": "/mnt/remote/brats_B"
           },
           {
             "id": "2830a144-bab8-11ed-afa1-0242ac120002",
-            "name": "brats_C",
+            "provider": "brats_C",
+            "name": "BraTS_Brain_MRI_set_C",
             "mount_path": "/mnt/remote/brats_C"
           },
           {
             "id": "2a3b0c4e-bab8-11ed-afa1-0242ac120002",
-            "name": "brats_D",
+            "provider": "brats_D",
+            "name": "BraTS_Brain_MRI_set_D",
             "mount_path": "/mnt/remote/brats_D"
           }
         ],
@@ -29,19 +33,18 @@
       }
     },
     {
-      "name": "Train",
+      "name": "Train_DL",
       "config": {
         "paths": {
           "input_dataset_path": "/tmp/brats_joined",
           "saved_weights_path": "/mnt/remote/model/model.safetensors",
-          "trained_model_output_path": "/mnt/remote/output",
-          "sample_predictions_path": "/mnt/remote/output"
+          "trained_model_output_path": "/mnt/remote/output"
         },
         "model_type": "safetensors",
         "is_private": true,
         "privacy_params": {
           "max_grad_norm": 0.1,
-          "epsilon_threshold": 1.5,
+          "epsilon": 1.5,
           "delta": 0.005
         },
         "device": "cpu",

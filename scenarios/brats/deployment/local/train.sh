@@ -14,7 +14,7 @@ export MODEL_INPUT_PATH=$MODEL_DIR/models
 
 # export MODEL_OUTPUT_PATH=/tmp/output
 export MODEL_OUTPUT_PATH=$MODEL_DIR/output
-rm -rf $MODEL_OUTPUT_PATH
+sudo rm -rf $MODEL_OUTPUT_PATH
 mkdir -p $MODEL_OUTPUT_PATH 
 
 # export CONFIGURATION_PATH=/tmp

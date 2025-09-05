@@ -1,0 +1,37 @@
+services:
+  bank_a:
+    image: ${CONTAINER_REGISTRY:+$CONTAINER_REGISTRY/}preprocess-bank-a:latest
+    volumes:
+      - $BANK_A_INPUT_PATH:/mnt/input/data
+      - $BANK_A_OUTPUT_PATH:/mnt/output/preprocessed
+    environment:
+      - KAGGLE_USERNAME=${KAGGLE_USERNAME}
+      - KAGGLE_KEY=${KAGGLE_KEY}
+    command: ["python3", "preprocess_bank_a.py"]
+  bank_b:
+    image: ${CONTAINER_REGISTRY:+$CONTAINER_REGISTRY/}preprocess-bank-b:latest
+    volumes:
+      - $BANK_B_INPUT_PATH:/mnt/input/data
+      - $BANK_B_OUTPUT_PATH:/mnt/output/preprocessed
+    environment:
+      - KAGGLE_USERNAME=${KAGGLE_USERNAME}
+      - KAGGLE_KEY=${KAGGLE_KEY}
+    command: ["python3", "preprocess_bank_b.py"]
+  bureau:
+    image: ${CONTAINER_REGISTRY:+$CONTAINER_REGISTRY/}preprocess-bureau:latest
+    volumes:
+      - $BUREAU_INPUT_PATH:/mnt/input/data
+      - $BUREAU_OUTPUT_PATH:/mnt/output/preprocessed
+    environment:
+      - KAGGLE_USERNAME=${KAGGLE_USERNAME}
+      - KAGGLE_KEY=${KAGGLE_KEY}
+    command: ["python3", "preprocess_bureau.py"]
+  fintech:
+    image: ${CONTAINER_REGISTRY:+$CONTAINER_REGISTRY/}preprocess-fintech:latest
+    volumes:
+      - $FINTECH_INPUT_PATH:/mnt/input/data
+      - $FINTECH_OUTPUT_PATH:/mnt/output/preprocessed
+    environment:
+      - KAGGLE_USERNAME=${KAGGLE_USERNAME}
+      - KAGGLE_KEY=${KAGGLE_KEY}
+    command: ["python3", "preprocess_fintech.py"]

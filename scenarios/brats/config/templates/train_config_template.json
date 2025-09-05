@@ -1,5 +1,5 @@
 {
-    "name": "Train",
+    "name": "Train_DL",
     "config": {
         "paths": {
             "input_dataset_path": "/tmp/brats_joined",
@@ -10,7 +10,7 @@
         "is_private": true,
         "privacy_params": {
             "max_grad_norm": 0.1,
-            "epsilon_threshold": 1.5,
+            "epsilon": 1.5,
             "delta": 0.005
         },
         "device": "cpu",

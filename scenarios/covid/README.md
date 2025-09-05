@@ -2,17 +2,17 @@
 
 ## Scenario Type
 
-| Scenario name | Scenario type | Training method | Dataset type | Join type | Model format | Data format |
-|--------------|---------------|-----------------|--------------|-----------|------------|------------|
-| [COVID-19](./scenarios/covid/README.md) | Training | Differentially Private Classification | PII tabular dataset | Horizontal | ONNX | CSV |
+| Scenario name | Scenario type | Task type | Privacy | No. of TDPs* | Data type (format) | Model type (format) | Join type (No. of datasets) | 
+|--------------|---------------|-----------------|--------------|-----------|------------|------------|------------|
+| COVID-19 | Training - Deep Learning | Binary Classification | Differentially Private | 3 | PII tabular data (CSV) | MLP (ONNX) | Horizontal (3)|
 
 ---
 
 ## Scenario Description
 
-This hypothetical scenario involves three Training Data Providers (TDPs), ICMR, COWIN and a State War Room ("Index"), and a Training Data Consumer (TDC) who wishes the train a model using datasets from these TDPs. The repository contains sample datasets and a model. The model and datasets are for illustrative purposes only; none of these organizations have been involved in contributing to the code or datasets.  
+This hypothetical scenario involves three Training Data Providers (TDPs), ICMR (providing Covid test results), COWIN (providing vaccine data) and a State War Room ("Index") (providing patient records), and a Training Data Consumer (TDC) who wishes the train a model for predicting Covid infection using these datasets. The model and datasets are for illustrative purposes only; none of these organizations have been involved in contributing to the code or datasets. The data used in this scenario is not real or representative of any actual data, and has been synthetically generated.
 
-The end-to-end training pipeline consists of the following phases. 
+The end-to-end training pipeline consists of the following phases:
 
 1. Data pre-processing and de-identification
 2. Data packaging, encryption and upload
@@ -23,7 +23,7 @@ The end-to-end training pipeline consists of the following phases.
 
 ## Build container images
 
-Build container images required for this sample as follows. 
+Build container images required for this sample as follows:
 
 ```bash
 export SCENARIO=covid
@@ -32,7 +32,7 @@ cd $REPO_ROOT/scenarios/$SCENARIO
 ./ci/build.sh
 ```
 
-This script builds the following container images. 
+This script builds the following container images:
 
 - ```preprocess-icmr, preprocess-cowin, preprocess-index```: Containers that pre-process and de-identify datasets. 
 - ```ccr-model-save```: Container that saves the model to be trained in ONNX format. 
@@ -40,14 +40,14 @@ This script builds the following container images.
 Alternatively, you can pull and use pre-built container images from the ispirt container registry by setting the following environment variable. Docker hub has started throttling which may effect the upload/download time, especially when images are bigger size. So, It is advisable to use other container registries. We are using Azure container registry (ACR) as shown below:
 
 ```bash
-export CONTAINER_REGISTRY=depatraindevacr.azurecr.io
+export CONTAINER_REGISTRY=ispirt.azurecr.io
 cd $REPO_ROOT/scenarios/$SCENARIO
 ./ci/build.sh
 ```
 
 ## Data pre-processing and de-identification
 
-The folder ```scenarios/covid/src``` contains scripts for pre-processing and de-identifying sample COVID-19 datasets. Acting as a Training Data Provider (TDP), prepare your datasets.
+The folder ```scenarios/covid/src``` contains scripts for pre-processing and de-identifying sample COVID-19 datasets. Acting as a Training Data Provider (TDP), prepare your datasets:
 
 ```bash
 cd $REPO_ROOT/scenarios/$SCENARIO/deployment/local
@@ -58,7 +58,7 @@ The datasets are saved to the [data](./data/) directory.
 
 ## Prepare model for training
 
-Next, acting as a Training Data Consumer (TDC), define and save your base model for training using the following script. This calls the [save_base_model.py](./src/save_base_model.py) script, which is a custom script that saves the model to the [models](./modeller/models) directory, as an ONNX file.
+Next, acting as a Training Data Consumer (TDC), define and save your base model for training using the following script. This calls the [save_base_model.py](./src/save_base_model.py) script, which is a custom script that saves the model to the [models](./modeller/models) directory, as an ONNX file:
 
 ```bash
 ./save-model.sh
@@ -66,7 +66,7 @@ Next, acting as a Training Data Consumer (TDC), define and save your base model 
 
 ## Deploy locally
 
-Assuming you have cleartext access to all the de-identified datasets, you can train the model as follows. 
+Assuming you have cleartext access to all the de-identified datasets, you can train the model as follows:
 
 ```bash
 ./train.sh
@@ -76,16 +76,17 @@ The script joins the datasets and trains the model using a pipeline configuratio
 
 ```mermaid
 flowchart TD
-    A[Edit training config files in ./config/] --> B[Configs consolidated into pipeline_config.json]
-    
+
     subgraph Config Files
         C1[model_config.json]
         C2[dataset_config.json]
         C3[loss_config.json]
         C4[train_config_template.json]
         C5[eval_config.json]
-        C6[join_config.json (optional)]
+        C6[join_config.json]
     end
+
+    B[Consolidated into <br/> pipeline_config.json]
 
     C1 --> B
     C2 --> B
@@ -94,12 +95,13 @@ flowchart TD
     C5 --> B
     C6 --> B
 
-    B --> D[Pipeline configuration attested against contract<br/>using TDP's policy-as-code]
+    B --> D[Attested against contract<br/>using policy-as-code]
     D --> E{Approved?}
-    E -- Yes --> F[Executed in CCR]
-    F --> G[Model trained for deployment]
-    E -- No --> H[Rejected: requires config fix]
+    E -- Yes --> F[CCR training begins]
+    E -- No --> H[Rejected: fix config]
 ```
+
+Note: A few model config variants for training can be found [here](./config/sample_variants).
 
 If all goes well, you should see output similar to the following output, and the trained model and evaluation metrics will be saved under the folder [output](./modeller/output).
 
@@ -173,7 +175,7 @@ We will be creating the following resources as part of the deployment.
 Pre-built container images are available in iSPIRT's container registry, which can be pulled by setting the following environment variable.
 
 ```bash
-export CONTAINER_REGISTRY=depatraindevacr.azurecr.io
+export CONTAINER_REGISTRY=ispirt.azurecr.io
 ```
 
 If you wish to use your own container images, login to docker hub (or your container registry of choice) and then build and push the container images to it, so that they can be pulled by the CCR. This is a one-time operation, and you can skip this step if you have already pushed the images to your container registry.
@@ -201,7 +203,7 @@ Option 1: Manually set the environment variables.
 az login
 
 export SCENARIO=covid
-export CONTAINER_REGISTRY=depatraindevacr.azurecr.io
+export CONTAINER_REGISTRY=ispirt.azurecr.io
 export AZURE_LOCATION=northeurope
 export AZURE_SUBSCRIPTION_ID=<azure-subscription-id>
 export AZURE_RESOURCE_GROUP=<resource-group-name>
@@ -291,7 +293,7 @@ Navigate to the [Azure deployment](./deployment/azure/) directory and execute th
 The import-keys script generates and imports encryption keys into Azure Key Vault with a policy based on [policy-in-template.json](./policy/policy-in-template.json). The policy requires that the CCRs run specific containers with a specific configuration which includes the public identity of the contract service. Only CCRs that satisfy this policy will be granted access to the encryption keys. The generated keys are available as files with the extension `.bin`. 
 
 ```bash
-export CONTRACT_SERVICE_URL=https://depa-contract-service.southindia.cloudapp.azure.com:8000
+export CONTRACT_SERVICE_URL=https://depa-training-contract-service.centralindia.cloudapp.azure.com:8000
 export TOOLS_HOME=$REPO_ROOT/external/confidential-sidecar-containers/tools
 
 ./3-import-keys.sh

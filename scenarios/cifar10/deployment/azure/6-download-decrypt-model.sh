@@ -2,7 +2,7 @@
 
 MODELDIR=$REPO_ROOT/scenarios/$SCENARIO/modeller
 
-rm -rf $MODELDIR/output
+sudo rm -rf $MODELDIR/output
 mkdir -p $MODELDIR/output
 
 ACCOUNT_KEY=$(az storage account keys list --account-name $AZURE_STORAGE_ACCOUNT_NAME --only-show-errors | jq -r .[0].value)

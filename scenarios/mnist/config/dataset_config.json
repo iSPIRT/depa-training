@@ -9,8 +9,9 @@
         "augment": false
     },
     "splits": {
-        "train": 0.8,
+        "train": 0.7,
         "val": 0.2,
+        "test": 0.1,
         "random_state": 42
     }
 }

@@ -21,7 +21,7 @@ import pandas as pd
 import numpy as np
 import torch
 from torch.utils.data import Dataset, random_split
-from sklearn.preprocessing import StandardScaler, MinMaxScaler, RobustScaler, Normalizer
+from sklearn.preprocessing import StandardScaler, MinMaxScaler, RobustScaler, Normalizer, OrdinalEncoder
 from sklearn.model_selection import train_test_split
 import cv2
 from PIL import Image
@@ -31,6 +31,58 @@ from pathlib import Path
 from typing import Dict, Any, Tuple, Optional, List, Union
 from safetensors.torch import load_file as st_load
 import h5py
+
+def encode_categoricals(df: pd.DataFrame, cat_cols: list):
+    """
+    Encode categorical columns:
+      - If cardinality <= low_card_threshold -> one-hot (get_dummies)
+      - Else -> OrdinalEncoder with unknown_value = -1
+    Returns transformed dataframe and list of new feature column names.
+    """
+    low_card_threshold = max(2, int(0.01 * len(df)))
+    df = df.copy()
+    encoded_parts = []
+    kept_cols = []
+
+    high_card_cols = []
+    for c in cat_cols:
+        nunique = df[c].nunique(dropna=False)
+        if nunique <= low_card_threshold:
+            # one-hot
+            d = pd.get_dummies(df[c].astype(str), prefix=c, dummy_na=True)
+            encoded_parts.append(d)
+            kept_cols += d.columns.tolist()
+        else:
+            high_card_cols.append(c)
+
+    if high_card_cols:
+        oe = OrdinalEncoder(handle_unknown="use_encoded_value", unknown_value=-1)
+        # sklearn expects 2D array
+        arr = oe.fit_transform(df[high_card_cols].astype(str))
+        df_enc = pd.DataFrame(arr, columns=[f"{c}_ord" for c in high_card_cols], index=df.index)
+        encoded_parts.append(df_enc)
+        kept_cols += df_enc.columns.tolist()
+
+    if encoded_parts:
+        encoded_df = pd.concat(encoded_parts, axis=1)
+    else:
+        encoded_df = pd.DataFrame(index=df.index)
+
+    return encoded_df, kept_cols
+
+
+def build_feature_matrix(df: pd.DataFrame, num_cols: list, cat_encoded_df: pd.DataFrame):
+    """Stack numeric cols + encoded categorical df into final X matrix"""
+    parts = []
+    if num_cols:
+        parts.append(df[num_cols].reset_index(drop=True))
+    if not cat_encoded_df.empty:
+        parts.append(cat_encoded_df.reset_index(drop=True))
+    if parts:
+        X = pd.concat(parts, axis=1)
+    else:
+        raise ValueError("No features available after preprocessing.")
+    return X
 
 def create_dataset(config: str, data_path: str) -> Dict[str, Dataset]:
     """
@@ -94,11 +146,12 @@ class BaseDataset:
         split_config = self.config.get('splits', {})
         
         if not split_config:
-            return {'train': (data, targets)}
+            # If no splits specified, return all data as train
+            return {'train': (data, targets) if targets is not None else data}
         
-        train_ratio = split_config.get('train', 0.8)
-        val_ratio = split_config.get('val', 0.1)
-        test_ratio = split_config.get('test', 0.1)
+        train_ratio = split_config.get('train', 1.0)
+        val_ratio = split_config.get('val', 0.0) 
+        test_ratio = split_config.get('test', 0.0)
         
         # Ensure ratios sum to 1
         total = train_ratio + val_ratio + test_ratio
@@ -108,58 +161,69 @@ class BaseDataset:
         
         if targets is not None:
             # For supervised learning
+            splits = {}
+            remaining_data = data
+            remaining_targets = targets
+            
             if test_ratio > 0:
-                X_temp, X_test, y_temp, y_test = train_test_split(
-                    data, targets, test_size=test_ratio, 
+                # Create test split first if specified
+                remaining_data, X_test, remaining_targets, y_test = train_test_split(
+                    data, targets, test_size=test_ratio,
                     random_state=split_config.get('random_state', 42),
                     stratify=targets if split_config.get('stratify', False) else None
                 )
+                splits['test'] = (X_test, y_test)
+            
+            if val_ratio > 0:
+                # Create validation split if specified
                 X_train, X_val, y_train, y_val = train_test_split(
-                    X_temp, y_temp, test_size=val_ratio/(train_ratio + val_ratio),
+                    remaining_data, remaining_targets, 
+                    test_size=val_ratio/(val_ratio + train_ratio),
                     random_state=split_config.get('random_state', 42),
-                    stratify=y_temp if split_config.get('stratify', False) else None
+                    stratify=remaining_targets if split_config.get('stratify', False) else None
                 )
-                return {
-                    'train': (X_train, y_train),
-                    'val': (X_val, y_val),
-                    'test': (X_test, y_test)
-                }
+                splits['train'] = (X_train, y_train)
+                splits['val'] = (X_val, y_val)
             else:
-                X_train, X_val, y_train, y_val = train_test_split(
-                    data, targets, test_size=val_ratio/(train_ratio + val_ratio),
-                    random_state=split_config.get('random_state', 42),
-                    stratify=targets if split_config.get('stratify', False) else None
-                )
-                return {
-                    'train': (X_train, y_train),
-                    'val': (X_val, y_val)
-                }
+                # Just use remaining data as train
+                splits['train'] = (remaining_data, remaining_targets)
+
+            final_splits = {'train': splits['train']}
+            if 'val' in splits:
+                final_splits['val'] = splits['val']
+            if 'test' in splits:
+                final_splits['test'] = splits['test']
+                
+            return final_splits
+            
         else:
             # For unsupervised learning or when targets are not separate
+            splits = {}
             indices = list(range(len(data)))
+            remaining_indices = indices
+            
             if test_ratio > 0:
-                train_val_indices, test_indices = train_test_split(
+                # Create test split first if specified
+                remaining_indices, test_indices = train_test_split(
                     indices, test_size=test_ratio,
                     random_state=split_config.get('random_state', 42)
                 )
+                splits['test'] = [data[i] for i in test_indices]
+            
+            if val_ratio > 0:
+                # Create validation split if specified
                 train_indices, val_indices = train_test_split(
-                    train_val_indices, test_size=val_ratio/(train_ratio + val_ratio),
+                    remaining_indices, 
+                    test_size=val_ratio/(val_ratio + train_ratio),
                     random_state=split_config.get('random_state', 42)
                 )
-                return {
-                    'train': [data[i] for i in train_indices],
-                    'val': [data[i] for i in val_indices],
-                    'test': [data[i] for i in test_indices]
-                }
+                splits['train'] = [data[i] for i in train_indices]
+                splits['val'] = [data[i] for i in val_indices]
             else:
-                train_indices, val_indices = train_test_split(
-                    indices, test_size=val_ratio/(train_ratio + val_ratio),
-                    random_state=split_config.get('random_state', 42)
-                )
-                return {
-                    'train': [data[i] for i in train_indices],
-                    'val': [data[i] for i in val_indices]
-                }
+                # Just use remaining indices as train
+                splits['train'] = [data[i] for i in remaining_indices]
+                
+            return splits
     
     def get_all_splits(self):
         """Return all available dataset splits"""
@@ -168,9 +232,11 @@ class BaseDataset:
 class SplitDataset(Dataset):
     """Individual dataset for a specific split"""
     
-    def __init__(self, features, targets=None, transform=None, scaler=None, fit_scaler=False):
+    def __init__(self, features, targets=None, transform=None, scaler=None, fit_scaler=False, data_type='numpy', encoding_info: Dict = None):
         self.transform = transform
         self.scaler = scaler
+        self.data_type = data_type
+        self.encoding_info = encoding_info or {}
         
         # Apply preprocessing to features
         if self.scaler:
@@ -181,19 +247,66 @@ class SplitDataset(Dataset):
         else:
             self.features = features
         
-        # Convert to tensors if numpy arrays
-        if isinstance(self.features, np.ndarray):
-            self.features = torch.tensor(self.features, dtype=torch.float32)
-        elif not isinstance(self.features, torch.Tensor):
-            self.features = self.features  # Keep as is for other data types
-            
-        if targets is not None:
-            if isinstance(targets, np.ndarray):
-                self.targets = torch.tensor(targets, dtype=torch.float32).reshape(-1, 1)  # Reshape to match model output
+        if self.data_type == 'tensor':
+            # Convert to tensors if numpy arrays
+            if isinstance(self.features, np.ndarray):
+                self.features = torch.tensor(self.features, dtype=torch.float32)
             else:
-                self.targets = targets
-        else:
-            self.targets = None
+                self.features = self.features
+
+            if targets is not None:
+                if isinstance(targets, np.ndarray):
+                    self.targets = torch.tensor(targets, dtype=torch.float32).reshape(-1, 1)  # Reshape to match model output
+                else:
+                    self.targets = targets
+            else:
+                self.targets = None
+
+        if self.data_type == 'numpy':
+            if not isinstance(self.features, np.ndarray):
+                self.features = np.array(self.features)
+            else:
+                self.features = self.features
+                
+            if targets is not None:
+                if not isinstance(targets, np.ndarray):
+                    self.targets = np.array(targets)
+                else:
+                    self.targets = targets
+            else:
+                self.targets = None
+    
+    def get_encoding_info(self) -> Dict:
+        """Return information about how categorical features were encoded"""
+        return self.encoding_info.copy()
+    
+    def get_feature_names(self) -> List[str]:
+        """Return list of feature names after encoding"""
+        if self.encoding_info:
+            return (self.encoding_info.get('numerical_columns', []) + 
+                   self.encoding_info.get('encoded_columns', []))
+        return []
+    
+    def get_categorical_columns(self) -> List[str]:
+        """Return list of original categorical column names"""
+        return self.encoding_info.get('categorical_columns', [])
+    
+    def get_numerical_columns(self) -> List[str]:
+        """Return list of numerical column names"""
+        return self.encoding_info.get('numerical_columns', [])
+    
+    def get_encoded_columns(self) -> List[str]:
+        """Return list of encoded categorical column names"""
+        return self.encoding_info.get('encoded_columns', [])
+    
+    def get_feature_dimensions(self) -> Dict[str, int]:
+        """Return dictionary with feature dimensions for different types"""
+        return {
+            'total_features': len(self.get_feature_names()),
+            'numerical_features': len(self.get_numerical_columns()),
+            'categorical_features': len(self.get_categorical_columns()),
+            'encoded_features': len(self.get_encoded_columns())
+        }
     
     def __len__(self):
         if isinstance(self.features, (list, tuple)):
@@ -229,7 +342,10 @@ class TabularDataset(BaseDataset):
         self.data_path = data_path
         self.target_variable = config.get('target_variable')
         self.feature_columns = config.get('feature_columns', None)
-        
+        self.data_type = config.get('data_type', 'numpy')
+        self.categorical_columns = []
+        self.numerical_columns = []
+        self.encoding_info = {}
         self._load_and_split_data()
         
     def _load_and_split_data(self):
@@ -269,17 +385,39 @@ class TabularDataset(BaseDataset):
         # Extract target
         targets = data[self.target_variable].values if self.target_variable else None
         
+        # Identify categorical and numerical columns
+        self.categorical_columns = features.select_dtypes(include=['object', 'category']).columns.tolist()
+        self.numerical_columns = features.select_dtypes(include=['int64', 'float64']).columns.tolist()
+        
+        # Encode categorical features
+        if self.categorical_columns:
+            encoded_df, kept_cols = encode_categoricals(features, self.categorical_columns)
+            self.encoding_info['encoded_columns'] = kept_cols
+            self.encoding_info['categorical_columns'] = self.categorical_columns
+            self.encoding_info['numerical_columns'] = self.numerical_columns
+        else:
+            encoded_df = pd.DataFrame(index=features.index)
+            self.encoding_info['encoded_columns'] = []
+            self.encoding_info['categorical_columns'] = []
+            self.encoding_info['numerical_columns'] = self.numerical_columns
+        
+        # Build the final feature matrix
+        X = build_feature_matrix(features, self.numerical_columns, encoded_df)
+        
         # Create splits
-        splits = self._create_splits(features.values, targets)
+        splits = self._create_splits(X, targets)
         
         # Create dataset objects for each split
         for split_name, (split_features, split_targets) in splits.items():
             fit_scaler = (split_name == 'train')  # Only fit scaler on training data
             self.splits_data[split_name] = SplitDataset(
-                split_features, split_targets, 
+                features=split_features, 
+                targets=split_targets, 
                 transform=self.transform, 
                 scaler=self.scaler,
-                fit_scaler=fit_scaler
+                fit_scaler=fit_scaler,
+                data_type=self.data_type,
+                encoding_info=self.encoding_info
             )
 
 class DirectoryDataset(BaseDataset):

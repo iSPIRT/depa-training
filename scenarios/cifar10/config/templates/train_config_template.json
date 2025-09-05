@@ -1,5 +1,5 @@
 {
-    "name": "Train",
+    "name": "Train_DL",
     "config": {
         "paths": {
             "input_dataset_path": "/mnt/remote/cifar10/cifar10-dataset.safetensors",

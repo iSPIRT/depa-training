@@ -1,0 +1,13 @@
+{
+    "type": "tabular",
+    "target_variable": "TARGET",
+    "missing_strategy": "drop",
+    "splits": {
+        "train": 0.8,
+        "val": 0.1,
+        "test": 0.1,
+        "random_state": 42,
+        "stratify": true
+    },
+    "data_type": "numpy"
+}

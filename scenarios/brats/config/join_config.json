@@ -4,22 +4,26 @@
         "datasets": [
             {
                 "id": "19517ba8-bab8-11ed-afa1-0242ac120002",
-                "name": "brats_A",
+                "provider": "brats_A",
+                "name": "BraTS_Brain_MRI_set_A",
                 "mount_path": "/mnt/remote/brats_A"
             },
             {
                 "id": "216d5cc6-bab8-11ed-afa1-0242ac120002",
-                "name": "brat_B",
+                "provider": "brats_B",
+                "name": "BraTS_Brain_MRI_set_B",
                 "mount_path": "/mnt/remote/brats_B"
             },
             {
                 "id": "2830a144-bab8-11ed-afa1-0242ac120002",
-                "name": "brats_C",
+                "provider": "brats_C",
+                "name": "BraTS_Brain_MRI_set_C",
                 "mount_path": "/mnt/remote/brats_C"
             },
             {
                 "id": "2a3b0c4e-bab8-11ed-afa1-0242ac120002",
-                "name": "brats_D",
+                "provider": "brats_D",
+                "name": "BraTS_Brain_MRI_set_D",
                 "mount_path": "/mnt/remote/brats_D"
             }
         ],

@@ -2,17 +2,17 @@
 
 ## Scenario Type
 
-| Scenario name | Scenario type | Training method | Dataset type | Join type | Model format | Data format |
-|--------------|---------------|-----------------|--------------|-----------|------------|------------|
-| [MNIST](./scenarios/mnist/README.md) | Training | Classification | Non-PII image dataset | NA (no join) | ONNX | HDF5 |
+| Scenario name | Scenario type | Task type | Privacy | No. of TDPs* | Data type (format) | Model type (format) | Join type (No. of datasets) | 
+|--------------|---------------|-----------------|--------------|-----------|------------|------------|------------|
+| MNIST | Training - Deep Learning | Multi-class Image Classification | NA | 1 | Non-PII image data (HDF5) | CNN (ONNX) | NA (1)|
 
 ---
 
 ## Scenario Description
 
-This scenario involves training a CNN using the MNIST handwritten digits dataset. It involves one Training Data Provider (TDP), and a Training Data Consumer (TDC) who wishes to train a model on the dataset. 
+This scenario involves training a CNN for image classification using the MNIST handwritten digits dataset. It involves one Training Data Provider (TDP), and a Training Data Consumer (TDC) who wishes to train a model on the dataset. The MNIST dataset is a collection of 60,000 28x28 grayscale images of handwritten digits, with 10 classes (0-9), with 6,000 images per class.
 
-The end-to-end training pipeline consists of the following phases. 
+The end-to-end training pipeline consists of the following phases:
 
 1. Data pre-processing
 2. Data packaging, encryption and upload
@@ -23,7 +23,7 @@ The end-to-end training pipeline consists of the following phases.
 
 ## Build container images
 
-Build container images required for this sample as follows. 
+Build container images required for this sample as follows:
 
 ```bash
 export SCENARIO=mnist
@@ -32,7 +32,7 @@ cd $REPO_ROOT/scenarios/$SCENARIO
 ./ci/build.sh
 ```
 
-This script builds the following container images. 
+This script builds the following container images:
 
 - ```preprocess-mnist```: Container for pre-processing MNIST dataset. 
 - ```mnist-model-save```: Container that saves the model to be trained in ONNX format. 
@@ -40,14 +40,14 @@ This script builds the following container images.
 Alternatively, you can pull and use pre-built container images from the ispirt container registry by setting the following environment variable. Docker hub has started throttling which may effect the upload/download time, especially when images are bigger size. So, It is advisable to use other container registries. We are using Azure container registry (ACR) as shown below:
 
 ```bash
-export CONTAINER_REGISTRY=depatraindevacr.azurecr.io
+export CONTAINER_REGISTRY=ispirt.azurecr.io
 cd $REPO_ROOT/scenarios/$SCENARIO
 ./ci/pull-containers.sh
 ```
 
 ## Data pre-processing
 
-The folder ```scenarios/mnist/src``` contains scripts for downloading and pre-processing the MNIST dataset. Acting as a Training Data Provider (TDP), prepare your datasets.
+The folder ```scenarios/mnist/src``` contains scripts for downloading and pre-processing the MNIST dataset. Acting as a Training Data Provider (TDP), prepare your datasets:
 
 ```bash
 cd $REPO_ROOT/scenarios/$SCENARIO/deployment/local
@@ -58,7 +58,7 @@ The datasets are saved to the [data](./data/) directory.
 
 ## Prepare model for training
 
-Next, acting as a Training Data Consumer (TDC), define and save your base model for training using the following script. This calls the [save_base_model.py](./src/save_base_model.py) script, which is a custom script that saves the model to the [models](./modeller/models) directory, as an ONNX file.
+Next, acting as a Training Data Consumer (TDC), define and save your base model for training using the following script. This calls the [save_base_model.py](./src/save_base_model.py) script, which is a custom script that saves the model to the [models](./modeller/models) directory, as an ONNX file:
 
 ```bash
 ./save-model.sh
@@ -73,6 +73,33 @@ Assuming you have cleartext access to all the datasets, you can train the model 
 ```
 
 The script joins the datasets and trains the model using a pipeline configuration. To modify the various components of the training pipeline, you can edit the training config files in the [config](./config/) directory. The training config files are used to create the pipeline configuration ([pipeline_config.json](./config/pipeline_config.json)) created by consolidating all the TDC's training config files, namely the [model config](./config/model_config.json), [dataset config](./config/dataset_config.json), [loss function config](./config/loss_config.json), [training config](./config/train_config_template.json), [evaluation config](./config/eval_config.json), and if multiple datasets are used, the [data join config](./config/join_config.json). These enable the TDC to design highly customized training pipelines without requiring review and approval of new custom code for each use case—reducing risks from potentially malicious or non-compliant code. The consolidated pipeline configuration is then attested against the signed contract using the TDP’s policy-as-code. If approved, it is executed in the CCR to train the model, which we will deploy in the next section.
+
+```mermaid
+flowchart TD
+
+    subgraph Config Files
+        C1[model_config.json]
+        C2[dataset_config.json]
+        C3[loss_config.json]
+        C4[train_config_template.json]
+        C5[eval_config.json]
+        C6[join_config.json]
+    end
+
+    B[Consolidated into <br/> pipeline_config.json]
+
+    C1 --> B
+    C2 --> B
+    C3 --> B
+    C4 --> B
+    C5 --> B
+    C6 --> B
+
+    B --> D[Attested against contract<br/>using policy-as-code]
+    D --> E{Approved?}
+    E -- Yes --> F[CCR training begins]
+    E -- No --> H[Rejected: fix config]
+```
 
 If all goes well, you should see output similar to the following output, and the trained model and evaluation metrics will be saved under the folder [output](./modeller/output).
 
@@ -123,7 +150,7 @@ We will be creating the following resources as part of the deployment.
 Pre-built container images are available in iSPIRT's container registry, which can be pulled by setting the following environment variable.
 
 ```bash
-export CONTAINER_REGISTRY=depatraindevacr.azurecr.io
+export CONTAINER_REGISTRY=ispirt.azurecr.io
 ```
 
 If you wish to use your own container images, login to docker hub (or your container registry of choice) and then build and push the container images to it, so that they can be pulled by the CCR. This is a one-time operation, and you can skip this step if you have already pushed the images to your container registry.
@@ -147,7 +174,7 @@ First, set up the necessary environment variables for your deployment.
 az login
 
 export SCENARIO=mnist
-export CONTAINER_REGISTRY=depatraindevacr.azurecr.io
+export CONTAINER_REGISTRY=ispirt.azurecr.io
 export AZURE_LOCATION=northeurope
 export AZURE_SUBSCRIPTION_ID=<azure-subscription-id>
 export AZURE_RESOURCE_GROUP=<resource-group-name>
@@ -231,7 +258,7 @@ Navigate to the [Azure deployment](./deployment/azure/) directory and execute th
 The import-keys script generates and imports encryption keys into Azure Key Vault with a policy based on [policy-in-template.json](./policy/policy-in-template.json). The policy requires that the CCRs run specific containers with a specific configuration which includes the public identity of the contract service. Only CCRs that satisfy this policy will be granted access to the encryption keys. The generated keys are available as files with the extension `.bin`. 
 
 ```bash
-export CONTRACT_SERVICE_URL=https://depa-contract-service.southindia.cloudapp.azure.com:8000
+export CONTRACT_SERVICE_URL=https://depa-training-contract-service.centralindia.cloudapp.azure.com:8000
 export TOOLS_HOME=$REPO_ROOT/external/confidential-sidecar-containers/tools
 
 ./3-import-keys.sh

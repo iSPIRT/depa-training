@@ -1,13 +1,12 @@
 {
   "pipeline": [
     {
-      "name": "Train",
+      "name": "Train_DL",
       "config": {
         "paths": {
           "input_dataset_path": "/mnt/remote/mnist/mnist-dataset.h5",
           "base_model_path": "/mnt/remote/model/model.onnx",
-          "trained_model_output_path": "/mnt/remote/output",
-          "sample_predictions_path": "/mnt/remote/output"
+          "trained_model_output_path": "/mnt/remote/output"
         },
         "model_type": "onnx",
         "is_private": false,
@@ -39,8 +38,9 @@
             "augment": false
           },
           "splits": {
-            "train": 0.8,
+            "train": 0.7,
             "val": 0.2,
+            "test": 0.1,
             "random_state": 42
           }
         },

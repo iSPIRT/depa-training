@@ -215,12 +215,12 @@ def parse_metrics_config(metrics_config: Union[List[Any], None]) -> List[Dict[st
     return parsed
 
 
-def compute_metrics(preds_list, targets_list, test_loss, config):
+def compute_metrics(preds_list, targets_list, test_loss=None, config=None):
     metrics = parse_metrics_config(config.get("metrics", []))
     task_type = config.get("task_type", "")
     save_path = config.get("paths", {}).get("trained_model_output_path", "")
     # n_pred_samples = config.get("n_pred_samples", 0)
-    threshold = config.get("threshold", 0.5)
+    threshold = config.get("threshold", 0.5) if config else 0.5
 
     if len(preds_list) == 0:
         raise ValueError("Predictions on test set are empty. Please check the test loader.")
@@ -258,7 +258,10 @@ def compute_metrics(preds_list, targets_list, test_loss, config):
     # ------------------------
     # Metric computation
     # ------------------------
-    numeric_metrics = {"test_loss": test_loss}
+    if test_loss is not None:
+        numeric_metrics = {"test_loss": test_loss} 
+    else:
+        numeric_metrics = {}
 
     if y_true_all is not None:
         n_classes = len(np.unique(y_true_all)) if task_type == "classification" else None

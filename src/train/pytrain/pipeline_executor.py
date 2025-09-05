@@ -19,7 +19,8 @@ import json
 import argparse
 from .task_base import TaskBase
 from .join import *
-from .train import Train
+from .dl_train import Train_DL
+from .xgb_train import Train_XGB
 
 class PipelineExecutor:
     def __init__(self):
@@ -44,7 +45,7 @@ class PipelineExecutor:
                 step_instance = step_class()
                 step_instance.execute(step_config)
             else:
-                print("Error: Class {step_name} not found or does not inherit from TaskBase.")
+                print(f"Error: Class {step_name} not found or does not inherit from TaskBase.")
 
 
 def main():

@@ -16,9 +16,6 @@
 # https://depa.world/training/depa_training_framework/
 
 import os
-import importlib
-import inspect
-import sys
 
 # Torch for datasets and training tools
 import torch
@@ -38,13 +35,13 @@ from safetensors.torch import load_file as st_load, save_file as st_save
 
 from .task_base import TaskBase
 
-from .model_constructor import *
-from .dataset_constructor import *
-from .loss_constructor import *
-from .eval_tools import *
+from .utilities.model_constructor import *
+from .utilities.dataset_constructor import *
+from .utilities.loss_constructor import *
+from .utilities.eval_tools import *
 
 
-class Train(TaskBase):
+class Train_DL(TaskBase):
     """
     Args:
     config: training configuration 
@@ -59,15 +56,33 @@ class Train(TaskBase):
     train: trains the model
     inference: inference on the validation set
     execute: main function which includes all the above functions
+
+    Attributes:
+    config: training configuration
+    device: device to train on
+    is_private: whether to use differential privacy
+    privacy_config: privacy configuration
+    model: model object
+    train_loader: training data loader
+    val_loader: validation data loader
+    test_loader: test data loader
+    custom_loss_fn: custom loss function
+    optimizer: optimizer object
+    scheduler: learning rate scheduler object
+    privacy_engine: privacy engine object
+    model_non_dp: non-private model object
     """
 
     def init(self, config):
+        self.config = config
         self.device = torch.device(config.get("device"))
         self.is_private = config.get("is_private", False)
-        self.config = config
+        self.privacy_config = config.get("privacy_params")
+        self.paths = config.get("paths", {})
         self.model = None
         self.train_loader = None
         self.val_loader = None
+        self.test_loader = None
         self.custom_loss_fn = None
         self.optimizer = None
         self.scheduler = None
@@ -76,25 +91,22 @@ class Train(TaskBase):
 
     def load_data(self):
         dataset_config = self.config.get("dataset_config")
-        all_splits = create_dataset(dataset_config, self.config.get("paths", {}).get("input_dataset_path"))
+        input_path = self.paths.get("input_dataset_path")
+        all_splits = create_dataset(dataset_config, input_path)
 
-        if "train" in all_splits:
-            train_dataset = all_splits["train"]
-            print(f"Training samples: {len(train_dataset)}")
-            self.train_loader = DataLoader(train_dataset, batch_size=self.config.get("batch_size"), shuffle=True, num_workers=0)
+        if "train" not in all_splits:
+            raise ValueError("Dataset must provide at least a 'train' split")
+
+        train_dataset = all_splits["train"]
+        self.train_loader = DataLoader(train_dataset, batch_size=self.config.get("batch_size"), shuffle=True, num_workers=0)
         if "val" in all_splits:
             val_dataset = all_splits["val"]
-            print(f"Validation samples: {len(val_dataset)}")
             self.val_loader = DataLoader(val_dataset, batch_size=self.config.get("batch_size"), shuffle=True, num_workers=0)
         if "test" in all_splits:
             test_dataset = all_splits["test"]
-            print(f"Test samples: {len(test_dataset)}")
             self.test_loader = DataLoader(test_dataset, batch_size=self.config.get("batch_size"), shuffle=True, num_workers=0)
 
-        if self.config.get("is_private") == True:
-            self.config["privacy_params"]["delta"] = 1/len(train_dataset)
-
-        print("Dataset constructed from config")
+        print(f"Loaded dataset splits | train: {self.train_loader.dataset.__len__()} | val: {None if self.val_loader is None else self.val_loader.dataset.__len__()} | test: {None if self.test_loader is None else self.test_loader.dataset.__len__()}")
 
 
     def load_model(self):
@@ -156,6 +168,12 @@ class Train(TaskBase):
 
 
     def make_dprivate(self):
+        # Ensure delta is not too large to avoid privacy breach
+        max_delta = 1/len(self.train_loader.dataset)
+        if self.privacy_config.get("delta") > max_delta:
+            self.privacy_config["delta"] = max_delta
+            print(f"Delta set to {max_delta} (1/train_samples) to avoid privacy breach")
+
         self.privacy_engine = PrivacyEngine() # secure_mode=True requires torchcsprng to be installed
 
         self.model, self.optimizer, self.train_loader = self.privacy_engine.make_private_with_epsilon(
@@ -163,9 +181,9 @@ class Train(TaskBase):
             optimizer=self.optimizer,
             data_loader=self.train_loader,
             epochs=self.config.get("total_epochs"),
-            target_delta=self.config.get("privacy_params", {}).get("delta"),  # Privacy budget
-            target_epsilon=self.config.get("privacy_params", {}).get("epsilon_threshold"),  # Probability of privacy breach
-            max_grad_norm=self.config.get("privacy_params", {}).get("max_grad_norm"), # threshold for clipping the norm of per-sample gradients
+            target_delta=self.privacy_config.get("delta"),  # Privacy budget
+            target_epsilon=self.privacy_config.get("epsilon"),  # Probability of privacy breach
+            max_grad_norm=self.privacy_config.get("max_grad_norm"), # threshold for clipping the norm of per-sample gradients
             batch_first=True
         )
 
@@ -281,7 +299,7 @@ class Train(TaskBase):
             )
 
 
-    def inference(self):
+    def inference_eval(self):
         if self.test_loader is None:
             print("Test loader is not defined. Skipping inference.")
             return
@@ -326,7 +344,7 @@ class Train(TaskBase):
             self.load_model()
             self.load_optimizer()
             self.load_loss_fn()
-            if self.config.get("is_private") == True:
+            if self.is_private:
                 self.make_dprivate()
 
             # --- START OF TRAINING ---
@@ -336,7 +354,7 @@ class Train(TaskBase):
             self.save_model()
 
             # run evaluation on test set
-            self.inference()
+            self.inference_eval()
 
             print("CCR Training complete!\n")
 
