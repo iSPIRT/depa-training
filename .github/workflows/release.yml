@@ -34,7 +34,7 @@ jobs:
             context: ./scenarios/covid/src
             buildargs: |
           - dockerfile: ./scenarios/covid/ci/Dockerfile.modelsave
-            name: ccr-model-save
+            name: covid-model-save
             context: ./scenarios/covid/src
             buildargs: |
           - dockerfile: ./ci/Dockerfile.encfs

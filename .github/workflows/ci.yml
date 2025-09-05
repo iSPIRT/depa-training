@@ -79,31 +79,34 @@ jobs:
         run: sudo usermod -aG docker $USER
 
       - name: Run pre-processing
-        run: cd ${{ github.workspace }}/scenarios/covid/deployment/docker && ./preprocess.sh
+        run: cd ${{ github.workspace }}/scenarios/covid/deployment/local && ./preprocess.sh
 
       - name: Run model saving
-        run: cd ${{ github.workspace }}/scenarios/covid/deployment/docker && ./save-model.sh
+        run: cd ${{ github.workspace }}/scenarios/covid/deployment/local && ./save-model.sh
 
       - name: Pull container images for generating policy
         run: cd ${{ github.workspace }}/ci && ./pull-containers.sh
 
+      - name: Consolidate pipeline configuration
+        run: cd ${{ github.workspace }}/scenarios/covid/ && ./config/consolidate_pipeline.sh
+
       - name: create storage and containers 
-        run: cd ${{ github.workspace }}/scenarios/covid/data && ./1-create-storage-containers.sh
+        run: cd ${{ github.workspace }}/scenarios/covid/deployment/azure && ./1-create-storage-containers.sh
 
       - name: create azure key vault
-        run: cd ${{ github.workspace }}/scenarios/covid/data && ./2-create-akv.sh 
+        run: cd ${{ github.workspace }}/scenarios/covid/deployment/azure && ./2-create-akv.sh 
 
       - name: Import data and model encryption keys with key release policies
-        run: cd ${{ github.workspace }}/scenarios/covid/data && ./3-import-keys.sh
+        run: cd ${{ github.workspace }}/scenarios/covid/deployment/azure && ./3-import-keys.sh
 
       - name: Encrypt data and models
-        run: cd ${{ github.workspace }}/scenarios/covid/data && ./4-encrypt-data.sh
+        run: cd ${{ github.workspace }}/scenarios/covid/deployment/azure && ./4-encrypt-data.sh
 
       - name: Upload data and model
-        run: cd ${{ github.workspace }}/scenarios/covid/data && ./5-upload-encrypted-data.sh
+        run: cd ${{ github.workspace }}/scenarios/covid/deployment/azure && ./5-upload-encrypted-data.sh
 
       - name: Run training
-        run: cd ${{ github.workspace }}/scenarios/covid/deployment/aci && ./deploy.sh -c ${{ github.event.inputs.contract }} -p ../../config/pipeline_config.json 
+        run: cd ${{ github.workspace }}/scenarios/covid/deployment/azure && ./deploy.sh -c ${{ github.event.inputs.contract }} -p ../../config/pipeline_config.json 
 
       - name: Dump training container logs
         run: sleep 200 && az container logs --name depa-training-covid --resource-group $AZURE_RESOURCE_GROUP --container-name depa-training
@@ -112,7 +115,7 @@ jobs:
         run: az container logs --name depa-training-covid --resource-group $AZURE_RESOURCE_GROUP --container-name encrypted-storage-sidecar
 
       - name: Download and decrypt model
-        run: cd ${{ github.workspace }}/scenarios/covid/data && ./6-download-decrypt-model.sh
+        run: cd ${{ github.workspace }}/scenarios/covid/deployment/azure && ./6-download-decrypt-model.sh
 
       - name: Clean up resource group and all resources 
         run: az group delete --yes --name $AZURE_RESOURCE_GROUP
