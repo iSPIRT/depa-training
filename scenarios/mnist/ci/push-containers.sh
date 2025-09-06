@@ -1,4 +1,4 @@
-containers=("depa-mnist-save-model:latest" "depa-mnist-preprocess:latest")
+containers=("mnist-model-save:latest" "preprocess-mnist:latest")
 for container in "${containers[@]}"
 do
   docker tag $container $CONTAINER_REGISTRY"/"$container

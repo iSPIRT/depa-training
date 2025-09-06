@@ -1,0 +1,86 @@
+{
+  "name": "Train_DL",
+  "config": {
+    "paths": {
+      "input_dataset_path": "/mnt/remote/mnist/mnist-dataset.h5",
+      "base_model_path": "/mnt/remote/model/model.onnx",
+      "trained_model_output_path": "/mnt/remote/output"
+    },
+    "model_type": "onnx",
+    "is_private": false,
+    "device": "cpu",
+    "batch_size": 16,
+    "optimizer": {
+      "name": "Adam",
+      "params": {
+        "lr": 0.0001
+      }
+    },
+    "scheduler": {
+      "name": "CyclicLR",
+      "params": {
+        "base_lr": 0.0001,
+        "max_lr": 0.01,
+        "cycle_momentum": false
+      }
+    },
+    "total_epochs": 1,
+    "dataset_config": {
+      "type": "serialized",
+      "format": "hdf5",
+      "structure": "list_of_tuples",
+      "features_key": "features",
+      "targets_key": "targets",
+      "transforms": {
+        "normalize": true,
+        "augment": false
+      },
+      "splits": {
+        "train": 0.7,
+        "val": 0.2,
+        "test": 0.1,
+        "random_state": 42
+      }
+    },
+    "loss_config": {
+      "expression": "alpha * (1 - pt)**gamma * ce_loss",
+      "components": {
+        "ce_loss": {
+          "class": "nn.CrossEntropyLoss",
+          "params": {
+            "reduction": "none"
+          }
+        },
+        "pt": {
+          "class": "torch.exp",
+          "params": {
+            "input": "-$ce_loss"
+          }
+        }
+      },
+      "variables": {
+        "alpha": 1,
+        "gamma": 2
+      },
+      "reduction": "mean"
+    },
+    "metrics": [
+      "accuracy",
+      {
+        "name": "confusion_matrix",
+        "params": {}
+      },
+      {
+        "name": "f1_score",
+        "params": {
+          "average": "macro"
+        }
+      },
+      {
+        "name": "classification_report",
+        "params": {}
+      }
+    ],
+    "task_type": "classification"
+  }
+}

@@ -42,10 +42,10 @@ jobs:
         run: cd ${{ github.workspace }}/ci && ./pull-containers.sh
 
       - name: Run pre-processing
-        run: cd ./scenarios/covid/deployment/docker && ./preprocess.sh
+        run: cd ./scenarios/covid/deployment/local && ./preprocess.sh
 
       - name: Run model saving
-        run: cd ./scenarios/covid/deployment/docker && ./save-model.sh
+        run: cd ./scenarios/covid/deployment/local && ./save-model.sh
 
       - name: Run training
-        run: cd ./scenarios/covid/deployment/docker && ./train.sh
+        run: cd ./scenarios/covid/deployment/local && ./train.sh

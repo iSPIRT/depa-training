@@ -1,0 +1,7 @@
+services:
+  mnist:
+    image: ${CONTAINER_REGISTRY:+$CONTAINER_REGISTRY/}preprocess-mnist:latest
+    volumes:
+      - $MNIST_INPUT_PATH:/mnt/input/data
+      - $MNIST_OUTPUT_PATH:/mnt/output/preprocessed
+    command: ["python3", "preprocess_mnist.py"]

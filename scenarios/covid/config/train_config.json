@@ -1,0 +1,72 @@
+{
+  "name": "Train_DL",
+  "config": {
+    "paths": {
+      "input_dataset_path": "/tmp/covid_joined.csv",
+      "base_model_path": "/mnt/remote/model/model.onnx",
+      "trained_model_output_path": "/mnt/remote/output"
+    },
+    "model_type": "onnx",
+    "is_private": true,
+    "privacy_params": {
+      "max_grad_norm": 0.1,
+      "epsilon": 1.0,
+      "delta": 0.01
+    },
+    "device": "cpu",
+    "batch_size": 8,
+    "optimizer": {
+      "name": "SGD",
+      "params": {
+        "lr": 0.0001
+      }
+    },
+    "scheduler": null,
+    "total_epochs": 1,
+    "dataset_config": {
+      "type": "tabular",
+      "target_variable": "icmr_a_icmr_test_result",
+      "preprocessing": {
+        "scaler": "standard"
+      },
+      "missing_strategy": "fill",
+      "fill_value": 0,
+      "splits": {
+        "train": 0.7,
+        "val": 0.2,
+        "test": 0.1,
+        "random_state": 42,
+        "stratify": true
+      },
+      "data_type": "tensor"
+    },
+    "loss_config": {
+      "class": "torch.nn.BCELoss",
+      "params": {
+        "reduction": "mean"
+      }
+    },
+    "metrics": [
+      "accuracy",
+      {
+        "name": "confusion_matrix",
+        "params": {}
+      },
+      {
+        "name": "f1_score",
+        "params": {
+          "average": "binary"
+        }
+      },
+      {
+        "name": "precision_recall_curve",
+        "params": {}
+      },
+      {
+        "name": "roc_auc",
+        "params": {}
+      }
+    ],
+    "task_type": "classification"
+  }
+}

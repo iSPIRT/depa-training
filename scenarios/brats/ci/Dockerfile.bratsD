@@ -1,0 +1,19 @@
+FROM ubuntu:22.04
+
+ENV DEBIAN_FRONTEND="noninteractive"
+
+RUN apt-get update && apt-get -y upgrade \
+    && apt-get install -y gcc g++ curl \
+    && apt-get install -y python3 python3-dev python3-distutils
+
+## Install pip
+RUN curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+RUN python3 get-pip.py
+
+RUN pip3 install torch torchvision --index-url https://download.pytorch.org/whl/cpu
+RUN pip3 --default-timeout=1000 install numpy opencv-python pillow nibabel matplotlib
+
+# ENV JAVA_HOME /usr/lib/jvm/java-17-openjdk-amd64/
+# RUN export JAVA_HOME
+
+COPY preprocess_brats_D.py preprocess_brats_D.py

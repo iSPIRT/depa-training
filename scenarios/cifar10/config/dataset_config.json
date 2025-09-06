@@ -1,0 +1,17 @@
+{
+    "type": "serialized",
+    "format": "safetensors",
+    "structure": "list_of_tuples",
+    "features_key": "features",
+    "targets_key": "targets",
+    "transforms": {
+        "normalize": true,
+        "augment": false
+    },
+    "splits": {
+        "train": 0.85,
+        "val": 0.15,
+        "test": 0.05,
+        "random_state": 42
+    }
+}

@@ -1,14 +1,14 @@
-FROM ubuntu:20.04
+FROM ubuntu:22.04
 
 ENV DEBIAN_FRONTEND="noninteractive"
 
 RUN apt-get upgrade && apt-get update \
     && apt-get install -y python3 python3-pip \
-    && apt-get install -y openjdk-8-jdk
+    && apt-get install -y openjdk-17-jdk
 
 RUN pip3 install pyspark pandas
 
-ENV JAVA_HOME /usr/lib/jvm/java-8-openjdk-amd64/
+ENV JAVA_HOME /usr/lib/jvm/java-17-openjdk-amd64/
 RUN export JAVA_HOME
 
-COPY ccr_depa_covid_poc_dp_data_prep_icmr.py ccr_depa_covid_poc_dp_data_prep_icmr.py 
+COPY preprocess_icmr.py preprocess_icmr.py 

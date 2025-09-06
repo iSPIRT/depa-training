@@ -1,0 +1,7 @@
+services:
+  model_save:
+    image: ${CONTAINER_REGISTRY:+$CONTAINER_REGISTRY/}brats-model-save:latest
+    volumes:
+      - $MODEL_OUTPUT_PATH:/mnt/model
+      - $MODEL_CONFIG_PATH:/mnt/config/model_config.json
+    command: ["python3", "save_base_model.py"]

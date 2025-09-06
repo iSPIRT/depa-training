@@ -1,1 +1,10 @@
 **/*.onnx
+**/*.pth
+**/*.pt
+**/*.img
+**/*.bin
+**/*.pem
+
+venv/
+
+**/__pycache__/

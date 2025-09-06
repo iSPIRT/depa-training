@@ -1,0 +1,6 @@
+{
+    "class": "torch.nn.BCELoss",
+    "params": {
+        "reduction": "mean"
+    }
+}

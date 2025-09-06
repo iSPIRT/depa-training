@@ -9,4 +9,5 @@ echo "pipeline configuration is available"
 
 echo "Running pipeline with configuration:"
 cat /mnt/remote/config/pipeline_config.json
+echo ""
 pytrain /mnt/remote/config/pipeline_config.json

@@ -1,0 +1,9 @@
+{
+    "num_boost_round": 250,
+    "booster_params": {
+        "max_depth": 6,
+        "learning_rate": 0.05,
+        "objective": "binary:logistic",
+        "eval_metric": "auc"
+    }
+}

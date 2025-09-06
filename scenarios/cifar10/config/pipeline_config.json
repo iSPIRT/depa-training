@@ -1,0 +1,187 @@
+{
+  "pipeline": [
+    {
+      "name": "Train_DL",
+      "config": {
+        "paths": {
+          "input_dataset_path": "/mnt/remote/cifar10/cifar10-dataset.safetensors",
+          "base_model_path": "/mnt/remote/model/model.safetensors",
+          "trained_model_output_path": "/mnt/remote/output"
+        },
+        "model_type": "safetensors",
+        "is_private": false,
+        "device": "cpu",
+        "batch_size": 16,
+        "optimizer": {
+          "name": "Adam",
+          "params": {
+            "lr": 0.0001
+          }
+        },
+        "scheduler": null,
+        "total_epochs": 2,
+        "model_config": {
+          "layers": {
+            "conv1": {
+              "class": "nn.Conv2d",
+              "params": {
+                "in_channels": 3,
+                "out_channels": 6,
+                "kernel_size": 5
+              }
+            },
+            "pool": {
+              "class": "nn.MaxPool2d",
+              "params": {
+                "kernel_size": 2,
+                "stride": 2
+              }
+            },
+            "conv2": {
+              "class": "nn.Conv2d",
+              "params": {
+                "in_channels": 6,
+                "out_channels": 16,
+                "kernel_size": 5
+              }
+            },
+            "fc1": {
+              "class": "nn.Linear",
+              "params": {
+                "in_features": 400,
+                "out_features": 120
+              }
+            },
+            "fc2": {
+              "class": "nn.Linear",
+              "params": {
+                "in_features": 120,
+                "out_features": 84
+              }
+            },
+            "fc3": {
+              "class": "nn.Linear",
+              "params": {
+                "in_features": 84,
+                "out_features": 10
+              }
+            }
+          },
+          "input": [
+            "x"
+          ],
+          "forward": [
+            {
+              "ops": [
+                "conv1",
+                "F.relu",
+                "pool"
+              ],
+              "input": [
+                "x"
+              ],
+              "output": "x1"
+            },
+            {
+              "ops": [
+                "conv2",
+                "F.relu",
+                "pool"
+              ],
+              "input": [
+                "x1"
+              ],
+              "output": "x2"
+            },
+            {
+              "ops": [
+                [
+                  "torch.flatten",
+                  {
+                    "start_dim": 1
+                  }
+                ]
+              ],
+              "input": [
+                "x2"
+              ],
+              "output": "x3"
+            },
+            {
+              "ops": [
+                "fc1",
+                "F.relu"
+              ],
+              "input": [
+                "x3"
+              ],
+              "output": "x4"
+            },
+            {
+              "ops": [
+                "fc2",
+                "F.relu"
+              ],
+              "input": [
+                "x4"
+              ],
+              "output": "x5"
+            },
+            {
+              "ops": [
+                "fc3"
+              ],
+              "input": [
+                "x5"
+              ],
+              "output": "x6"
+            }
+          ],
+          "output": [
+            "x6"
+          ]
+        },
+        "dataset_config": {
+          "type": "serialized",
+          "format": "safetensors",
+          "structure": "list_of_tuples",
+          "features_key": "features",
+          "targets_key": "targets",
+          "transforms": {
+            "normalize": true,
+            "augment": false
+          },
+          "splits": {
+            "train": 0.8,
+            "val": 0.2,
+            "random_state": 42
+          }
+        },
+        "loss_config": {
+          "class": "nn.CrossEntropyLoss",
+          "params": {
+            "reduction": "mean"
+          }
+        },
+        "metrics": [
+          "accuracy",
+          {
+            "name": "confusion_matrix",
+            "params": {}
+          },
+          {
+            "name": "f1_score",
+            "params": {
+              "average": "macro"
+            }
+          },
+          {
+            "name": "classification_report",
+            "params": {}
+          }
+        ],
+        "task_type": "classification"
+      }
+    }
+  ]
+}

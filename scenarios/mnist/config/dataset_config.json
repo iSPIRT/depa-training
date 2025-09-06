@@ -1,0 +1,17 @@
+{
+    "type": "serialized",
+    "format": "hdf5",
+    "structure": "list_of_tuples",
+    "features_key": "features",
+    "targets_key": "targets",
+    "transforms": {
+        "normalize": true,
+        "augment": false
+    },
+    "splits": {
+        "train": 0.7,
+        "val": 0.2,
+        "test": 0.1,
+        "random_state": 42
+    }
+}

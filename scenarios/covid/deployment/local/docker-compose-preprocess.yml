@@ -1,0 +1,19 @@
+services:
+  icmr:
+    image: ${CONTAINER_REGISTRY:+$CONTAINER_REGISTRY/}preprocess-icmr:latest
+    volumes:
+      - $ICMR_INPUT_PATH:/mnt/input/data
+      - $ICMR_OUTPUT_PATH:/mnt/output/preprocessed
+    command: ["python3", "preprocess_icmr.py"]
+  index:
+    image: ${CONTAINER_REGISTRY:+$CONTAINER_REGISTRY/}preprocess-index:latest
+    volumes:
+      - $INDEX_INPUT_PATH:/mnt/input/data
+      - $INDEX_OUTPUT_PATH:/mnt/output/preprocessed
+    command: ["python3", "preprocess_index.py"]
+  cowin:
+    image: ${CONTAINER_REGISTRY:+$CONTAINER_REGISTRY/}preprocess-cowin:latest
+    volumes:
+      - $COWIN_INPUT_PATH:/mnt/input/data
+      - $COWIN_OUTPUT_PATH:/mnt/output/preprocessed
+    command: ["python3", "preprocess_cowin.py"]

@@ -1,0 +1,19 @@
+**/preprocessed/*
+*.csv
+*.parquet
+*.bin
+*.img
+*.pth
+*.pt
+*.onnx
+*.npy
+*.gz
+
+# Ignore modeller output folder (relative to repo root)
+modeller/output/
+
+data/
+
+**/kaggle.json
+
+**/__pycache__/

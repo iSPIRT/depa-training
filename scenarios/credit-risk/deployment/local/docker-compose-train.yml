@@ -1,0 +1,12 @@
+services:
+  train:
+    image: ${CONTAINER_REGISTRY:+$CONTAINER_REGISTRY/}depa-training:latest
+    volumes:
+      - $BANK_A_INPUT_PATH:/mnt/remote/bank_a
+      - $BANK_B_INPUT_PATH:/mnt/remote/bank_b
+      - $BUREAU_INPUT_PATH:/mnt/remote/bureau
+      - $FINTECH_INPUT_PATH:/mnt/remote/fintech
+      - $MODEL_OUTPUT_PATH:/mnt/remote/output
+      - $CONFIGURATION_PATH:/mnt/remote/config
+    command: ["/bin/bash", "run.sh"]
+ 

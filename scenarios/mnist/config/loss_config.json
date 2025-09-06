@@ -1,0 +1,22 @@
+{
+    "expression": "alpha * (1 - pt)**gamma * ce_loss",
+    "components": {
+        "ce_loss": {
+            "class": "nn.CrossEntropyLoss",
+            "params": {
+                "reduction": "none"
+            }
+        },
+        "pt": {
+            "class": "torch.exp",
+            "params": {
+                "input": "-$ce_loss"
+            }
+        }
+    },
+    "variables": {
+        "alpha": 1,
+        "gamma": 2
+    },
+    "reduction": "mean"
+}

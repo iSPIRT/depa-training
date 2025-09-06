@@ -1,0 +1,24 @@
+{
+    "task_type": "classification",
+    "metrics": [
+        "accuracy",
+        {
+            "name": "confusion_matrix",
+            "params": {}
+        },
+        {
+            "name": "f1_score",
+            "params": {
+                "average": "binary"
+            }
+        },
+        {
+            "name": "precision_recall_curve",
+            "params": {}
+        },
+        {
+            "name": "roc_auc",
+            "params": {}
+        }
+    ]
+}

@@ -1,0 +1,34 @@
+{
+    "name": "Train_DL",
+    "config": {
+        "paths": {
+            "input_dataset_path": "/tmp/brats_joined",
+            "saved_weights_path": "/mnt/remote/model/model.safetensors",
+            "trained_model_output_path": "/mnt/remote/output"
+        },
+        "model_type": "safetensors",
+        "is_private": true,
+        "privacy_params": {
+            "max_grad_norm": 0.1,
+            "epsilon": 1.5,
+            "delta": 0.005
+        },
+        "device": "cpu",
+        "batch_size": 8,
+        "optimizer": {
+            "name": "Adam",
+            "params": {
+                "lr": 1e-4
+            }
+        },
+        "scheduler": {
+            "name": "CyclicLR",
+            "params": {
+                "base_lr": 1e-4,
+                "max_lr": 1e-2,
+                "cycle_momentum": false
+            }
+        },
+        "total_epochs": 1
+    }
+}

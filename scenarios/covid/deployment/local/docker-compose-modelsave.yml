@@ -1,0 +1,6 @@
+services:
+  model_save:
+    image: ${CONTAINER_REGISTRY:+$CONTAINER_REGISTRY/}covid-model-save:latest
+    volumes:
+      - $MODEL_OUTPUT_PATH:/mnt/model
+    command: ["python3", "save_base_model.py"]

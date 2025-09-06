@@ -1,0 +1,560 @@
+{
+    "submodules": {
+        "ConvBlock2d": {
+            "layers": {
+                "conv1": {
+                    "class": "nn.Conv2d",
+                    "params": {
+                        "in_channels": "$in_ch",
+                        "out_channels": "$mid_ch",
+                        "kernel_size": 3,
+                        "stride": 1,
+                        "padding": 1
+                    }
+                },
+                "norm1": {
+                    "class": "nn.GroupNorm",
+                    "params": {
+                        "num_groups": 1,
+                        "num_channels": "$mid_ch"
+                    }
+                },
+                "conv2": {
+                    "class": "nn.Conv2d",
+                    "params": {
+                        "in_channels": "$mid_ch",
+                        "out_channels": "$out_ch",
+                        "kernel_size": 3,
+                        "stride": 1,
+                        "padding": 1
+                    }
+                },
+                "norm2": {
+                    "class": "nn.GroupNorm",
+                    "params": {
+                        "num_groups": 1,
+                        "num_channels": "$out_ch"
+                    }
+                }
+            },
+            "input": [
+                "x"
+            ],
+            "forward": [
+                {
+                    "ops": [
+                        "conv1",
+                        "norm1"
+                    ],
+                    "input": [
+                        "x"
+                    ],
+                    "output": "x1"
+                },
+                {
+                    "ops": [
+                        [
+                            "F.leaky_relu",
+                            {
+                                "negative_slope": 0.1
+                            }
+                        ]
+                    ],
+                    "input": [
+                        "x1"
+                    ],
+                    "output": "x2"
+                },
+                {
+                    "ops": [
+                        "conv2",
+                        "norm2"
+                    ],
+                    "input": [
+                        "x2"
+                    ],
+                    "output": "x3"
+                },
+                {
+                    "ops": [
+                        [
+                            "F.leaky_relu",
+                            {
+                                "negative_slope": 0.1
+                            }
+                        ]
+                    ],
+                    "input": [
+                        "x3"
+                    ],
+                    "output": "x4"
+                }
+            ],
+            "output": [
+                "x4"
+            ]
+        },
+        "Upsample": {
+            "layers": {
+                "conv1": {
+                    "class": "nn.Conv2d",
+                    "params": {
+                        "in_channels": "$in_ch",
+                        "out_channels": "$out_ch",
+                        "kernel_size": 3,
+                        "stride": 1,
+                        "padding": 1
+                    }
+                },
+                "norm1": {
+                    "class": "nn.GroupNorm",
+                    "params": {
+                        "num_groups": 1,
+                        "num_channels": "$out_ch"
+                    }
+                }
+            },
+            "input": [
+                "x",
+                "encoded_feature"
+            ],
+            "forward": [
+                {
+                    "ops": [
+                        [
+                            "F.interpolate",
+                            {
+                                "scale_factor": 2.0,
+                                "mode": "bilinear",
+                                "align_corners": false
+                            }
+                        ]
+                    ],
+                    "input": [
+                        "x"
+                    ],
+                    "output": "x1"
+                },
+                {
+                    "ops": [
+                        "conv1",
+                        "norm1"
+                    ],
+                    "input": [
+                        "x1"
+                    ],
+                    "output": "x2"
+                },
+                {
+                    "ops": [
+                        [
+                            "F.leaky_relu",
+                            {
+                                "negative_slope": 0.1
+                            }
+                        ]
+                    ],
+                    "input": [
+                        "x2"
+                    ],
+                    "output": "x3"
+                },
+                {
+                    "ops": [
+                        [
+                            "torch.cat",
+                            {
+                                "dim": 1
+                            }
+                        ]
+                    ],
+                    "input": [
+                        [
+                            "x3",
+                            "encoded_feature"
+                        ]
+                    ],
+                    "output": "x4"
+                }
+            ],
+            "output": [
+                "x4"
+            ]
+        }
+    },
+    "layers": {
+        "in_conv": {
+            "class": "nn.Conv2d",
+            "params": {
+                "in_channels": 1,
+                "out_channels": 8,
+                "kernel_size": 3,
+                "stride": 1,
+                "padding": 1
+            }
+        },
+        "down_conv0": {
+            "submodule": "ConvBlock2d",
+            "params": {
+                "in_ch": 8,
+                "mid_ch": 16,
+                "out_ch": 16
+            }
+        },
+        "down_pool0": {
+            "class": "nn.MaxPool2d",
+            "params": {
+                "kernel_size": 2,
+                "stride": 2
+            }
+        },
+        "down_conv1": {
+            "submodule": "ConvBlock2d",
+            "params": {
+                "in_ch": 16,
+                "mid_ch": 32,
+                "out_ch": 32
+            }
+        },
+        "down_pool1": {
+            "class": "nn.MaxPool2d",
+            "params": {
+                "kernel_size": 2,
+                "stride": 2
+            }
+        },
+        "down_conv2": {
+            "submodule": "ConvBlock2d",
+            "params": {
+                "in_ch": 32,
+                "mid_ch": 64,
+                "out_ch": 64
+            }
+        },
+        "down_pool2": {
+            "class": "nn.MaxPool2d",
+            "params": {
+                "kernel_size": 2,
+                "stride": 2
+            }
+        },
+        "down_conv3": {
+            "submodule": "ConvBlock2d",
+            "params": {
+                "in_ch": 64,
+                "mid_ch": 128,
+                "out_ch": 128
+            }
+        },
+        "down_pool3": {
+            "class": "nn.MaxPool2d",
+            "params": {
+                "kernel_size": 2,
+                "stride": 2
+            }
+        },
+        "bottleneck": {
+            "submodule": "ConvBlock2d",
+            "params": {
+                "in_ch": 128,
+                "mid_ch": 256,
+                "out_ch": 256
+            }
+        },
+        "up_samp3": {
+            "submodule": "Upsample",
+            "params": {
+                "in_ch": 256,
+                "out_ch": 128
+            }
+        },
+        "up_conv3": {
+            "submodule": "ConvBlock2d",
+            "params": {
+                "in_ch": 256,
+                "mid_ch": 128,
+                "out_ch": 128
+            }
+        },
+        "up_samp2": {
+            "submodule": "Upsample",
+            "params": {
+                "in_ch": 128,
+                "out_ch": 64
+            }
+        },
+        "up_conv2": {
+            "submodule": "ConvBlock2d",
+            "params": {
+                "in_ch": 128,
+                "mid_ch": 64,
+                "out_ch": 64
+            }
+        },
+        "up_samp1": {
+            "submodule": "Upsample",
+            "params": {
+                "in_ch": 64,
+                "out_ch": 32
+            }
+        },
+        "up_conv1": {
+            "submodule": "ConvBlock2d",
+            "params": {
+                "in_ch": 64,
+                "mid_ch": 32,
+                "out_ch": 32
+            }
+        },
+        "up_samp0": {
+            "submodule": "Upsample",
+            "params": {
+                "in_ch": 32,
+                "out_ch": 16
+            }
+        },
+        "up_conv0": {
+            "submodule": "ConvBlock2d",
+            "params": {
+                "in_ch": 32,
+                "mid_ch": 16,
+                "out_ch": 16
+            }
+        },
+        "out_conv1": {
+            "class": "nn.Conv2d",
+            "params": {
+                "in_channels": 16,
+                "out_channels": 8,
+                "kernel_size": 3,
+                "stride": 1,
+                "padding": 1
+            }
+        },
+        "out_conv2": {
+            "class": "nn.Conv2d",
+            "params": {
+                "in_channels": 8,
+                "out_channels": 1,
+                "kernel_size": 3,
+                "stride": 1,
+                "padding": 1
+            }
+        }
+    },
+    "input": [
+        "x"
+    ],
+    "forward": [
+        {
+            "ops": [
+                "in_conv"
+            ],
+            "input": [
+                "x"
+            ],
+            "output": "x1"
+        },
+        {
+            "ops": [
+                "down_conv0"
+            ],
+            "input": [
+                "x1"
+            ],
+            "output": "x2"
+        },
+        {
+            "ops": [
+                "down_pool0"
+            ],
+            "input": [
+                "x2"
+            ],
+            "output": "x3"
+        },
+        {
+            "ops": [
+                "down_conv1"
+            ],
+            "input": [
+                "x3"
+            ],
+            "output": "x4"
+        },
+        {
+            "ops": [
+                "down_pool1"
+            ],
+            "input": [
+                "x4"
+            ],
+            "output": "x5"
+        },
+        {
+            "ops": [
+                "down_conv2"
+            ],
+            "input": [
+                "x5"
+            ],
+            "output": "x6"
+        },
+        {
+            "ops": [
+                "down_pool2"
+            ],
+            "input": [
+                "x6"
+            ],
+            "output": "x7"
+        },
+        {
+            "ops": [
+                "down_conv3"
+            ],
+            "input": [
+                "x7"
+            ],
+            "output": "x8"
+        },
+        {
+            "ops": [
+                "down_pool3"
+            ],
+            "input": [
+                "x8"
+            ],
+            "output": "x9"
+        },
+        {
+            "ops": [
+                "bottleneck"
+            ],
+            "input": [
+                "x9"
+            ],
+            "output": "x10"
+        },
+        {
+            "ops": [
+                "up_samp3"
+            ],
+            "input": [
+                "x10",
+                "x8"
+            ],
+            "output": "x11"
+        },
+        {
+            "ops": [
+                "up_conv3"
+            ],
+            "input": [
+                "x11"
+            ],
+            "output": "x12"
+        },
+        {
+            "ops": [
+                "up_samp2"
+            ],
+            "input": [
+                "x12",
+                "x6"
+            ],
+            "output": "x13"
+        },
+        {
+            "ops": [
+                "up_conv2"
+            ],
+            "input": [
+                "x13"
+            ],
+            "output": "x14"
+        },
+        {
+            "ops": [
+                "up_samp1"
+            ],
+            "input": [
+                "x14",
+                "x4"
+            ],
+            "output": "x15"
+        },
+        {
+            "ops": [
+                "up_conv1"
+            ],
+            "input": [
+                "x15"
+            ],
+            "output": "x16"
+        },
+        {
+            "ops": [
+                "up_samp0"
+            ],
+            "input": [
+                "x16",
+                "x2"
+            ],
+            "output": "x17"
+        },
+        {
+            "ops": [
+                "up_conv0"
+            ],
+            "input": [
+                "x17"
+            ],
+            "output": "x18"
+        },
+        {
+            "ops": [
+                "out_conv1"
+            ],
+            "input": [
+                "x18"
+            ],
+            "output": "x19"
+        },
+        {
+            "ops": [
+                [
+                    "F.leaky_relu",
+                    {
+                        "negative_slope": 0.1
+                    }
+                ]
+            ],
+            "input": [
+                "x19"
+            ],
+            "output": "x20"
+        },
+        {
+            "ops": [
+                "out_conv2"
+            ],
+            "input": [
+                "x20"
+            ],
+            "output": "x21"
+        },
+        {
+            "ops": [
+                "torch.sigmoid"
+            ],
+            "input": [
+                "x21"
+            ],
+            "output": "x22"
+        }
+    ],
+    "output": [
+        "x22"
+    ]
+}

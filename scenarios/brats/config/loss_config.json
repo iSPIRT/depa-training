@@ -1,0 +1,27 @@
+{
+    "expression": "dice_loss + 2 * l1_loss",
+    "components": {
+        "dice_loss": {
+            "class": "monai.losses.DiceLoss",
+            "params": {
+                "sigmoid": true,
+                "squared_pred": true,
+                "reduction": "mean"
+            }
+        },
+        "l1_loss": {
+            "class": "torch.nn.L1Loss",
+            "params": {
+                "reduction": "mean"
+            }
+        },
+        "bce_loss": {
+            "class": "torch.nn.functional.binary_cross_entropy_with_logits",
+            "params": {
+                "input": "outputs",
+                "target": "targets",
+                "reduction": "mean"
+            }
+        }
+    }
+}

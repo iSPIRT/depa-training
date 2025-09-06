@@ -1,0 +1,29 @@
+{
+  "key":{
+      "kid": "",
+      "kty": "oct-HSM",
+      "authority": {
+          "endpoint": "sharedneu.neu.attest.azure.net"
+      },
+      "akv": {
+          "endpoint": "",
+          "api_version": "api-version=7.3-preview",
+          "bearer_token": ""
+      }
+  },
+  "key_derivation":
+  {
+    "salt": "",
+    "label": ""
+  },
+  "claims": [
+    [{
+      "claim": "x-ms-sevsnpvm-hostdata",
+      "equals": ""
+    },
+    {
+      "claim": "x-ms-compliance-status",
+      "equals": "azure-compliant-uvm"
+    }]
+  ]
+}

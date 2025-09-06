@@ -1,0 +1,157 @@
+{
+  "pipeline": [
+    {
+      "name": "SparkJoin",
+      "config": {
+        "datasets": [
+          {
+            "id": "19517ba8-bab8-11ed-afa1-0242ac120002",
+            "provider": "bank_a",
+            "name": "credit_applications",
+            "file": "bank_a_app_learn.parquet",
+            "select_variables": [
+              "SK_ID_CURR",
+              "TARGET",
+              "INCOME_PER_PERSON",
+              "CREDIT_TO_INCOME",
+              "NAME_CONTRACT_TYPE",
+              "CODE_GENDER",
+              "FLAG_OWN_CAR",
+              "FLAG_OWN_REALTY",
+              "CNT_CHILDREN"
+            ],
+            "mount_path": "/mnt/remote/bank_a/"
+          },
+          {
+            "id": "216d5cc6-bab8-11ed-afa1-0242ac120002",
+            "provider": "bank_a",
+            "name": "previous_applications",
+            "file": "bank_a_prev_agg.parquet",
+            "select_variables": [
+              "SK_ID_CURR",
+              "AMT_APPLICATION_count",
+              "AMT_APPLICATION_mean",
+              "AMT_CREDIT_mean",
+              "AMT_DOWN_PAYMENT_mean"
+            ],
+            "mount_path": "/mnt/remote/bank_a/"
+          },
+          {
+            "id": "2830a144-bab8-11ed-afa1-0242ac120002",
+            "provider": "bank_a",
+            "name": "payment_installments",
+            "file": "bank_a_inst_agg.parquet",
+            "select_variables": [
+              "SK_ID_CURR",
+              "AMT_PAYMENT_sum",
+              "AMT_INSTALMENT_sum",
+              "PAYMENT_DIFF_mean",
+              "LATE_PAYMENT_mean"
+            ],
+            "mount_path": "/mnt/remote/bank_a/"
+          },
+          {
+            "id": "3187712c-bab8-11ed-afa1-0242ac120002",
+            "provider": "bureau",
+            "name": "bureau_records",
+            "file": "bureau_agg.parquet",
+            "select_variables": [
+              "SK_ID_CURR",
+              "BUREAU_COUNT_sum",
+              "AMT_CREDIT_SUM_mean",
+              "AMT_CREDIT_SUM_DEBT_mean",
+              "STATUS_PAST_DUE_RATE"
+            ],
+            "mount_path": "/mnt/remote/bureau/"
+          },
+          {
+            "id": "40e82c74-bab8-11ed-afa1-0242ac120002",
+            "provider": "fintech",
+            "name": "pos_cash_balance",
+            "file": "pos_fintech_agg.parquet",
+            "select_variables": [
+              "SK_ID_CURR",
+              "SK_DPD_max",
+              "SK_DPD_DEF_mean",
+              "MONTHS_BALANCE_count"
+            ],
+            "mount_path": "/mnt/remote/fintech/"
+          },
+          {
+            "id": "45647e76-bab8-11ed-afa1-0242ac120002",
+            "provider": "bank_b",
+            "name": "credit_card_balance",
+            "file": "bank_b_cc_agg.parquet",
+            "select_variables": [
+              "SK_ID_CURR",
+              "AMT_BALANCE_mean",
+              "AMT_CREDIT_LIMIT_ACTUAL_max",
+              "SK_DPD_max",
+              "SK_DPD_DEF_mean"
+            ],
+            "mount_path": "/mnt/remote/bank_b/"
+          }
+        ],
+        "joined_dataset": {
+          "joined_dataset": "/tmp/credit_risk_joined.parquet",
+          "joining_query": "SELECT * FROM credit_applications a LEFT JOIN previous_applications p ON a.SK_ID_CURR = p.SK_ID_CURR LEFT JOIN payment_installments i ON a.SK_ID_CURR = i.SK_ID_CURR LEFT JOIN bureau_records b ON a.SK_ID_CURR = b.SK_ID_CURR LEFT JOIN pos_cash_balance pos ON a.SK_ID_CURR = pos.SK_ID_CURR LEFT JOIN credit_card_balance cc ON a.SK_ID_CURR = cc.SK_ID_CURR",
+          "joining_key": "SK_ID_CURR",
+          "drop_columns": [
+            "NAME_CONTRACT_TYPE",
+            "CODE_GENDER",
+            "FLAG_OWN_CAR",
+            "FLAG_OWN_REALTY"
+          ],
+          "identifiers": [
+            "SK_ID_CURR"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Train_XGB",
+      "config": {
+        "paths": {
+          "input_dataset_path": "/tmp/credit_risk_joined.parquet",
+          "trained_model_output_path": "/mnt/remote/output"
+        },
+        "is_private": true,
+        "privacy_params": {
+          "epsilon": 4.0,
+          "mechanism": "gaussian",
+          "delta": 0.00001,
+          "clip_value": 1.0
+        },
+        "model_config": {
+          "num_boost_round": 250,
+          "booster_params": {
+            "max_depth": 6,
+            "learning_rate": 0.05,
+            "objective": "binary:logistic",
+            "eval_metric": "auc"
+          }
+        },
+        "dataset_config": {
+          "type": "tabular",
+          "target_variable": "TARGET",
+          "missing_strategy": "drop",
+          "splits": {
+            "train": 0.8,
+            "val": 0.1,
+            "test": 0.1,
+            "random_state": 42,
+            "stratify": true
+          },
+          "data_type": "numpy"
+        },
+        "metrics": [
+          "accuracy",
+          "roc_auc",
+          "confusion_matrix",
+          "classification_report"
+        ],
+        "task_type": "classification"
+      }
+    }
+  ]
+}

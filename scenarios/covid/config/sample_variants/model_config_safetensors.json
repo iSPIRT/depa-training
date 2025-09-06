@@ -1,0 +1,71 @@
+{
+    "layers": {
+        "fc1": {
+            "class": "nn.Linear",
+            "params": {
+                "in_features": 10,
+                "out_features": 128
+            }
+        },
+        "fc2": {
+            "class": "nn.Linear",
+            "params": {
+                "in_features": 128,
+                "out_features": 64
+            }
+        },
+        "fc3": {
+            "class": "nn.Linear",
+            "params": {
+                "in_features": 64,
+                "out_features": 1
+            }
+        },
+        "dropout": {
+            "class": "nn.Dropout",
+            "params": {
+                "p": 0.3
+            }
+        }
+    },
+    "input": [
+        "x"
+    ],
+    "forward": [
+        {
+            "ops": [
+                "fc1",
+                "torch.relu",
+                "dropout"
+            ],
+            "input": [
+                "x"
+            ],
+            "output": "x1"
+        },
+        {
+            "ops": [
+                "fc2",
+                "torch.relu",
+                "dropout"
+            ],
+            "input": [
+                "x1"
+            ],
+            "output": "x2"
+        },
+        {
+            "ops": [
+                "fc3",
+                "torch.sigmoid"
+            ],
+            "input": [
+                "x2"
+            ],
+            "output": "x3"
+        }
+    ],
+    "output": [
+        "x3"
+    ]
+}

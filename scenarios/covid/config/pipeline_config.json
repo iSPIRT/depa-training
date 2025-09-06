@@ -1,191 +1,242 @@
 {
-    "pipeline": [
-        {
-            "name": "Join",
-            "config": {
-                "datasets": [
-                    {
-                        "id": "19517ba8-bab8-11ed-afa1-0242ac120002",
-                        "name": "icmr",
-                        "file": "dp_icmr_standardised_anon.csv",
-                        "select_variables": [
-                            "icmr_test_result",
-                            "fk_genetic_strain",
-                            "test_ct_value",
-                            "sample_genetic_sequenced"
-                        ],
-                        "mount_path": "/mnt/remote/icmr/"
-                    },
-                    {
-                        "id": "216d5cc6-bab8-11ed-afa1-0242ac120002",
-                        "name": "cowin",
-                        "file": "dp_cowin_standardised_anon.csv",
-                        "select_variables": [
-                            "age",
-                            "vaccine_name"
-                        ],
-                        "mount_path": "/mnt/remote/cowin/"
-                    },
-                    {
-                        "id": "2830a144-bab8-11ed-afa1-0242ac120002",
-                        "name": "index",
-                        "file": "dp_index_standardised_anon.csv",
-                        "select_variables": [
-                            "pasymp",
-                            "dsinfection",
-                            "potravel",
-                            "page"
-                        ],
-                        "mount_path": "/mnt/remote/index/"
-                    }
-                ],
-                "joined_dataset": {
-                    "joined_dataset": "sandbox_icmr_cowin_index_without_key_identifiers.csv",
-                    "joining_query": "select * from icmr, index, cowin where index.pk_mobno_hashed == icmr.pk_mobno_hashed and index.pk_mobno_hashed == cowin.pk_mobno_hashed",
-                    "joining_key": "pk_mobno_hashed",
-                    "model_output_folder": "/tmp/",
-                    "drop_columns": [
-                        "pk_icmrno",
-                        "pk_mobno",
-                        "ref_srfno",
-                        "ref_index_id",
-                        "ref_tr_index_id",
-                        "fk_pname",
-                        "ref_paddress",
-                        "cowin_beneficiary_name"
-                    ],
-                    "identifiers": [
-                        "pk_mobno_hashed",
-                        "ref_srfno_hashed",
-                        "pk_icmrno_hashed",
-                        "index_idcpatient",
-                        "index_pname",
-                        "index_paddress",
-                        "index_phcname",
-                        "pk_icmrno_hashed",
-                        "pk_mobno_hashed",
-                        "ref_bucode_hashed",
-                        "cowin_beneficiary_name",
-                        "cowin_d1_vaccinated_at",
-                        "cowin_d2_vaccinated_at",
-                        "pk_beneficiary_id_hashed",
-                        "ref_uhid_hashed",
-                        "pk_mobno_hashed",
-                        "ref_id_verified_hashed",
-                        "ref_index_id_hashed",
-                        "fk_pname_hashed",
-                        "fk_cpatient_hashed",
-                        "ref_tr_index_id_hashed",
-                        "ref_pahospital_code_hashed",
-                        "ref_tpahospital_code_hashed",
-                        "ref_paddress_hashed",
-                        "fk_icmr_labid_hashed",
-                        "index_labcode",
-                        "ref_labid",
-                        "index_pgender",
-                        "index_pstate",
-                        "index_pdistrict",
-                        "index_plocation",
-                        "index_pzone",
-                        "index_pward",
-                        "index_ptaluka",
-                        "index_astatus",
-                        "index_anumber",
-                        "index_adname",
-                        "index_adnumber",
-                        "index_stambulance",
-                        "index_stdate",
-                        "index_audate",
-                        "index_cdate",
-                        "index_pcdate",
-                        "index_adddate",
-                        "index_bmdate",
-                        "index_moddate",
-                        "index_admdate",
-                        "index_movdate",
-                        "index_disdate",
-                        "index_pudate",
-                        "index_cudate",
-                        "index_distcode",
-                        "index_distrefno",
-                        "index_ptype",
-                        "ref_labid_hashed",
-                        "index_fdate",
-                        "index_todate",
-                        "index_apcnumber",
-                        "index_pbtype",
-                        "index_pbquota",
-                        "icmr_pupdate",
-                        "index_bucode",
-                        "index_trbucode",
-                        "index_commstatus",
-                        "index_commby",
-                        "index_dristatus",
-                        "index_driby",
-                        "index_vehnumber",
-                        "index_hosstatus",
-                        "index_hosby",
-                        "index_padone",
-                        "index_padate",
-                        "index_pstatus",
-                        "index_dsummary",
-                        "index_statusuby",
-                        "index_ureason",
-                        "index_usummary",
-                        "index_padmitted",
-                        "index_hcode",
-                        "index_pahospital",
-                        "index_tpahospital",
-                        "index_htype",
-                        "index_pbedcode",
-                        "index_labname",
-                        "index_pid",
-                        "cowin_dose_1_date",
-                        "cowin_d1_vaccinated_by",
-                        "cowin_dose_2_date",
-                        "cowin_d2_vaccinated_by",
-                        "cowin_pupdate",
-                        "cowin_gender",
-                        "index_remarks",
-                        "icmr_a_icmr_test_type"
-                    ],
-                    "joined_result_columns": [
-                        "icmr_a_icmr_test_result",
-                        "icmr_a_test_ct_value",
-                        "icmr_a_sample_genetic_sequenced",
-                        "fk_genetic_strain",
-                        "index_pasymp",
-                        "index_dsinfection",
-                        "index_potravel",
-                        "index_page",
-                        "cowin_age",
-                        "cowin_vaccine_name"
-                    ]
-                }
-            }
-        },
-        {
-            "name": "PrivateTrain",
-            "config": {
-                "input_dataset_path": "/tmp/sandbox_icmr_cowin_index_without_key_identifiers.csv",
-                "saved_model_path": "/mnt/remote/model/model.onnx",
-                "saved_model_optimizer": "/mnt/remote/model/dpsgd_model_opimizer.pth",
-                "trained_model_output_path": "/mnt/remote/output/model.onnx",
-                "saved_weights_path": "",
-                "batch_size": 2,
-                "total_epochs": 5,
-                "max_grad_norm": 0.1,
-                "epsilon_threshold": 1.0,
-                "delta": 0.01,
-                "sample_size": 60000,
-                "target_variable": "icmr_a_icmr_test_result",
-                "test_train_split": 0.2,
-                "metrics": [
-                    "accuracy",
-                    "precision",
-                    "recall"
-                ]
-            }
+  "pipeline": [
+    {
+      "name": "SparkJoin",
+      "config": {
+        "datasets": [
+          {
+            "id": "19517ba8-bab8-11ed-afa1-0242ac120002",
+            "provider": "icmr",
+            "name": "icmr_test_results",
+            "file": "dp_icmr_standardised_anon.csv",
+            "select_variables": [
+              "icmr_test_result",
+              "fk_genetic_strain",
+              "test_ct_value",
+              "sample_genetic_sequenced"
+            ],
+            "mount_path": "/mnt/remote/icmr/"
+          },
+          {
+            "id": "216d5cc6-bab8-11ed-afa1-0242ac120002",
+            "provider": "cowin",
+            "name": "cowin_vaccine_data",
+            "file": "dp_cowin_standardised_anon.csv",
+            "select_variables": [
+              "age",
+              "vaccine_name"
+            ],
+            "mount_path": "/mnt/remote/cowin/"
+          },
+          {
+            "id": "2830a144-bab8-11ed-afa1-0242ac120002",
+            "provider": "index",
+            "name": "index_patient_records",
+            "file": "dp_index_standardised_anon.csv",
+            "select_variables": [
+              "pasymp",
+              "dsinfection",
+              "potravel",
+              "page"
+            ],
+            "mount_path": "/mnt/remote/index/"
+          }
+        ],
+        "joined_dataset": {
+          "joined_dataset": "/tmp/covid_joined.csv",
+          "joining_query": "SELECT * FROM icmr_test_results AS icmr JOIN index_patient_records AS idx ON idx.pk_mobno_hashed = icmr.pk_mobno_hashed JOIN cowin_vaccine_data AS cowin ON idx.pk_mobno_hashed = cowin.pk_mobno_hashed",
+          "joining_key": "pk_mobno_hashed",
+          "drop_columns": [
+            "pk_icmrno",
+            "pk_mobno",
+            "ref_srfno",
+            "ref_index_id",
+            "ref_tr_index_id",
+            "fk_pname",
+            "ref_paddress",
+            "cowin_beneficiary_name"
+          ],
+          "identifiers": [
+            "pk_mobno_hashed",
+            "ref_srfno_hashed",
+            "pk_icmrno_hashed",
+            "index_idcpatient",
+            "index_pname",
+            "index_paddress",
+            "index_phcname",
+            "pk_icmrno_hashed",
+            "pk_mobno_hashed",
+            "ref_bucode_hashed",
+            "cowin_beneficiary_name",
+            "cowin_d1_vaccinated_at",
+            "cowin_d2_vaccinated_at",
+            "pk_beneficiary_id_hashed",
+            "ref_uhid_hashed",
+            "pk_mobno_hashed",
+            "ref_id_verified_hashed",
+            "ref_index_id_hashed",
+            "fk_pname_hashed",
+            "fk_cpatient_hashed",
+            "ref_tr_index_id_hashed",
+            "ref_pahospital_code_hashed",
+            "ref_tpahospital_code_hashed",
+            "ref_paddress_hashed",
+            "fk_icmr_labid_hashed",
+            "index_labcode",
+            "ref_labid",
+            "index_pgender",
+            "index_pstate",
+            "index_pdistrict",
+            "index_plocation",
+            "index_pzone",
+            "index_pward",
+            "index_ptaluka",
+            "index_astatus",
+            "index_anumber",
+            "index_adname",
+            "index_adnumber",
+            "index_stambulance",
+            "index_stdate",
+            "index_audate",
+            "index_cdate",
+            "index_pcdate",
+            "index_adddate",
+            "index_bmdate",
+            "index_moddate",
+            "index_admdate",
+            "index_movdate",
+            "index_disdate",
+            "index_pudate",
+            "index_cudate",
+            "index_distcode",
+            "index_distrefno",
+            "index_ptype",
+            "ref_labid_hashed",
+            "index_fdate",
+            "index_todate",
+            "index_apcnumber",
+            "index_pbtype",
+            "index_pbquota",
+            "icmr_pupdate",
+            "index_bucode",
+            "index_trbucode",
+            "index_commstatus",
+            "index_commby",
+            "index_dristatus",
+            "index_driby",
+            "index_vehnumber",
+            "index_hosstatus",
+            "index_hosby",
+            "index_padone",
+            "index_padate",
+            "index_pstatus",
+            "index_dsummary",
+            "index_statusuby",
+            "index_ureason",
+            "index_usummary",
+            "index_padmitted",
+            "index_hcode",
+            "index_pahospital",
+            "index_tpahospital",
+            "index_htype",
+            "index_pbedcode",
+            "index_labname",
+            "index_pid",
+            "cowin_dose_1_date",
+            "cowin_d1_vaccinated_by",
+            "cowin_dose_2_date",
+            "cowin_d2_vaccinated_by",
+            "cowin_pupdate",
+            "cowin_gender",
+            "index_remarks",
+            "icmr_a_icmr_test_type"
+          ],
+          "joined_result_columns": [
+            "icmr_a_icmr_test_result",
+            "icmr_a_test_ct_value",
+            "icmr_a_sample_genetic_sequenced",
+            "fk_genetic_strain",
+            "index_pasymp",
+            "index_dsinfection",
+            "index_potravel",
+            "index_page",
+            "cowin_age",
+            "cowin_vaccine_name"
+          ]
         }
-    ]
+      }
+    },
+    {
+      "name": "Train_DL",
+      "config": {
+        "paths": {
+          "input_dataset_path": "/tmp/covid_joined.csv",
+          "base_model_path": "/mnt/remote/model/model.onnx",
+          "trained_model_output_path": "/mnt/remote/output"
+        },
+        "model_type": "onnx",
+        "is_private": true,
+        "privacy_params": {
+          "max_grad_norm": 0.1,
+          "epsilon": 1.0,
+          "delta": 0.01
+        },
+        "device": "cpu",
+        "batch_size": 8,
+        "optimizer": {
+          "name": "SGD",
+          "params": {
+            "lr": 0.0001
+          }
+        },
+        "scheduler": null,
+        "total_epochs": 1,
+        "dataset_config": {
+          "type": "tabular",
+          "target_variable": "icmr_a_icmr_test_result",
+          "preprocessing": {
+            "scaler": "standard"
+          },
+          "missing_strategy": "fill",
+          "fill_value": 0,
+          "splits": {
+            "train": 0.7,
+            "val": 0.2,
+            "test": 0.1,
+            "random_state": 42,
+            "stratify": true
+          },
+          "data_type": "tensor"
+        },
+        "loss_config": {
+          "class": "torch.nn.BCELoss",
+          "params": {
+            "reduction": "mean"
+          }
+        },
+        "metrics": [
+          "accuracy",
+          {
+            "name": "confusion_matrix",
+            "params": {}
+          },
+          {
+            "name": "f1_score",
+            "params": {
+              "average": "binary"
+            }
+          },
+          {
+            "name": "precision_recall_curve",
+            "params": {}
+          },
+          {
+            "name": "roc_auc",
+            "params": {}
+          }
+        ],
+        "task_type": "classification"
+      }
+    }
+  ]
 }

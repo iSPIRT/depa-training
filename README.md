@@ -6,7 +6,7 @@
 
 ## GitHub Codespaces
 
-The simplest way to setup a development environment is using [GitHub Codespaces](https://github.com/codespaces). The repository includes a [devcontainer.json](../../.devcontainer/devcontainer.json), which customizes your codespace to install all required dependencies. Please ensure you allocate at least 64GB disk space in your codespace. Also, run the following command in the codespace to update submodules.
+The simplest way to setup a development environment is using [GitHub Codespaces](https://github.com/codespaces). The repository includes a [devcontainer.json](.devcontainer/devcontainer.json), which customizes your codespace to install all required dependencies. Please ensure you allocate at least 8 vCPUs and 64GB disk space in your codespace. Also, run the following command in the codespace to update submodules.
 
 ```bash
 git submodule update --init --recursive
@@ -14,19 +14,22 @@ git submodule update --init --recursive
 
 ## Local Development Environment
 
-Alternatively, you can build and develop locally in a Linux environment (we have tested with Ubuntu 20.04 and 22.04), or Windows with WSL 2. Install the following dependencies. 
+Alternatively, you can build and develop locally in a Linux environment (we have tested with Ubuntu 20.04 and 22.04), or Windows with WSL 2. 
 
-- [docker](https://docs.docker.com/engine/install/ubuntu/) and docker-compose. After installing docker, add your user to the docker group using `sudo usermod -aG docker $USER`, and log back in to a shell. 
-- make (install using ```sudo apt-get install make```)
-- Python 3.6.9 and pip 
-- [Go](https://go.dev/doc/install). Follow the instructions to install Go. After installing, ensure that the PATH environment variable is set to include ```go``` runtime.
-- Python wheel package (install using ```pip install wheel```)
-
-Clone this repo as follows. 
+Clone this repo to your local machine / virtual machine as follows. 
 
 ```bash
 git clone --recursive http://github.com/iSPIRT/depa-training
+cd depa-training
 ```
+
+Install the below listed dependencies by running the [install-prerequisites.sh](./install-prerequisites.sh) script.
+
+```bash
+./install-prerequisites.sh
+```
+
+Note: You may need to restart your machine to ensure that the changes take effect.
 
 ## Build CCR containers
 
@@ -44,16 +47,39 @@ This scripts build the following containers.
 Alternatively, you can use pre-built container images from the ispirt repository by setting the following environment variable. Docker hub has started throttling which may effect the upload/download time, especially when images are bigger size. So, It is advisable to use other container registries, we are using azure container registry as shown below
 ```bash
 export CONTAINER_REGISTRY=ispirt.azurecr.io
+./ci/pull-containers.sh
 ```
 
 # Scenarios
 
 This repository contains two samples that illustrate the kinds of scenarios DEPA for Training can support. 
 
-- [Training a differentially private COVID prediction model on private datasets](./scenarios/covid/README.md)
-- [Convolutional Neural Network training on MNIST dataset](./scenarios/mnist/README.md)
+Follow the links to build and deploy these scenarios. 
 
-Follow these links to build and deploy these scenarios. 
+| Scenario name | Scenario type | Task type | Privacy | No. of TDPs* | Data type (format) | Model type (format) | Join type (No. of datasets) | 
+|--------------|---------------|-----------------|--------------|-----------|------------|------------|------------|
+| [COVID-19](./scenarios/covid/README.md) | Training - Deep Learning | Binary Classification | Differentially Private | 3 | PII tabular data (CSV) | MLP (ONNX) | Horizontal (3)|
+| [BraTS](./scenarios/brats/README.md) | Training - Deep Learning | Image Segmentation | Differentially Private | 4 | MRI scans data (NIfTI/PNG) | UNet (Safetensors) | Vertical (4)|
+| [Credit Risk](./scenarios/credit-risk/README.md) | Training - Classical ML | Binary Classification | Differentially Private | 4 | PII tabular data (Parquet) | XGBoost (JSON) | Horizontal (4)|
+| [CIFAR-10](./scenarios/cifar10/README.md) | Training - Deep Learning | Multi-class Image Classification | NA | 1 | Non-PII image data (SafeTensors) | CNN (Safetensors) | NA (1)|
+| [MNIST](./scenarios/mnist/README.md) | Training - Deep Learning | Multi-class Image Classification | NA | 1 | Non-PII image data (HDF5) | CNN (ONNX) | NA (1)|
+
+_NA: Not Applicable_ <br>
+_DL: Deep Learning, ML: Classical Machine Learning_ <br>
+_*Training Data Providers (TDPs) involved in the scenario._
+
+## Build your own Scenarios
+
+A guide to build your own scenarios is coming soon. Stay tuned!
+
+Currently, DEPA for Training supports the following training frameworks, libraries and file formats (more will be included soon):
+
+- Training frameworks: PyTorch, Scikit-learn, XGBoost
+- Libraries: Opacus, PySpark, Pandas
+- File formats (for models and datasets): ONNX, Safetensors, Parquet, CSV, HDF5, PNG
+
+Note: Due to security reasons, we do not support Pickle based file formats such as .pkl, .pt/.pth, .npy/.npz, .joblib, etc.
+
 
 # Contributing
 
