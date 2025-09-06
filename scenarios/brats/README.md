@@ -109,7 +109,7 @@ If all goes well, you should see output similar to the following output, and the
 
 ```bash
 train-1  | Merged dataset 'brats_A' into '/tmp/brats_joined'
-train-1  | Merged dataset 'brat_B' into '/tmp/brats_joined'
+train-1  | Merged dataset 'brats_B' into '/tmp/brats_joined'
 train-1  | Merged dataset 'brats_C' into '/tmp/brats_joined'
 train-1  | Merged dataset 'brats_D' into '/tmp/brats_joined'
 train-1  | 
@@ -381,7 +381,7 @@ The outputs will be saved to the [output](./modeller/output/) directory.
 To check if the trained model is fresh, you can run the following command:
 
 ```bash
-stat $REPO_ROOT/scenarios/$SCENARIO/modeller/output/trained_model.pth
+stat $REPO_ROOT/scenarios/$SCENARIO/modeller/output/trained_model.safetensors
 ```
 
 ---

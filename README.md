@@ -23,7 +23,7 @@ git clone --recursive http://github.com/iSPIRT/depa-training
 cd depa-training
 ```
 
-Install the below listed dependencies by running the [install-prerequisites.sh](./install-prerequisites.sh) script.
+Install the required dependencies by running the [install-prerequisites.sh](./install-prerequisites.sh) script.
 
 ```bash
 ./install-prerequisites.sh
@@ -52,7 +52,7 @@ export CONTAINER_REGISTRY=ispirt.azurecr.io
 
 # Scenarios
 
-This repository contains two samples that illustrate the kinds of scenarios DEPA for Training can support. 
+This repository contains sample demos illustrating a diverse set of scenarios that DEPA for Training can support. 
 
 Follow the links to build and deploy these scenarios. 
 
@@ -60,7 +60,7 @@ Follow the links to build and deploy these scenarios.
 |--------------|---------------|-----------------|--------------|-----------|------------|------------|------------|
 | [COVID-19](./scenarios/covid/README.md) | Training - Deep Learning | Binary Classification | Differentially Private | 3 | PII tabular data (CSV) | MLP (ONNX) | Horizontal (3)|
 | [BraTS](./scenarios/brats/README.md) | Training - Deep Learning | Image Segmentation | Differentially Private | 4 | MRI scans data (NIfTI/PNG) | UNet (Safetensors) | Vertical (4)|
-| [Credit Risk](./scenarios/credit-risk/README.md) | Training - Classical ML | Binary Classification | Differentially Private | 4 | PII tabular data (Parquet) | XGBoost (JSON) | Horizontal (4)|
+| [Credit Risk](./scenarios/credit-risk/README.md) | Training - Classical ML | Binary Classification | Differentially Private | 4 | PII tabular data (Parquet) | XGBoost (JSON) | Horizontal (6)|
 | [CIFAR-10](./scenarios/cifar10/README.md) | Training - Deep Learning | Multi-class Image Classification | NA | 1 | Non-PII image data (SafeTensors) | CNN (Safetensors) | NA (1)|
 | [MNIST](./scenarios/mnist/README.md) | Training - Deep Learning | Multi-class Image Classification | NA | 1 | Non-PII image data (HDF5) | CNN (ONNX) | NA (1)|
 

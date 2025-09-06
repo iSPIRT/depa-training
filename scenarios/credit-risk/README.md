@@ -4,13 +4,13 @@
 
 | Scenario name | Scenario type | Task type | Privacy | No. of TDPs* | Data type (format) | Model type (format) | Join type (No. of datasets) | 
 |--------------|---------------|-----------------|--------------|-----------|------------|------------|------------|
-| Credit Risk | Training - Classical ML | Binary Classification | Differentially Private | 4 | PII tabular data (Parquet) | XGBoost (JSON) | Horizontal (4)|
+| Credit Risk | Training - Classical ML | Binary Classification | Differentially Private | 4 | PII tabular data (Parquet) | XGBoost (JSON) | Horizontal (6)|
 
 ---
 
 ## Scenario Description
 
-This scenario involves training an XGBoost model on the [Home Credit Default Risk](https://www.kaggle.com/c/home-credit-default-risk) datasets [[1, 2]](README.md#references). We frame this scenario as involving four Training Data Providers (TDPs) - Bank A providing data for clients' credit applications, previous applications and payment installments, Bank B providing data on credit card balance, the Credit Bureau providing data on previous loans, and a Fintech providing data on point of sale (POS) cash balance. Here, Bank A is also the Training Data Consumer (TDC) who wishes to train the model on the joined datasets, in order to build a default risk prediction model.
+This scenario involves training an **XGBoost** model on the [Home Credit Default Risk](https://www.kaggle.com/c/home-credit-default-risk) datasets [[1, 2]](README.md#references). We frame this scenario as involving four Training Data Providers (TDPs) - **Bank A** providing data for clients' (i) credit applications, (ii) previous applications and (iii) payment installments, **Bank B** providing data on (i) credit card balance, the **Credit Bureau** providing data on (i) previous loans, and a **Fintech** providing data on (i) point of sale (POS) cash balance. Here, **Bank A** is also the Training Data Consumer (TDC) who wishes to train the model on the joined datasets, in order to build a default risk prediction model.
 
 The end-to-end training pipeline consists of the following phases: 
 
@@ -106,18 +106,12 @@ flowchart TD
 If all goes well, you should see output similar to the following output, and the trained model and evaluation metrics will be saved under the folder [output](./modeller/output).
 
 ```
-train-1  | Training samples: 43636
-train-1  | Validation samples: 10909
-train-1  | Test samples: 5455
-train-1  | Dataset constructed from config
-train-1  | Model loaded from ONNX file
-train-1  | Optimizer Adam loaded from config
-train-1  | Scheduler CyclicLR loaded from config
-train-1  | Custom loss function loaded from config
-train-1  | Epoch 1/1 completed | Training Loss: 0.1586 
-train-1  | Epoch 1/1 completed | Validation Loss: 0.0860
-train-1  | Saving trained model to /mnt/remote/output/trained_model.onnx
-train-1  | Evaluation Metrics: {'test_loss': 0.08991911436687393, 'accuracy': 0.9523373052245646, 'f1_score': 0.9522986646537908}
+train-1  | Joined datasets: ['credit_applications', 'previous_applications', 'payment_installments', 'bureau_records', 'pos_cash_balance', 'credit_card_balance']
+train-1  | Loaded dataset splits | train: (6038, 63) | val: (755, 63) | test: (755, 63)
+train-1  | Trained Gradient Boosting model with 250 boosting rounds | Epsilon: 4.0 
+train-1  | Saved model to /mnt/remote/output
+train-1  | Evaluation Metrics: {'accuracy': 0.5231788079470199, 'roc_auc': 0.47444826338639656}
+train-1  | Non-DP Evaluation Metrics: {'accuracy': 0.9152317880794701, 'roc_auc': 0.6496472503617945}
 train-1  | CCR Training complete!
 train-1  | 
 train-1 exited with code 0
@@ -125,7 +119,7 @@ train-1 exited with code 0
 
 ## Deploy on CCR
 
-In a more realistic scenario, this datasets will not be available in the clear to the TDC, and the TDC will be required to use a CCR for training. The following steps describe the process of sharing an encrypted dataset with TDCs and setting up a CCR in Azure for training. Please stay tuned for CCR on other cloud platforms. 
+In a more realistic scenario, these datasets will not be available in the clear to the TDC, and the TDC will be required to use a CCR for training her model. The following steps describe the process of sharing encrypted datasets with TDCs and setting up a CCR in Azure for training. Please stay tuned for CCR on other cloud platforms. 
 
 To deploy in Azure, you will need the following. 
 
@@ -302,8 +296,6 @@ export CONTRACT_SEQ_NO=15
 
 This script will deploy the container images from your container registry, including the encrypted filesystem sidecar. The sidecar will generate an SEV-SNP attestation report, generate an attestation token using the Microsoft Azure Attestation (MAA) service, retrieve dataset, model and output encryption keys from the TDP and TDC's Azure Key Vault, train the model, and save the resulting model into TDC's output filesystem image, which the TDC can later decrypt. 
 
-<!-- **Note:** if the contract-ledger repository is also located at the root of the same environment where this depa-training repo is, the `$CONTRACT_SEQ_NO` variable automatically picks up the sequence number of the latest contract that was signed between the TDPs and TDC. -->
-
 **Note:** The completion of this script's execution simply creates a CCR instance, and doesn't indicate whether training has completed or not. The training process might still be ongoing. Poll the container logs (see below) to track progress until training is complete.
 
 ### 6\. Monitor Container Logs
@@ -361,7 +353,7 @@ The outputs will be saved to the [output](./modeller/output/) directory.
 To check if the trained model is fresh, you can run the following command:
 
 ```bash
-stat $REPO_ROOT/scenarios/$SCENARIO/modeller/output/trained_model.onnx
+stat $REPO_ROOT/scenarios/$SCENARIO/modeller/output/trained_model.json
 ```
 
 ---

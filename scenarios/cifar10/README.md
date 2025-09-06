@@ -355,7 +355,7 @@ The outputs will be saved to the [output](./modeller/output/) directory.
 To check if the trained model is fresh, you can run the following command:
 
 ```bash
-stat $REPO_ROOT/scenarios/$SCENARIO/modeller/output/trained_model.pth
+stat $REPO_ROOT/scenarios/$SCENARIO/modeller/output/trained_model.safetensors
 ```
 
 ---
