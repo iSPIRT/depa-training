@@ -7,6 +7,7 @@
 ## GitHub Codespaces
 
 The simplest way to setup a development environment is using [GitHub Codespaces](https://github.com/codespaces). The repository includes a [devcontainer.json](.devcontainer/devcontainer.json), which customizes your codespace to install all required dependencies. Please ensure you allocate at least 8 vCPUs and 64GB disk space in your codespace. Also, run the following command in the codespace to update submodules.
+The simplest way to setup a development environment is using [GitHub Codespaces](https://github.com/codespaces). The repository includes a [devcontainer.json](.devcontainer/devcontainer.json), which customizes your codespace to install all required dependencies. Please ensure you allocate at least 8 vCPUs and 64GB disk space in your codespace. Also, run the following command in the codespace to update submodules.
 
 ```bash
 git submodule update --init --recursive
@@ -14,6 +15,9 @@ git submodule update --init --recursive
 
 ## Local Development Environment
 
+Alternatively, you can build and develop locally in a Linux environment (we have tested with Ubuntu 20.04 and 22.04), or Windows with WSL 2. 
+
+Clone this repo to your local machine / virtual machine as follows. 
 Alternatively, you can build and develop locally in a Linux environment (we have tested with Ubuntu 20.04 and 22.04), or Windows with WSL 2. 
 
 Clone this repo to your local machine / virtual machine as follows. 
@@ -47,6 +51,7 @@ This scripts build the following containers.
 Alternatively, you can use pre-built container images from the ispirt repository by setting the following environment variable. Docker hub has started throttling which may effect the upload/download time, especially when images are bigger size. So, It is advisable to use other container registries, we are using azure container registry as shown below
 ```bash
 export CONTAINER_REGISTRY=ispirt.azurecr.io
+./ci/pull-containers.sh
 ./ci/pull-containers.sh
 ```
 
