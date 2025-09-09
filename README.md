@@ -33,7 +33,7 @@ Note: You may need to restart your machine to ensure that the changes take effec
 
 ## Build CCR containers
 
-To build your own CCR container images, use the following command from the root of the repository. 
+To build your own Confidential Cleanroom (CCR) container images, use the following command from the root of the repository. 
 
 ```bash
 ./ci/build.sh
@@ -44,7 +44,7 @@ This scripts build the following containers.
 - ```depa-training```: Container with the core CCR logic for joining datasets and running differentially private training. 
 - ```depa-training-encfs```: Container for loading encrypted data into the CCR. 
 
-Alternatively, you can use pre-built container images from the ispirt repository by setting the following environment variable. Docker hub has started throttling which may effect the upload/download time, especially when images are bigger size. So, It is advisable to use other container registries, we are using azure container registry as shown below
+Alternatively, you can use pre-built container images from the iSPIRT repository by setting the `CONTAINER_REGISTRY` environment variable and pulling the images. Docker Hub has started throttling, which may effect the upload/download time, especially when images are bigger size. So, it is advisable to use other container registries. We are using Azure Container Registry as shown below
 ```bash
 export CONTAINER_REGISTRY=ispirt.azurecr.io
 ./ci/pull-containers.sh
