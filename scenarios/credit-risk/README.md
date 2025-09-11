@@ -2,27 +2,27 @@
 
 ## Scenario Type
 
-| Scenario name | Scenario type | Task type | Privacy | No. of TDPs* | Data type (format) | Model type (format) | Join type (No. of datasets) | 
+| Scenario name | Scenario type | Task type | Privacy | No. of TDPs* | Data type (format) | Model type (format) | Join type (No. of datasets) |
 |--------------|---------------|-----------------|--------------|-----------|------------|------------|------------|
-| Credit Risk | Training - Classical ML | Binary Classification | Differentially Private | 4 | PII tabular data (Parquet) | XGBoost (JSON) | Horizontal (4)|
+| Credit Risk | Training - Classical ML | Binary Classification | Differentially Private | 4 | PII tabular data (Parquet) | XGBoost (JSON) | Horizontal (6)|
 
 ---
 
 ## Scenario Description
 
-This scenario involves training an XGBoost model on the [Home Credit Default Risk](https://www.kaggle.com/c/home-credit-default-risk) datasets [[1, 2]](README.md#references). We frame this scenario as involving four Training Data Providers (TDPs) - Bank A providing data for clients' credit applications, previous applications and payment installments, Bank B providing data on credit card balance, the Credit Bureau providing data on previous loans, and a Fintech providing data on point of sale (POS) cash balance. Here, Bank A is also the Training Data Consumer (TDC) who wishes to train the model on the joined datasets, in order to build a default risk prediction model.
+This scenario involves training an **XGBoost** model on the [Home Credit Default Risk](https://www.kaggle.com/c/home-credit-default-risk) datasets [[1, 2]](README.md#references). We frame this scenario as involving four Training Data Providers (TDPs) - **Bank A** providing data for clients' (i) credit applications, (ii) previous applications and (iii) payment installments, **Bank B** providing data on (i) credit card balance, the **Credit Bureau** providing data on (i) previous loans, and a **Fintech** providing data on (i) point of sale (POS) cash balance. Here, **Bank A** is also the Training Data Consumer (TDC) who wishes to train the model on the joined datasets, in order to build a default risk prediction model.
 
-The end-to-end training pipeline consists of the following phases: 
+The end-to-end training pipeline consists of the following phases:
 
 1. Data pre-processing
 2. Data packaging, encryption and upload
 3. Encryption key import with key release policies
 4. Deployment and execution of CCR
-5. Trained model decryption 
+5. Trained model decryption
 
 ## Build container images
 
-Build container images required for this sample as follows. 
+Build container images required for this sample as follows.
 
 ```bash
 export SCENARIO=credit-risk
@@ -31,14 +31,14 @@ cd $REPO_ROOT/scenarios/$SCENARIO
 ./ci/build.sh
 ```
 
-This script builds the following container images. 
+This script builds the following container images.
 
-- ```preprocess-bank-a```: Container for pre-processing Bank A's dataset. 
-- ```preprocess-bank-b```: Container for pre-processing Bank B's dataset. 
-- ```preprocess-bureau```: Container for pre-processing Bureau's dataset. 
+- ```preprocess-bank-a```: Container for pre-processing Bank A's dataset.
+- ```preprocess-bank-b```: Container for pre-processing Bank B's dataset.
+- ```preprocess-bureau```: Container for pre-processing Bureau's dataset.
 - ```preprocess-fintech```: Container for pre-processing Fintech's dataset.
 
-Alternatively, you can pull and use pre-built container images from the ispirt container registry by setting the following environment variable. Docker hub has started throttling which may effect the upload/download time, especially when images are bigger size. So, It is advisable to use other container registries. We are using Azure container registry (ACR) as shown below:
+Alternatively, you can pull and use pre-built container images from the iSPIRT container registry by setting the following environment variable. Docker hub has started throttling which may affect the upload/download time, especially when images are bigger size. So, It is advisable to use other container registries. We are using Azure container registry (ACR) as shown below:
 
 ```bash
 export CONTAINER_REGISTRY=ispirt.azurecr.io
@@ -50,7 +50,7 @@ cd $REPO_ROOT/scenarios/$SCENARIO
 
 The folder ```scenarios/credit-risk/src``` contains scripts for downloading and pre-processing the datasets. Acting as a Training Data Provider (TDP), prepare your datasets.
 
-Since these datasets are downloaded from [Kaggle.com](https://kaggle.com), set your Kaggle credentials as environment variables before running the preprocess script. The Kaggle credentials can be obtained from your Kaggle account settings > API > Create new token.
+Since these datasets are downloaded from [Kaggle.com](https://kaggle.com), set your Kaggle credentials as environment variables before running the preprocess scripts. The Kaggle credentials can be obtained from your Kaggle account settings > API > Create new token.
 
 ```bash
 export KAGGLE_USERNAME=<kaggle-username>
@@ -74,7 +74,7 @@ Assuming you have cleartext access to all the datasets, you can train the model 
 ./train.sh
 ```
 
-The script joins the datasets and trains the model using a pipeline configuration. To modify the various components of the training pipeline, you can edit the training config files in the [config](./config/) directory. The training config files are used to create the pipeline configuration ([pipeline_config.json](./config/pipeline_config.json)) created by consolidating all the TDC's training config files, namely the [model config](./config/model_config.json), [dataset config](./config/dataset_config.json), [loss function config](./config/loss_config.json), [training config](./config/train_config_template.json), [evaluation config](./config/eval_config.json), and if multiple datasets are used, the [data join config](./config/join_config.json). These enable the TDC to design highly customized training pipelines without requiring review and approval of new custom code for each use case—reducing risks from potentially malicious or non-compliant code. The consolidated pipeline configuration is then attested against the signed contract using the TDP’s policy-as-code. If approved, it is executed in the CCR to train the model, which we will deploy in the next section.
+The script joins the datasets and trains the model using a pipeline configuration. To modify the various components of the training pipeline, you can edit the training config files in the [config](./config/) directory. The training config files are used to create the pipeline configuration ([pipeline_config.json](./config/pipeline_config.json)) created by consolidating all the TDC's training config files, namely the [model config](./config/model_config.json), [dataset config](./config/dataset_config.json), [loss function config](./config/loss_config.json), [training config](./config/train_config_template.json), [evaluation config](./config/eval_config.json), and if multiple datasets are used, the [data join config](./config/join_config.json). These enable the TDC to design highly customized training pipelines without requiring review and approval of new custom code for each use case — reducing risks from potentially malicious or non-compliant code. The consolidated pipeline configuration is then attested against the signed contract using the TDP's policy-as-code. If approved, it is executed in the CCR to train the model, which we will deploy in the next section.
 
 ```mermaid
 flowchart TD
@@ -106,41 +106,35 @@ flowchart TD
 If all goes well, you should see output similar to the following output, and the trained model and evaluation metrics will be saved under the folder [output](./modeller/output).
 
 ```
-train-1  | Training samples: 43636
-train-1  | Validation samples: 10909
-train-1  | Test samples: 5455
-train-1  | Dataset constructed from config
-train-1  | Model loaded from ONNX file
-train-1  | Optimizer Adam loaded from config
-train-1  | Scheduler CyclicLR loaded from config
-train-1  | Custom loss function loaded from config
-train-1  | Epoch 1/1 completed | Training Loss: 0.1586 
-train-1  | Epoch 1/1 completed | Validation Loss: 0.0860
-train-1  | Saving trained model to /mnt/remote/output/trained_model.onnx
-train-1  | Evaluation Metrics: {'test_loss': 0.08991911436687393, 'accuracy': 0.9523373052245646, 'f1_score': 0.9522986646537908}
+train-1  | Joined datasets: ['credit_applications', 'previous_applications', 'payment_installments', 'bureau_records', 'pos_cash_balance', 'credit_card_balance']
+train-1  | Loaded dataset splits | train: (6038, 63) | val: (755, 63) | test: (755, 63)
+train-1  | Trained Gradient Boosting model with 250 boosting rounds | Epsilon: 4.0
+train-1  | Saved model to /mnt/remote/output
+train-1  | Evaluation Metrics: {'accuracy': 0.5231788079470199, 'roc_auc': 0.47444826338639656}
+train-1  | Non-DP Evaluation Metrics: {'accuracy': 0.9152317880794701, 'roc_auc': 0.6496472503617945}
 train-1  | CCR Training complete!
-train-1  | 
+train-1  |
 train-1 exited with code 0
 ```
 
 ## Deploy on CCR
 
-In a more realistic scenario, this datasets will not be available in the clear to the TDC, and the TDC will be required to use a CCR for training. The following steps describe the process of sharing an encrypted dataset with TDCs and setting up a CCR in Azure for training. Please stay tuned for CCR on other cloud platforms. 
+In a more realistic scenario, these datasets will not be available in the clear to the TDC, and the TDC will be required to use a CCR for training her model. The following steps describe the process of sharing encrypted datasets with TDCs and setting up a CCR in Azure for training. Please stay tuned for CCR on other cloud platforms.
 
-To deploy in Azure, you will need the following. 
+To deploy in Azure, you will need the following.
 
-- Docker Hub account to store container images. Alternatively, you can use pre-built images from the ```ispirt``` container registry. 
-- [Azure Key Vault](https://azure.microsoft.com/en-us/products/key-vault/) to store encryption keys and implement secure key release to CCR. You can either you Azure Key Vault Premium (lower cost), or [Azure Key Vault managed HSM](https://learn.microsoft.com/en-us/azure/key-vault/managed-hsm/overview) for enhanced security. Please see instructions below on how to create and setup your AKV instance. 
-- Valid Azure subscription with sufficient access to create key vault, storage accounts, storage containers, and Azure Container Instances (ACI). 
+- Docker Hub account to store container images. Alternatively, you can use pre-built images from the ```iSPIRT``` container registry.
+- [Azure Key Vault](https://azure.microsoft.com/en-us/products/key-vault/) to store encryption keys and implement secure key release to CCR. You can either use Azure Key Vault Premium (lower cost), or [Azure Key Vault managed HSM](https://learn.microsoft.com/en-us/azure/key-vault/managed-hsm/overview) for enhanced security. Please see instructions below on how to create and set up your AKV instance.
+- Valid Azure subscription with sufficient access to create key vault, storage accounts, storage containers, and Azure Container Instances (ACI).
 
-If you are using your own development environment instead of a dev container or codespaces, you will to install the following dependencies. 
+If you are using your own development environment instead of a dev container or codespaces, you will need to install the following dependencies.
 
 - [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli-linux).  
 - [Azure CLI Confidential containers extension](https://learn.microsoft.com/en-us/cli/azure/confcom?view=azure-cli-latest). After installing Azure CLI, you can install this extension using ```az extension add --name confcom -y```
 - [Go](https://go.dev/doc/install). Follow the instructions to install Go. After installing, ensure that the PATH environment variable is set to include ```go``` runtime.
 - ```jq```. You can install jq using ```sudo apt-get install -y jq```
 
-We will be creating the following resources as part of the deployment. 
+We will be creating the following resources as part of the deployment.
 
 - Azure Key Vault
 - Azure Storage account
@@ -258,11 +252,11 @@ export CONTRACT_SEQ_NO=<contract-sequence-number>
 
 ### 4\. Data Encryption and Upload
 
-Using their respective keys, the TDPs and TDC encrypt their datasets and model (respectively) and upload them to the Storage containers created in the previous step.
+Using their respective keys, the TDPs and TDC encrypt their datasets and models (respectively) and upload them to the Storage containers created in the previous step.
 
 Navigate to the [Azure deployment](./deployment/azure/) directory and execute the scripts for key import, data encryption and upload to Azure Blob Storage, in preparation of the CCR deployment.
 
-The import-keys script generates and imports encryption keys into Azure Key Vault with a policy based on [policy-in-template.json](./policy/policy-in-template.json). The policy requires that the CCRs run specific containers with a specific configuration which includes the public identity of the contract service. Only CCRs that satisfy this policy will be granted access to the encryption keys. The generated keys are available as files with the extension `.bin`. 
+The import-keys script generates and imports encryption keys into Azure Key Vault with a policy based on [policy-in-template.json](./policy/policy-in-template.json). The policy requires that the CCRs run specific containers with a specific configuration which includes the public identity of the contract service. Only CCRs that satisfy this policy will be granted access to the encryption keys. The generated keys are available as files with the extension `.bin`.
 
 ```bash
 export CONTRACT_SERVICE_URL=https://depa-training-contract-service.centralindia.cloudapp.azure.com:8000
@@ -300,9 +294,7 @@ Set the `$CONTRACT_SEQ_NO` variable to the exact value of the contract sequence 
 export CONTRACT_SEQ_NO=15
 ```
 
-This script will deploy the container images from your container registry, including the encrypted filesystem sidecar. The sidecar will generate an SEV-SNP attestation report, generate an attestation token using the Microsoft Azure Attestation (MAA) service, retrieve dataset, model and output encryption keys from the TDP and TDC's Azure Key Vault, train the model, and save the resulting model into TDC's output filesystem image, which the TDC can later decrypt. 
-
-<!-- **Note:** if the contract-ledger repository is also located at the root of the same environment where this depa-training repo is, the `$CONTRACT_SEQ_NO` variable automatically picks up the sequence number of the latest contract that was signed between the TDPs and TDC. -->
+This script will deploy the container images from your container registry, including the encrypted filesystem sidecar. The sidecar will generate an SEV-SNP attestation report, generate an attestation token using the Microsoft Azure Attestation (MAA) service, retrieve dataset, model and output encryption keys from the TDP and TDC's Azure Key Vault, train the model, and save the resulting model into TDC's output filesystem image, which the TDC can later decrypt.
 
 **Note:** The completion of this script's execution simply creates a CCR instance, and doesn't indicate whether training has completed or not. The training process might still be ongoing. Poll the container logs (see below) to track progress until training is complete.
 
@@ -350,7 +342,7 @@ cd mnt/remote && ls
 
 ### 6\. Download and Decrypt Model
 
-Once training has completed succesfully (The training container logs will mention it explicitly), download and decrypt the trained model and other training outputs.
+Once training has completed successfully (The training container logs will mention it explicitly), download and decrypt the trained model and other training outputs.
 
 ```bash
 ./6-download-decrypt-model.sh
@@ -361,7 +353,7 @@ The outputs will be saved to the [output](./modeller/output/) directory.
 To check if the trained model is fresh, you can run the following command:
 
 ```bash
-stat $REPO_ROOT/scenarios/$SCENARIO/modeller/output/trained_model.onnx
+stat $REPO_ROOT/scenarios/$SCENARIO/modeller/output/trained_model.json
 ```
 
 ---
