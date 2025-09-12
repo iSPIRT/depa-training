@@ -1,14 +1,14 @@
 #!/bin/bash
 
-export DATA_DIR=$REPO_ROOT/scenarios/$SCENARIO/data
-export MODEL_DIR=$REPO_ROOT/scenarios/$SCENARIO/modeller
+DATADIR=$REPO_ROOT/scenarios/$SCENARIO/data
+MODELDIR=$REPO_ROOT/scenarios/$SCENARIO/modeller
 
 ACCOUNT_KEY=$(az storage account keys list --account-name $AZURE_STORAGE_ACCOUNT_NAME --only-show-errors | jq -r .[0].value)
 
 az storage blob upload \
   --account-name $AZURE_STORAGE_ACCOUNT_NAME \
   --container $AZURE_CIFAR10_CONTAINER_NAME \
-  --file $DATA_DIR/cifar10.img \
+  --file $DATADIR/cifar10.img \
   --name data.img \
   --type page \
   --overwrite \
@@ -17,7 +17,7 @@ az storage blob upload \
 az storage blob upload \
   --account-name $AZURE_STORAGE_ACCOUNT_NAME \
   --container $AZURE_MODEL_CONTAINER_NAME \
-  --file $MODEL_DIR/model.img \
+  --file $MODELDIR/model.img \
   --name data.img \
   --type page \
   --overwrite \
@@ -26,7 +26,7 @@ az storage blob upload \
 az storage blob upload \
   --account-name $AZURE_STORAGE_ACCOUNT_NAME \
   --container $AZURE_OUTPUT_CONTAINER_NAME \
-  --file $MODEL_DIR/output.img \
+  --file $MODELDIR/output.img \
   --name data.img \
   --type page \
   --overwrite \

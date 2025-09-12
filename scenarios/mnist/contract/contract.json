@@ -9,7 +9,8 @@
   "datasets": [
     {
       "id": "19517ba8-bab8-11ed-afa1-0242ac120002",
-      "name": "mnist",
+      "owner": "mnist",
+      "name": "mnist-handwritten-digits",
       "url": "https://$AZURE_STORAGE_ACCOUNT_NAME.blob.core.windows.net/$AZURE_MNIST_CONTAINER_NAME/data.img",
       "provider": "",
       "key": {

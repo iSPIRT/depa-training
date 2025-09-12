@@ -9,7 +9,8 @@
   "datasets": [
     {
       "id": "19517ba8-bab8-11ed-afa1-0242ac120002",
-      "name": "bank_a",
+      "name": "credit_applications",
+      "owner": "bank_a",
       "url": "https://$AZURE_STORAGE_ACCOUNT_NAME.blob.core.windows.net/$AZURE_BANK_A_CONTAINER_NAME/data.img",
       "provider": "",
       "key": {
@@ -25,7 +26,8 @@
     },
     {
       "id": "216d5cc6-bab8-11ed-afa1-0242ac120002",
-      "name": "bank_a",
+      "name": "previous_applications",
+      "owner": "bank_a",
       "url": "https://$AZURE_STORAGE_ACCOUNT_NAME.blob.core.windows.net/$AZURE_BANK_A_CONTAINER_NAME/data.img",
       "provider": "",
       "key": {
@@ -41,7 +43,8 @@
     },
     {
       "id": "2830a144-bab8-11ed-afa1-0242ac120002",
-      "name": "bank_a",
+      "name": "payment_installments",
+      "owner": "bank_a",
       "url": "https://$AZURE_STORAGE_ACCOUNT_NAME.blob.core.windows.net/$AZURE_BANK_A_CONTAINER_NAME/data.img",
       "provider": "",
       "key": {
@@ -57,7 +60,8 @@
     },
     {
       "id": "45647e76-bab8-11ed-afa1-0242ac120002",
-      "name": "bank_b",
+      "name": "credit_card_balance",
+      "owner": "bank_b",
       "url": "https://$AZURE_STORAGE_ACCOUNT_NAME.blob.core.windows.net/$AZURE_BANK_B_CONTAINER_NAME/data.img",
       "provider": "",
       "key": {
@@ -73,7 +77,8 @@
     },
     {
       "id": "3187712c-bab8-11ed-afa1-0242ac120002",
-      "name": "bureau",
+      "name": "bureau_records",
+      "owner": "bureau",
       "url": "https://$AZURE_STORAGE_ACCOUNT_NAME.blob.core.windows.net/$AZURE_BUREAU_CONTAINER_NAME/data.img",
       "provider": "",
       "key": {
@@ -89,7 +94,8 @@
     },
     {
       "id": "40e82c74-bab8-11ed-afa1-0242ac120002",
-      "name": "fintech",
+      "name": "pos_cash_balance",
+      "owner": "fintech",
       "url": "https://$AZURE_STORAGE_ACCOUNT_NAME.blob.core.windows.net/$AZURE_FINTECH_CONTAINER_NAME/data.img",
       "provider": "",
       "key": {

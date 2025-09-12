@@ -1,0 +1,70 @@
+{
+  "scenario_name": "credit-risk-1",
+  "tdps": [
+    {
+      "name": "bank_a",
+      "datasets": [
+        {
+          "name": "credit_applications",
+          "id": "19517ba8-bab8-11ed-afa1-0242ac120002",
+          "privacy": true,
+          "epsilon": 7.5,
+          "delta": 0.00001
+        },
+        {
+          "name": "previous_applications",
+          "id": "216d5cc6-bab8-11ed-afa1-0242ac120002",
+          "privacy": true,
+          "epsilon": 7.5,
+          "delta": 0.00001
+        },
+        {
+          "name": "payment_installments",
+          "id": "2830a144-bab8-11ed-afa1-0242ac120002",
+          "privacy": true,
+          "epsilon": 9.0,
+          "delta": 0.00001
+        }
+      ]
+    },
+    {
+      "name": "bank_b",
+      "datasets": [
+        {
+          "name": "credit_card_balance",
+          "id": "45647e76-bab8-11ed-afa1-0242ac120002",
+          "privacy": true,
+          "epsilon": 5.0,
+          "delta": 0.00001
+        }
+      ]
+    },
+    {
+      "name": "bureau",
+      "datasets": [
+        {
+          "name": "bureau_records",
+          "id": "3187712c-bab8-11ed-afa1-0242ac120002",
+          "privacy": true,
+          "epsilon": 4.0,
+          "delta": 0.00001
+        }
+      ]
+    },
+    {
+      "name": "fintech",
+      "datasets": [
+        {
+          "name": "pos_cash_balance",
+          "id": "40e82c74-bab8-11ed-afa1-0242ac120002",
+          "privacy": true,
+          "epsilon": 4.0,
+          "delta": 0.00001
+        }
+      ]
+    }
+  ],
+  "training_framework": "Train_XGB",
+  "join_type": "SparkJoin",
+  "model_format": "ccr_instantiate"
+}

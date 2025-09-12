@@ -71,7 +71,7 @@ _*Training Data Providers (TDPs) involved in the scenario._
 
 ## Build your own Scenarios
 
-A guide to build your own scenarios is coming soon. Stay tuned!
+A guide to build your own scenarios is available [here](./build-your-own-scenario/README.md). Follow the steps to build and run your own unique scenario!
 
 Currently, DEPA for Training supports the following training frameworks, libraries and file formats (more will be included soon):
 

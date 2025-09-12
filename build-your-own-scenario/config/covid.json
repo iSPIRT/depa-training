@@ -1,0 +1,44 @@
+{
+  "scenario_name": "covid-1",
+  "tdps": [
+    {
+      "name": "icmr",
+      "datasets": [
+        {
+          "name": "icmr_test_results",
+          "id": "19517ba8-bab8-11ed-afa1-0242ac120002",
+          "privacy": true,
+          "epsilon": 1.5,
+          "delta": 0.01
+        }
+      ]
+    },
+    {
+      "name": "cowin",
+      "datasets": [
+        {
+          "name": "cowin_vaccine_data",
+          "id": "216d5cc6-bab8-11ed-afa1-0242ac120002",
+          "privacy": true,
+          "epsilon": 1.5,
+          "delta": 0.01
+        }
+      ]
+    },
+    {
+      "name": "index",
+      "datasets": [
+        {
+          "name": "index_patient_records",
+          "id": "2830a144-bab8-11ed-afa1-0242ac120002",
+          "privacy": true,
+          "epsilon": 1.5,
+          "delta": 0.01
+        }
+      ]
+    }
+  ],
+  "training_framework": "Train_DL",
+  "join_type": "SparkJoin",
+  "model_format": "ONNX"
+}

@@ -1,0 +1,17 @@
+{
+  "scenario_name": "cifar10-1",
+  "tdps": [
+    {
+      "name": "cifar10",
+      "datasets": [
+        {
+          "name": "cifar10-object-recognition",
+          "id": "19517ba8-bab8-11ed-afa1-0242ac120002",
+          "privacy": false
+        }
+      ]
+    }
+  ],
+  "training_framework": "Train_DL",
+  "model_format": "Safetensors"
+}

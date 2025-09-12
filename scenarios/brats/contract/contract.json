@@ -9,7 +9,8 @@
   "datasets": [
     {
       "id": "19517ba8-bab8-11ed-afa1-0242ac120002",
-      "name": "brats_A",
+      "owner": "brats_A",
+      "name": "BraTS_Brain_MRI_set_A",
       "url": "https://$AZURE_STORAGE_ACCOUNT_NAME.blob.core.windows.net/$AZURE_BRATS_A_CONTAINER_NAME/data.img",
       "provider": "",
       "key": {
@@ -25,7 +26,8 @@
     },
     {
       "id": "216d5cc6-bab8-11ed-afa1-0242ac120002",
-      "name": "brats_B",
+      "owner": "brats_B",
+      "name": "BraTS_Brain_MRI_set_B",
       "url": "https://$AZURE_STORAGE_ACCOUNT_NAME.blob.core.windows.net/$AZURE_BRATS_B_CONTAINER_NAME/data.img",
       "provider": "",
       "key": {
@@ -41,7 +43,8 @@
     },
     {
       "id": "2830a144-bab8-11ed-afa1-0242ac120002",
-      "name": "brats_C",
+      "owner": "brats_C",
+      "name": "BraTS_Brain_MRI_set_C",
       "url": "https://$AZURE_STORAGE_ACCOUNT_NAME.blob.core.windows.net/$AZURE_BRATS_C_CONTAINER_NAME/data.img",
       "provider": "",
       "key": {
@@ -57,7 +60,8 @@
     },
     {
       "id": "2a3b0c4e-bab8-11ed-afa1-0242ac120002",
-      "name": "brats_D",
+      "owner": "brats_D",
+      "name": "BraTS_Brain_MRI_set_D",
       "url": "https://$AZURE_STORAGE_ACCOUNT_NAME.blob.core.windows.net/$AZURE_BRATS_D_CONTAINER_NAME/data.img",
       "provider": "",
       "key": {
@@ -79,30 +83,22 @@
         {
           "dataset": "19517ba8-bab8-11ed-afa1-0242ac120002",
           "epsilon_threshold": "1.5",
-          "noise_multiplier": "2.0",
-          "delta": "0.01",
-          "epochs_per_report": "2"
+          "delta": "0.01"
         },
         {
           "dataset": "216d5cc6-bab8-11ed-afa1-0242ac120002",
           "epsilon_threshold": "1.5",
-          "noise_multiplier": "2.0",
-          "delta": "0.01",
-          "epochs_per_report": "2"
+          "delta": "0.01"
         },
         {
           "dataset": "2830a144-bab8-11ed-afa1-0242ac120002",
           "epsilon_threshold": "1.5",
-          "noise_multiplier": "2.0",
-          "delta": "0.01",
-          "epochs_per_report": "2"
+          "delta": "0.01"
         },
         {
           "dataset": "2a3b0c4e-bab8-11ed-afa1-0242ac120002",
           "epsilon_threshold": "1.5",
-          "noise_multiplier": "2.0",
-          "delta": "0.01",
-          "epochs_per_report": "2"
+          "delta": "0.01"
         }
       ]
     }
