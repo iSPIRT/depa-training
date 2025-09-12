@@ -5,7 +5,8 @@ You can build and run your own scenario by following three simple steps:
 1. Define your high-level scenario configuration and generate a scenario directory from it.
 2. Write the data preprocessing and model saving code for the Training Data Providers (TDPs) and Training Data Consumer (TDC) respectively.
 3. Tailor the various training configuration files applicable to your scenario.
-4. Deploy your scenario locally and/or on CCR following the standard deployment steps.
+
+Now that the scenario is ready, deploy it locally and/or inside a Confidential Clean Room (CCR) following the standard deployment steps.
 
 ## Step 1: Define and build your scenario template
 
@@ -169,7 +170,7 @@ cd $REPO_ROOT/scenarios/$SCENARIO/deployment/local
 
 ### Deploy on CCR
 
-Once the scenario runs successfully locally, you can train the model _on CCR_ as follows. This reference implementation assumes Azure as the cloud platform. Stay tuned for CCR on other cloud platforms.
+Once the scenario runs successfully locally, you can train the model inside a _Confidential Clean Room (CCR)_ as follows. This reference implementation assumes Azure as the cloud platform. Stay tuned for CCR on other cloud platforms.
 
 1. Set up environment variables
 
