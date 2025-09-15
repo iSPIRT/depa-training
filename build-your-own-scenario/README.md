@@ -1,12 +1,14 @@
 # Build Your Own Scenario
 
-You can build and run your own scenario by following three simple steps:
+## Overview
 
-1. Define your high-level scenario configuration and generate a scenario directory from it.
-2. Write the data preprocessing and model saving code for the Training Data Providers (TDPs) and Training Data Consumer (TDC) respectively.
+You can build and run your own unique Training scenarios by following three simple steps:
+
+1. Define your high-level scenario configuration and generate a scenario boilerplate from it.
+2. Implement the data preprocessing and model saving code for the Training Data Providers (TDPs) and Training Data Consumer (TDC) respectively.
 3. Tailor the various training configuration files applicable to your scenario.
 
-Now that the scenario is ready, deploy it locally and/or inside a Confidential Clean Room (CCR) following the standard deployment steps.
+Once the scenario is ready, deploy it locally and/or inside a Confidential Clean Room (CCR) following the standard deployment steps.
 
 ## Step 1: Define and build your scenario template
 
@@ -117,7 +119,7 @@ scenarios/your-scenario-name/
 ├── .gitignore                  # Git ignore file
 ```
 
-## Step 2: Write data preprocessing and model saving code
+## Step 2: Implement the data preprocessing and model saving code
 
 Prior to training, the TDPs and TDC need to prepare their datasets and model respectively.
 
