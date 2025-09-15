@@ -140,10 +140,10 @@ A corresponding Dockerfile is provided in the ```scenarios/your-scenario-name/ci
 The folder ```scenarios/your-scenario-name/config``` contains the training configuration files for the different training frameworks. Below is a list of configuration files that you can modify to suit your training requirements:
 
 - `train_config_template.json`: Training configuration template
-- `join_config.json`: Data joining configuration (if applicable)
+- `join_config.json`: Data joining configuration (applicable only if joining multiple datasets)
 - `dataset_config.json`: Dataset configuration
-- `model_config.json`: Model configuration (if applicable)
-- `loss_config.json`: Loss function configuration (DL only)
+- `model_config.json`: Model configuration (applicable for formats other than ONNX)
+- `loss_config.json`: Loss function configuration (applicable only for DL scenarios)
 - `eval_config.json`: Trained model validation configuration
 
 ## Step 4: Deploy your scenario
@@ -172,7 +172,7 @@ cd $REPO_ROOT/scenarios/$SCENARIO/deployment/local
 
 ### Deploy on CCR
 
-Once the scenario runs successfully locally, you can train the model inside a _Confidential Clean Room (CCR)_ as follows. This reference implementation assumes Azure as the cloud platform. Stay tuned for CCR on other cloud platforms.
+Once the training scenario executes successfully in the local environment, you can train the model inside a _Confidential Clean Room (CCR)_ as follows. This reference implementation assumes Azure as the cloud platform. Stay tuned for CCR on other cloud platforms.
 
 1. Set up environment variables
 
