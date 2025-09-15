@@ -121,7 +121,7 @@ scenarios/your-scenario-name/
 
 ## Step 2: Implement the data preprocessing and model saving code
 
-Prior to training, the TDPs and TDC need to prepare their datasets and model respectively.
+Prior to training, the Training Data Providers (TDPs) and Training Data Consumer (TDC) need to prepare their datasets and models respectively.
 
 ### Data preprocessing
 
@@ -176,8 +176,9 @@ Once the training scenario executes successfully in the local environment, you c
 
 1. Set up environment variables
 
-Set up the necessary environment variables for your deployment in the [export-variables.sh](./export-variables.sh) file and run it. This will set the environment variables in the current terminal.
+Set up the necessary environment variables for your deployment in the ```scenarios/your-scenario-name/export-variables.sh``` file and run it. This will set the environment variables in the current terminal.
 ```bash
+cd $REPO_ROOT/scenarios/$SCENARIO
 ./export-variables.sh
 source export-variables.sh
 ```
@@ -232,7 +233,7 @@ You will know training has completed when the logs print "CCR Training complete!
 ./6-download-decrypt-model.sh
 ```
 
-The outputs will be saved to the [output](./modeller/output/) directory.
+The outputs will be saved to the ```scenarios/your-scenario-name/modeller/output``` directory.
 
 ## Contribute
 
