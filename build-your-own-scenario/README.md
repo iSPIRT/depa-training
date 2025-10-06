@@ -174,7 +174,7 @@ cd $REPO_ROOT/scenarios/$SCENARIO/deployment/local
 
 Once the training scenario executes successfully in the local environment, you can train the model inside a _Confidential Clean Room (CCR)_ as follows. This reference implementation assumes Azure as the cloud platform. Stay tuned for CCR on other cloud platforms.
 
-1. Set up environment variables
+#### 1. Set up environment variables
 
 Set up the necessary environment variables for your deployment in the ```scenarios/your-scenario-name/export-variables.sh``` file and run it. This will set the environment variables in the current terminal.
 ```bash
@@ -183,7 +183,7 @@ cd $REPO_ROOT/scenarios/$SCENARIO
 source export-variables.sh
 ```
 
-2. Create resources
+#### 2. Create resources
 
 ```bash
 cd $REPO_ROOT/scenarios/$SCENARIO/deployment/azure
@@ -191,7 +191,7 @@ cd $REPO_ROOT/scenarios/$SCENARIO/deployment/azure
 ./2-create-akv.sh
 ```
 
-3. Contract signing
+#### 3. Contract signing
 
 Follow the instructions in the [contract-ledger](https://github.com/kapilvgit/contract-ledger/blob/main/README.md) repository for contract signing, using your scenario's contract template in `/scenarios/$SCENARIO/contract/contract.json`.
 
@@ -201,7 +201,7 @@ Once the contract is signed, export the contract sequence number as an environme
 export CONTRACT_SEQ_NO=<contract-sequence-number>
 ```
 
-4. Data encryption and upload
+#### 4. Data encryption and upload
 
 ```bash
 cd $REPO_ROOT/scenarios/$SCENARIO/deployment/azure
@@ -210,13 +210,13 @@ cd $REPO_ROOT/scenarios/$SCENARIO/deployment/azure
 ./5-upload-encrypted-data.sh
 ```
 
-5. Deploy CCR
+#### 5. Deploy CCR
 
 ```bash
 ./deploy.sh -c $CONTRACT_SEQ_NO -p ../../config/pipeline_config.json
 ```
 
-6. Monitor container logs
+#### 6. Monitor container logs
 
 ```bash
 az container logs \
@@ -227,7 +227,7 @@ az container logs \
 
 You will know training has completed when the logs print "CCR Training complete!".
 
-7. Download and decrypt model
+#### 7. Download and decrypt model
 
 ```bash
 ./6-download-decrypt-model.sh

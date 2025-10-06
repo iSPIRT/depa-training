@@ -1,8 +1,8 @@
 {
-    "num_boost_round": 100,
-    "booster_params": {
-        "max_depth": 6,
-        "learning_rate": 0.1,
-        "objective": "binary:logistic"
-    }
+    "n_estimators": 250,
+    "max_depth": 6,
+    "learning_rate": 0.05,
+    "l2_regularization": 1.0,
+    "min_child_weight": 1.0,
+    "objective": "binary:logistic"
 }

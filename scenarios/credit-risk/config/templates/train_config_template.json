@@ -8,9 +8,7 @@
         "is_private": true,
         "privacy_params": {
             "epsilon": 4.0,
-            "mechanism": "gaussian",
-            "delta": 1e-5,
-            "clip_value": 1.0
+            "delta": 0.00001
         }
     }
 }
