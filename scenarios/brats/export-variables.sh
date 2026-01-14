@@ -30,7 +30,7 @@
 declare -x SCENARIO=brats
 declare -x REPO_ROOT="$(git rev-parse --show-toplevel)"
 declare -x CONTAINER_REGISTRY=ispirt.azurecr.io
-declare -x AZURE_LOCATION=centralindia
+declare -x AZURE_LOCATION=
 declare -x AZURE_SUBSCRIPTION_ID=
 declare -x AZURE_RESOURCE_GROUP=
 declare -x AZURE_KEYVAULT_ENDPOINT=

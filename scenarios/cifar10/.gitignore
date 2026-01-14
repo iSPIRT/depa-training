@@ -10,7 +10,7 @@
 *.hdf5
 
 # Ignore modeller output folder (relative to repo root)
-modeller/output/
+modeller/
 
 data/cifar*
 

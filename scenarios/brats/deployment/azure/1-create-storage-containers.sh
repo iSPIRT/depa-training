@@ -18,7 +18,13 @@ if [ "$STORAGE_ACCOUNT_EXISTS" == "true" ]; then
   echo "Storage account $AZURE_STORAGE_ACCOUNT_NAME does not exist. Creating it now..."
   az storage account create  --resource-group $AZURE_RESOURCE_GROUP  --name $AZURE_STORAGE_ACCOUNT_NAME
 else
-  echo "Storage account $AZURE_STORAGE_ACCOUNT_NAME already exists. Skipping creation."
+  # Check if the storage account exists in the resource group
+  STORAGE_ACCOUNT_EXIST_IN_RG=$(az storage account show --name $AZURE_STORAGE_ACCOUNT_NAME --resource-group $AZURE_RESOURCE_GROUP --query "name" -o tsv 2>/dev/null)
+  if [ -z "$STORAGE_ACCOUNT_EXIST_IN_RG" ]; then
+    echo "Storage account $AZURE_STORAGE_ACCOUNT_NAME is already reserved and does not exist in the $AZURE_RESOURCE_GROUP resource group. Please select a different name."
+    exit 1
+  fi
+  echo "Storage account $AZURE_STORAGE_ACCOUNT_NAME already exists in the $AZURE_RESOURCE_GROUP resource group. Skipping creation."
 fi
 
 # Get the storage account key
