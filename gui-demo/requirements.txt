@@ -1,0 +1,4 @@
+# DEPA Training Demo UI v2 - Modular Edition
+flask>=2.3.0
+flask-cors>=4.0.0
+

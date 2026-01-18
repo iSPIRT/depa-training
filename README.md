@@ -1,8 +1,12 @@
 # DEPA for Training
 
-[DEPA for Training](https://depa.world) is a techno-legal framework that enables privacy-preserving sharing of bulk, de-identified datasets for large scale analytics and training. This repository contains a reference implementation of [Confidential Clean Rooms](https://depa.world/training/confidential_clean_room_design), which together with the [Contract Service](https://github.com/iSPIRT/contract-service/tree/main), forms the basis of this framework. The reference implementation is provided on an As-Is basis. It is work-in-progress and should not be used in production.
+[DEPA for Training](https://depa.world) is a techno-legal framework that enables privacy-preserving sharing of bulk, de-identified datasets for large scale analytics and training. This repository contains a reference implementation of [Confidential Clean Rooms](https://depa.world/training/confidential_clean_room_design) (CCR), which together with the [Contract Service](https://github.com/iSPIRT/contract-service/tree/main), forms the basis of this framework. The reference implementation is provided on an As-Is basis. It is work-in-progress and should not be used in production.
 
 # Getting Started
+
+## [New] Interactive Demo
+
+You can now try out DEPA-Training interactively using our [interactive demo](./gui-demo/README.md). To execute a DEPA-Training scenario, a signed electronic contract is required. Follow the steps in the [contract-service](https://github.com/iSPIRT/contract-service/tree/main) repository first to register a signed contract before proceeding with this demo.
 
 ## GitHub Codespaces
 
