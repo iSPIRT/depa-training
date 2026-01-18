@@ -193,7 +193,7 @@ cd $REPO_ROOT/scenarios/$SCENARIO/deployment/azure
 
 #### 3. Contract signing
 
-Follow the instructions in the [contract-ledger](https://github.com/kapilvgit/contract-ledger/blob/main/README.md) repository for contract signing, using your scenario's contract template in `/scenarios/$SCENARIO/contract/contract.json`.
+Follow the instructions in the [contract-service](https://github.com/iSPIRT/contract-service/blob/main/README.md) repository for contract signing, using your scenario's contract template in `/scenarios/$SCENARIO/contract/contract.json`.
 
 Once the contract is signed, export the contract sequence number as an environment variable in the same terminal where you set the environment variables for the deployment.
 

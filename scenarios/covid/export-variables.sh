@@ -30,7 +30,7 @@
 declare -x SCENARIO=covid
 declare -x REPO_ROOT="$(git rev-parse --show-toplevel)"
 declare -x CONTAINER_REGISTRY=ispirt.azurecr.io
-declare -x AZURE_LOCATION=centralindia
+declare -x AZURE_LOCATION=<azure-location>
 declare -x AZURE_SUBSCRIPTION_ID=
 declare -x AZURE_RESOURCE_GROUP=
 declare -x AZURE_KEYVAULT_ENDPOINT=
@@ -43,7 +43,7 @@ declare -x AZURE_MODEL_CONTAINER_NAME=modelcontainer
 declare -x AZURE_OUTPUT_CONTAINER_NAME=outputcontainer
 
 # For key import:
-declare -x CONTRACT_SERVICE_URL=https://depa-training-contract-service.centralindia.cloudapp.azure.com:8000
+declare -x CONTRACT_SERVICE_URL=https://<contract-service-url>:8000
 declare -x TOOLS_HOME=$REPO_ROOT/external/confidential-sidecar-containers/tools
 
 # Export all variables to make them available to other scripts

@@ -240,7 +240,7 @@ cd $REPO_ROOT/scenarios/$SCENARIO/deployment/azure
 
 ### 3\. Contract Signing
 
-Navigate to the [contract-ledger](https://github.com/kapilvgit/contract-ledger/blob/main/README.md) repository and follow the instructions for contract signing.
+Navigate to the [contract-service](https://github.com/iSPIRT/contract-service/blob/main/README.md) repository and follow the instructions for contract signing.
 
 Once the contract is signed, export the contract sequence number as an environment variable in the same terminal where you set the environment variables for the deployment.
 
@@ -259,7 +259,7 @@ Navigate to the [Azure deployment](./deployment/azure/) directory and execute th
 The import-keys script generates and imports encryption keys into Azure Key Vault with a policy based on [policy-in-template.json](./policy/policy-in-template.json). The policy requires that the CCRs run specific containers with a specific configuration which includes the public identity of the contract service. Only CCRs that satisfy this policy will be granted access to the encryption keys. The generated keys are available as files with the extension `.bin`.
 
 ```bash
-export CONTRACT_SERVICE_URL=https://depa-training-contract-service.centralindia.cloudapp.azure.com:8000
+export CONTRACT_SERVICE_URL=https://<contract-service-url>:8000
 export TOOLS_HOME=$REPO_ROOT/external/confidential-sidecar-containers/tools
 
 ./3-import-keys.sh
