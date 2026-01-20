@@ -6,7 +6,9 @@
 
 ## [New] Interactive Demo
 
-You can now try out DEPA-Training interactively using our [interactive demo](./gui-demo/README.md). To execute a DEPA-Training scenario, a signed electronic contract is required. Follow the steps in the [contract-service](https://github.com/iSPIRT/contract-service/tree/main) repository first to register a signed contract before proceeding with this demo.
+You can now try out DEPA-Training interactively using our [interactive GUI demo](./gui-demo/README.md). The demo requires a signed electronic contract and an Azure cloud subscription.
+
+Start by setting up this project on GitHub Codespaces or your own development environment and then follow the [instructions](./gui-demo/README.md).
 
 ## GitHub Codespaces
 
@@ -18,7 +20,7 @@ git submodule update --init --recursive
 
 ## Local Development Environment
 
-Alternatively, you can build and develop locally in a Linux environment (we have tested with Ubuntu 20.04 and 22.04), or Windows with WSL 2.
+Alternatively, you can build and develop locally in a Linux environment (we have tested with Ubuntu 20.04, 22.04, 24.04), or Windows with WSL 2.
 
 Clone this repo to your local machine / virtual machine as follows.
 

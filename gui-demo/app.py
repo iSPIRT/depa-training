@@ -100,11 +100,11 @@ def discover_deployment_scripts(scenario_path: Path) -> list:
     # Define script metadata
     script_info = {
         "0-create-acr.sh": {"name": "Create Container Registry", "description": "Create Azure Container Registry (optional)", "optional": True},
-        "1-create-storage-containers.sh": {"name": "Create Storage Containers", "description": "Set up Azure Blob storage containers for data"},
-        "2-create-akv.sh": {"name": "Create Azure Key Vault", "description": "Set up AKV for encryption key management"},
-        "3-import-keys.sh": {"name": "Import Keys", "description": "Import encryption keys from contract service"},
-        "4-encrypt-data.sh": {"name": "Encrypt Data", "description": "Encrypt training datasets with imported keys"},
-        "5-upload-encrypted-data.sh": {"name": "Upload Encrypted Data", "description": "Upload encrypted data to Azure storage"},
+        "1-create-storage-containers.sh": {"name": "Create Storage Containers", "description": "Set up blob storage containers for data and models"},
+        "2-create-akv.sh": {"name": "Create Azure Key Vault", "description": "Create HSM-backed Key Vault for key management and policy enforcement"},
+        "3-import-keys.sh": {"name": "Import Keys", "description": "Import your keys and bind them to a Confidential Computing policy, so it's released only to verified, attested environments."},
+        "4-encrypt-data.sh": {"name": "Encrypt Data", "description": "Encrypt training datasets and models with imported keys"},
+        "5-upload-encrypted-data.sh": {"name": "Upload Encrypted Data", "description": "Upload encrypted data and models to blob storage"},
         "6-download-decrypt-model.sh": {"name": "Download & Decrypt Model", "description": "Download and decrypt the trained model", "post_deploy": True},
     }
     
@@ -580,21 +580,54 @@ def stream_logs():
 
 @app.route("/api/cleanup", methods=["POST"])
 def cleanup():
-    """Delete the ACI container instance."""
+    """Delete the ACI container instance or the entire resource group."""
+    data = request.json or {}
+    cleanup_type = data.get("type", "container")  # Default to container for backward compatibility
+    
     scenario = state["current_scenario"]
     if not scenario:
         return jsonify({"success": False, "error": "No scenario selected"})
     
     resource_group = state["env_vars"].get("AZURE_RESOURCE_GROUP", "")
-    container_name = f"depa-training-{scenario}"
+    if not resource_group:
+        return jsonify({"success": False, "error": "Resource group not configured"})
     
-    cmd = f"az container delete --name {container_name} --resource-group {resource_group} --yes"
-    result = run_command(cmd)
-    
-    return jsonify({
-        "success": result.returncode == 0,
-        "output": result.stdout if result.returncode == 0 else result.stderr
-    })
+    if cleanup_type == "resource_group":
+        # Delete the entire resource group (this will delete all resources including container, key vault, storage, etc.)
+        cmd = f"az group delete --name {resource_group} --yes --no-wait"
+        result = run_command(cmd)
+        
+        # Purge the key vault to free its name (key vaults have a soft delete period)
+        # This needs to happen after deletion, but we'll try it anyway - if it fails, that's ok
+        keyvault_endpoint = state["env_vars"].get("AZURE_KEYVAULT_ENDPOINT", "")
+        if keyvault_endpoint:
+            # Extract vault name from endpoint (e.g., "myvault.vault.azure.net" -> "myvault")
+            vault_name = keyvault_endpoint.split(".")[0]
+            # Try to purge - this may fail if vault doesn't exist or isn't deleted yet, that's ok
+            # We'll run it in a separate thread to not block the response
+            def purge_vault():
+                import time
+                time.sleep(2)  # Wait a bit for deletion to start
+                purge_result = run_command(f"az keyvault purge --name {vault_name}")
+                # Ignore errors - vault might not be deleted yet or might not exist
+            
+            threading.Thread(target=purge_vault, daemon=True).start()
+        
+        return jsonify({
+            "success": result.returncode == 0,
+            "output": result.stdout if result.returncode == 0 else result.stderr,
+            "message": f"Resource group {resource_group} deletion initiated"
+        })
+    else:
+        # Delete only the container instance (original behavior)
+        container_name = f"depa-training-{scenario}"
+        cmd = f"az container delete --name {container_name} --resource-group {resource_group} --yes"
+        result = run_command(cmd)
+        
+        return jsonify({
+            "success": result.returncode == 0,
+            "output": result.stdout if result.returncode == 0 else result.stderr
+        })
 
 
 @app.route("/api/pipeline-config")
@@ -719,11 +752,11 @@ def get_scenario_info(scenario_name):
 if __name__ == "__main__":
     import sys
     port = int(sys.argv[1]) if len(sys.argv) > 1 else 5001
-    print(f"\n🚀 DEPA Training Demo UI v2 (Modular) starting on http://localhost:{port}\n")
-    print(f"📁 Scenarios directory: {SCENARIOS_DIR}\n")
-    print("Discovered scenarios:")
-    for s in discover_scenarios():
-        print(f"  - {s['name']}: {s['description']}")
-    print()
+    # print(f"\n🚀 DEPA Training Demo UI v2 (Modular) starting on http://localhost:{port}\n")
+    # print(f"📁 Scenarios directory: {SCENARIOS_DIR}\n")
+    # print("Discovered scenarios:")
+    # for s in discover_scenarios():
+    #     print(f"  - {s['name']}: {s['description']}")
+    # print()
     app.run(host="0.0.0.0", port=port, debug=False, threaded=True)
 

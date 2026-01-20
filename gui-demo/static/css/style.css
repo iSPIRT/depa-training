@@ -540,6 +540,16 @@ body {
     padding: var(--sp-4);
 }
 
+/* Ensure action cards don't clip dropdown menus */
+.card.action-card {
+    overflow: visible;
+}
+
+/* Ensure bottom-actions container doesn't clip dropdowns */
+.bottom-actions {
+    overflow: visible;
+}
+
 .action-card .card-icon {
     width: 48px;
     height: 48px;
@@ -656,6 +666,88 @@ body {
 
 .btn-deploy {
     padding: var(--sp-3) var(--sp-6);
+}
+
+/* Dropdown */
+.dropdown {
+    position: relative;
+    display: inline-block;
+    z-index: 2000;
+}
+
+.dropdown-toggle {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-2);
+    position: relative;
+}
+
+.dropdown-arrow {
+    width: 14px;
+    height: 14px;
+    transition: transform 0.2s ease;
+}
+
+.dropdown.active .dropdown-arrow {
+    transform: rotate(180deg);
+}
+
+.dropdown-menu {
+    position: absolute;
+    bottom: 100%;
+    right: 0;
+    margin-bottom: var(--sp-2);
+    min-width: 220px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(4px);
+    transition: opacity 0.15s ease, transform 0.15s ease, visibility 0.15s ease;
+    z-index: 2000;
+    overflow: hidden;
+}
+
+.dropdown.active .dropdown-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+    width: 100%;
+    padding: var(--sp-3) var(--sp-4);
+    background: transparent;
+    border: none;
+    color: var(--text-primary);
+    font-size: 0.85rem;
+    text-align: left;
+    cursor: pointer;
+    transition: background 0.15s ease;
+}
+
+.dropdown-item svg {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+}
+
+.dropdown-item:hover {
+    background: var(--bg-card);
+}
+
+.dropdown-item-danger {
+    color: var(--danger);
+    border-top: 1px solid var(--border);
+}
+
+.dropdown-item-danger:hover {
+    background: rgba(239, 68, 68, 0.1);
 }
 
 /* Forms */

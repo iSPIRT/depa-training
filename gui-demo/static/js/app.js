@@ -42,7 +42,23 @@ class DepaTrainingApp {
         // Deploy
         document.getElementById('btnDeploy').addEventListener('click', () => this.deploy());
         document.getElementById('btnDownload').addEventListener('click', () => this.downloadModel());
-        document.getElementById('btnCleanup').addEventListener('click', () => this.cleanup());
+        
+        // Cleanup dropdown
+        const btnCleanup = document.getElementById('btnCleanup');
+        const cleanupDropdown = document.getElementById('cleanupDropdown');
+        btnCleanup.addEventListener('click', (e) => {
+            e.stopPropagation();
+            btnCleanup.closest('.dropdown').classList.toggle('active');
+        });
+        document.getElementById('btnCleanupContainer').addEventListener('click', () => this.cleanupContainer());
+        document.getElementById('btnCleanupResourceGroup').addEventListener('click', () => this.cleanupResourceGroup());
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.dropdown')) {
+                document.querySelectorAll('.dropdown').forEach(d => d.classList.remove('active'));
+            }
+        });
 
         // Config
         document.getElementById('btnReloadConfig').addEventListener('click', () => this.loadPipelineConfig());
@@ -407,17 +423,40 @@ class DepaTrainingApp {
         }
     }
 
-    async cleanup() {
+    async cleanupContainer() {
         if (!this.state.currentScenario) {
             return this.toast('Select a scenario first', 'error');
         }
         if (!confirm('Delete the container instance?')) return;
 
+        // Close dropdown
+        document.querySelectorAll('.dropdown').forEach(d => d.classList.remove('active'));
+
         this.toast('Deleting container...', 'info');
         try {
-            const res = await fetch('/api/cleanup', { method: 'POST' });
+            const res = await fetch('/api/cleanup', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ type: 'container' }) });
             const data = await res.json();
             this.toast(data.success ? 'Container deleted' : 'Cleanup failed', data.success ? 'success' : 'error');
+        } catch {
+            this.toast('Cleanup failed', 'error');
+        }
+    }
+
+    async cleanupResourceGroup() {
+        if (!this.state.currentScenario) {
+            return this.toast('Select a scenario first', 'error');
+        }
+        const resourceGroup = this.state.currentScenarioData?.common_vars?.AZURE_RESOURCE_GROUP || 'the resource group';
+        if (!confirm(`⚠️ WARNING: This will delete the entire resource group "${resourceGroup}" including:\n\n- Container instance\n- Key Vault (will be purged to free the name)\n- Storage account\n- All other resources in the group\n\nThis action cannot be undone. Continue?`)) return;
+
+        // Close dropdown
+        document.querySelectorAll('.dropdown').forEach(d => d.classList.remove('active'));
+
+        this.toast('Deleting resource group...', 'info');
+        try {
+            const res = await fetch('/api/cleanup', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ type: 'resource_group' }) });
+            const data = await res.json();
+            this.toast(data.success ? 'Resource group deleted' : 'Cleanup failed', data.success ? 'success' : 'error');
         } catch {
             this.toast('Cleanup failed', 'error');
         }
