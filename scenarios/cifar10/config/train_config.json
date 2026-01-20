@@ -150,8 +150,9 @@
         "augment": false
       },
       "splits": {
-        "train": 0.8,
-        "val": 0.2,
+        "train": 0.85,
+        "val": 0.15,
+        "test": 0.05,
         "random_state": 42
       }
     },

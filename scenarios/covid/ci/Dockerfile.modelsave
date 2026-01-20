@@ -12,6 +12,6 @@ RUN python3 get-pip.py
 
 ## Install dependencies
 RUN pip3 install torch --index-url https://download.pytorch.org/whl/cpu
-RUN pip3 --default-timeout=1000 install pandas onnx scikit-learn scipy matplotlib
+RUN pip3 --default-timeout=1000 install pandas onnx onnxscript scikit-learn scipy matplotlib
 
 COPY save_base_model.py save_base_model.py

@@ -21,6 +21,7 @@ from .task_base import TaskBase
 from .join import *
 from .dl_train import Train_DL
 from .xgb_train import Train_XGB
+# from .llm_finetune import LLM_Finetune
 
 class PipelineExecutor:
     def __init__(self):

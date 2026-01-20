@@ -137,14 +137,14 @@ else
     record_result "Azure CLI ext: confcom" "Installed Now" "$ver"
 fi
 
-# --- Docker group setup ---
-if groups "$USER" | grep &>/dev/null '\bdocker\b'; then
-    echo "[OK] User '$USER' is already in docker group."
-else
-    echo "[Adding] User '$USER' to docker group..."
-    sudo usermod -aG docker "$USER"
-    echo "You may need to log out and log back in for docker group changes to take effect."
-fi
+# # --- Docker group setup ---
+# if groups "$USER" | grep &>/dev/null '\bdocker\b'; then
+#     echo "[OK] User '$USER' is already in docker group."
+# else
+#     echo "[Adding] User '$USER' to docker group..."
+#     sudo usermod -aG docker "$USER"
+#     echo "You may need to log out and log back in for docker group changes to take effect."
+# fi
 
 # --- Summary Table ---
 echo

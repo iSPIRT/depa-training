@@ -13,7 +13,7 @@
 *.hdf5
 
 # Ignore modeller output folder (relative to repo root)
-modeller/output/
+modeller/
 
 # Ignore any folder named preprocessed (anywhere)
 preprocessed/

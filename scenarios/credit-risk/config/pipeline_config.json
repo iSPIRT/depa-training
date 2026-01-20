@@ -118,18 +118,16 @@
         "is_private": true,
         "privacy_params": {
           "epsilon": 4.0,
-          "mechanism": "gaussian",
-          "delta": 0.00001,
-          "clip_value": 1.0
+          "delta": 0.00001
         },
         "model_config": {
-          "num_boost_round": 250,
-          "booster_params": {
-            "max_depth": 6,
-            "learning_rate": 0.05,
-            "objective": "binary:logistic",
-            "eval_metric": "auc"
-          }
+          "n_estimators": 250,
+          "max_depth": 6,
+          "learning_rate": 0.05,
+          "l2_regularization": 1.0,
+          "min_child_weight": 1.0,
+          "objective": "binary:logistic",
+          "eval_metric": "auc"
         },
         "dataset_config": {
           "type": "tabular",

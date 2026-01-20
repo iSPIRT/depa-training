@@ -18,6 +18,10 @@
 import torch 
 import torch.nn as nn
 import torch.nn.functional as F
+import os
+
+# Disable the new ONNX exporter and use the legacy one for compatibility
+os.environ["TORCH_ONNX_EXPERIMENTAL_RUNTIME_TYPE_CHECK"] = "ERRORS_ONLY"
 
 model_path="/mnt/model/"
 
@@ -44,5 +48,18 @@ net = Net()
 # Define the input size for MNIST (batch_size, channels, height, width)
 dummy_input = torch.randn(1, 1, 28, 28)
 
-# Export the model
-torch.onnx.export(net, dummy_input, model_path + "model.onnx")
+# Export the model using legacy exporter
+# Use opset 11 for compatibility with onnx2pytorch
+with torch.no_grad():
+    torch.onnx.export(
+        net, 
+        dummy_input, 
+        model_path + "model.onnx",
+        export_params=True,
+        opset_version=11,
+        do_constant_folding=True,
+        input_names=['input'],
+        output_names=['output'],
+        verbose=False,
+        dynamo=False  # Use legacy exporter, not the new dynamo-based one
+    )

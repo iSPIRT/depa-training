@@ -7,6 +7,6 @@
 *.npy
 
 # Ignore modeller output folder (relative to repo root)
-modeller/output/
+modeller/
 
 **/__pycache__/

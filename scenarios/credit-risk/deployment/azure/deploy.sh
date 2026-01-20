@@ -40,7 +40,7 @@ export PIPELINE_CONFIGURATION=`cat $pipelineConfiguration | base64 --wrap=0`
 function generate_encrypted_filesystem_information() {
   end=`date -u -d "60 minutes" '+%Y-%m-%dT%H:%MZ'`
   BANK_A_SAS_TOKEN=$(az storage blob generate-sas --account-name $AZURE_STORAGE_ACCOUNT_NAME --container-name $AZURE_BANK_A_CONTAINER_NAME --permissions r --name data.img --expiry $end --only-show-errors) 
-  export BANK_A_SAS_TOKEN="$(echo -n $BANK_A_SAS_TOKEN | tr -d \")"
+  export BANK_A_SAS_TOKEN=$(echo -n $BANK_A_SAS_TOKEN | tr -d \")
   export BANK_A_SAS_TOKEN="?$BANK_A_SAS_TOKEN"
 
   BANK_B_SAS_TOKEN=$(az storage blob generate-sas --account-name $AZURE_STORAGE_ACCOUNT_NAME --container-name $AZURE_BANK_B_CONTAINER_NAME --permissions r --name data.img --expiry $end --only-show-errors) 

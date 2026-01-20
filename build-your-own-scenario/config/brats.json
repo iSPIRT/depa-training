@@ -1,0 +1,56 @@
+{
+  "scenario_name": "brats-1",
+  "tdps": [
+    {
+      "name": "brats_A",
+      "datasets": [
+        {
+          "name": "BraTS_Brain_MRI_set_A",
+          "id": "19517ba8-bab8-11ed-afa1-0242ac120002",
+          "privacy": true,
+          "epsilon": 1.5,
+          "delta": 0.01
+        }
+      ]
+    },
+    {
+      "name": "brats_B",
+      "datasets": [
+        {
+          "name": "BraTS_Brain_MRI_set_B",
+          "id": "216d5cc6-bab8-11ed-afa1-0242ac120002",
+          "privacy": true,
+          "epsilon": 1.5,
+          "delta": 0.01
+        }
+      ]
+    },
+    {
+      "name": "brats_C",
+      "datasets": [
+        {
+          "name": "BraTS_Brain_MRI_set_C",
+          "id": "2830a144-bab8-11ed-afa1-0242ac120002",
+          "privacy": true,
+          "epsilon": 1.5,
+          "delta": 0.01
+        }
+      ]
+    },
+    {
+      "name": "brats_D",
+      "datasets": [
+        {
+          "name": "BraTS_Brain_MRI_set_D",
+          "id": "2a3b0c4e-bab8-11ed-afa1-0242ac120002",
+          "privacy": true,
+          "epsilon": 1.5,
+          "delta": 0.01
+        }
+      ]
+    }
+  ],
+  "training_framework": "Train_DL",
+  "join_type": "DirectoryJoin",
+  "model_format": "Safetensors"
+}

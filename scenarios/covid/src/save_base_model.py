@@ -143,9 +143,20 @@ def main():
 
     print('Training finished.')
 
-    # Save model
-    torch.onnx.export(model, torch.randn(1, train_features.shape[1]), 
-                     "/mnt/model/model.onnx", verbose=True)
+    # Save model using legacy ONNX exporter for compatibility
+    with torch.no_grad():
+        torch.onnx.export(
+            model, 
+            torch.randn(1, train_features.shape[1]), 
+            "/mnt/model/model.onnx",
+            export_params=True,
+            opset_version=11,
+            do_constant_folding=True,
+            input_names=['input'],
+            output_names=['output'],
+            verbose=False,
+            dynamo=False  # Use legacy exporter, not the new dynamo-based one
+        )
     print('Model saved as ONNX.')
 
 

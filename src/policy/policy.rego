@@ -20,7 +20,7 @@ all_datasets_in_contract_included if {
 		dataset.key.properties.kid == filesystem.key.kid
 
 		# file system mounted at a well-known point
-		filesystem.mount_point == concat("", ["/mnt/remote/", dataset.name])
+		filesystem.mount_point == concat("", ["/mnt/remote/", dataset.owner])
 
 		# file system must be mounted read only
 		filesystem.read_write == false
@@ -29,7 +29,7 @@ all_datasets_in_contract_included if {
 
 modeller_filesystem_mounted if {
 	# expect two additional filesystems (or one if model is instantiated from config in CCR)
-	providers = {p | p = data.datasets[_].name}
+	providers = {p | p = data.datasets[_].owner}
 	count(input.azure_filesystems) <= count(providers) + 2
 	count(input.azure_filesystems) > count(providers)
 }

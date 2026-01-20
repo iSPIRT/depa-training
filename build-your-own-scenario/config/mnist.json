@@ -1,0 +1,17 @@
+{
+  "scenario_name": "mnist-1",
+  "tdps": [
+    {
+      "name": "mnist",
+      "datasets": [
+        {
+          "name": "mnist-handwritten-digits",
+          "id": "19517ba8-bab8-11ed-afa1-0242ac120002",
+          "privacy": false
+        }
+      ]
+    }
+  ],
+  "training_framework": "Train_DL",
+  "model_format": "ONNX"
+}

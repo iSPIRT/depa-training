@@ -9,7 +9,8 @@
   "datasets": [
     {
       "id": "19517ba8-bab8-11ed-afa1-0242ac120002",
-      "name": "icmr",
+      "owner": "icmr",
+      "name": "icmr_test_results",
       "url": "https://$AZURE_STORAGE_ACCOUNT_NAME.blob.core.windows.net/$AZURE_ICMR_CONTAINER_NAME/data.img",
       "provider": "",
       "key": {
@@ -25,7 +26,8 @@
     },
     {
       "id": "216d5cc6-bab8-11ed-afa1-0242ac120002",
-      "name": "cowin",
+      "owner": "cowin",
+      "name": "cowin_vaccine_data",
       "url": "https://$AZURE_STORAGE_ACCOUNT_NAME.blob.core.windows.net/$AZURE_COWIN_CONTAINER_NAME/data.img",
       "provider": "",
       "key": {
@@ -41,7 +43,8 @@
     },
     {
       "id": "2830a144-bab8-11ed-afa1-0242ac120002",
-      "name": "index",
+      "owner": "index",
+      "name": "index_patient_records",
       "url": "https://$AZURE_STORAGE_ACCOUNT_NAME.blob.core.windows.net/$AZURE_INDEX_CONTAINER_NAME/data.img",
       "provider": "",
       "key": {

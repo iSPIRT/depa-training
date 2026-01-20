@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DEPA Training | Dynamic Scenario Runner</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500;600&family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Animated Background -->
+        <div class="bg-mesh"></div>
+        
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <div class="logo-icon">
+                    <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="4" y="4" width="32" height="32" rx="8" stroke="currentColor" stroke-width="2"/>
+                        <path d="M14 20L18 24L26 16" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        <circle cx="20" cy="20" r="10" stroke="currentColor" stroke-width="1" stroke-dasharray="3 3" opacity="0.5"/>
+                    </svg>
+                </div>
+                <div class="logo-text">
+                    <span class="logo-title">DEPA Training</span>
+                    <span class="logo-subtitle">Dynamic Scenario Runner</span>
+                </div>
+            </div>
+            <nav class="nav-tabs">
+                <button class="nav-tab active" data-page="main">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12,2 2,7 12,12 22,7"/><polyline points="2,17 12,22 22,17"/><polyline points="2,12 12,17 22,12"/></svg>
+                    Pipeline
+                </button>
+                <button class="nav-tab" data-page="config">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>
+                    Config
+                </button>
+                <button class="nav-tab" data-page="logs">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4,17 10,11 4,5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+                    Logs
+                </button>
+                <button class="nav-tab" data-page="settings">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+                    Settings
+                </button>
+            </nav>
+            <div class="header-actions">
+                <div class="azure-status" id="azureStatus">
+                    <span class="status-dot"></span>
+                    <span class="status-text">Checking...</span>
+                </div>
+                <button class="btn btn-icon btn-shutdown" id="btnShutdown" title="Shutdown server">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18.36 6.64a9 9 0 1 1-12.73 0"/>
+                        <line x1="12" y1="2" x2="12" y2="12"/>
+                    </svg>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Page: Main Pipeline -->
+            <section class="page active" id="page-main">
+                <!-- Top Row: Azure + Scenario -->
+                <div class="top-row">
+                    <!-- Azure Connection -->
+                    <div class="card azure-card">
+                        <div class="card-header">
+                            <div class="card-icon azure-icon">
+                                <svg viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M13.05 4.24L6.56 18.4a.5.5 0 00.47.7h10.02a.4.4 0 00.35-.21l4.37-8.2a.5.5 0 00-.02-.52l-6.35-6a.5.5 0 00-.35-.13zM2.53 8.74l3.2 9.6a.5.5 0 00.47.36H6l5.17-11.58a.5.5 0 00-.05-.52L8.34 3.28a.5.5 0 00-.47-.18l-5 .9a.5.5 0 00-.34.74z"/>
+                                </svg>
+                            </div>
+                            <h2 class="card-title">Azure Connection</h2>
+                        </div>
+                        <div class="card-body">
+                            <div class="azure-not-logged-in" id="azureNotLoggedIn">
+                                <p class="hint-text">Connect to Azure to deploy training workloads</p>
+                                <button class="btn btn-azure" id="btnAzureLogin">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4"/><polyline points="10,17 15,12 10,7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+                                    Sign in with Azure
+                                </button>
+                            </div>
+                            <div class="azure-logged-in hidden" id="azureLoggedIn">
+                                <div class="info-compact">
+                                    <div class="info-item">
+                                        <span class="info-label">Subscription</span>
+                                        <span class="info-value" id="subscriptionName">-</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">User</span>
+                                        <span class="info-value" id="userName">-</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Scenario Selection -->
+                    <div class="card scenario-card">
+                        <div class="card-header">
+                            <div class="card-icon scenario-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/>
+                                </svg>
+                            </div>
+                            <h2 class="card-title">Scenario</h2>
+                            <button class="btn btn-icon btn-refresh" id="btnRefreshScenarios" title="Refresh scenarios">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23,4 23,10 17,10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <div class="scenario-selector">
+                                <select class="form-select scenario-dropdown" id="scenarioSelect">
+                                    <option value="">Select a scenario...</option>
+                                </select>
+                                <div class="scenario-info" id="scenarioInfo">
+                                    <span class="scenario-hint">Select a scenario to begin</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Deployment Pipeline -->
+                <div class="card pipeline-card">
+                    <div class="card-header">
+                        <div class="card-icon pipeline-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"/><polyline points="12,6 12,12 16,14"/>
+                            </svg>
+                        </div>
+                        <h2 class="card-title">Deployment Pipeline</h2>
+                        <span class="card-badge" id="pipelineScenarioBadge">No scenario</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="pipeline-container" id="pipelineContainer">
+                            <div class="pipeline-empty">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>
+                                <p>Select a scenario to see deployment steps</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Deploy CCR -->
+                <div class="card deploy-card">
+                    <div class="card-header">
+                        <div class="card-icon deploy-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polygon points="13,2 3,14 12,14 11,22 21,10 12,10"/>
+                            </svg>
+                        </div>
+                        <h2 class="card-title">Deploy Confidential Clean Room</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="deploy-form">
+                            <div class="form-group">
+                                <label class="form-label">Contract Sequence Number</label>
+                                <input type="number" class="form-input" id="contractSeqNo" value="0" min="0">
+                            </div>
+                            <button class="btn btn-primary btn-deploy" id="btnDeploy">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5,3 19,12 5,21"/></svg>
+                                Deploy CCR
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bottom Actions -->
+                <div class="bottom-actions">
+                    <div class="card action-card download-card">
+                        <div class="card-icon download-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7,10 12,15 17,10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                        </div>
+                        <div class="action-content">
+                            <h3>Download Model</h3>
+                            <p>Download and decrypt trained model</p>
+                        </div>
+                        <button class="btn btn-outline" id="btnDownload">Download</button>
+                    </div>
+                    <div class="card action-card cleanup-card">
+                        <div class="card-icon cleanup-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3,6 5,6 21,6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+                        </div>
+                        <div class="action-content">
+                            <h3>Cleanup</h3>
+                            <p>Delete resources</p>
+                        </div>
+                        <div class="dropdown">
+                            <button class="btn btn-danger dropdown-toggle" id="btnCleanup" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                Delete
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="dropdown-arrow">
+                                    <polyline points="6,9 12,15 18,9"/>
+                                </svg>
+                            </button>
+                            <div class="dropdown-menu" id="cleanupDropdown">
+                                <button class="dropdown-item" id="btnCleanupContainer">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="18" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                                    Delete Container Instance
+                                </button>
+                                <button class="dropdown-item dropdown-item-danger" id="btnCleanupResourceGroup">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 4H8l-7 8 7 8h13a2 2 0 002-2V6a2 2 0 00-2-2z"/><line x1="18" y1="9" x2="12" y2="15"/><line x1="12" y1="9" x2="18" y2="15"/></svg>
+                                    Delete Resource Group
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Page: Config Editor -->
+            <section class="page" id="page-config">
+                <div class="card config-card full-height">
+                    <div class="card-header">
+                        <div class="card-icon config-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>
+                        </div>
+                        <h2 class="card-title">Pipeline Configuration</h2>
+                        <span class="editor-filename" id="configFilename">pipeline_config.json</span>
+                        <div class="card-actions">
+                            <button class="btn btn-outline btn-sm" id="btnReloadConfig">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23,4 23,10 17,10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>
+                                Reload
+                            </button>
+                            <button class="btn btn-primary btn-sm" id="btnSaveConfig">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/></svg>
+                                Save
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="editor-wrapper">
+                            <textarea class="config-editor" id="configEditor" spellcheck="false" placeholder="Select a scenario to load configuration..."></textarea>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Page: Logs -->
+            <section class="page" id="page-logs">
+                <div class="card logs-card full-height">
+                    <div class="card-header">
+                        <div class="card-icon logs-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4,17 10,11 4,5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+                        </div>
+                        <h2 class="card-title">Container Logs</h2>
+                        <div class="container-status">
+                            <span class="status-label">Status:</span>
+                            <span class="status-value" id="containerStatusValue">Unknown</span>
+                        </div>
+                        <div class="card-actions">
+                            <button class="btn btn-outline btn-sm" id="btnRefreshLogs">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23,4 23,10 17,10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>
+                                Refresh
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="logs-wrapper">
+                            <pre class="logs-output" id="logsOutput">Select a scenario and deploy to view logs...</pre>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Page: Settings -->
+            <section class="page" id="page-settings">
+                <div class="card settings-card">
+                    <div class="card-header">
+                        <div class="card-icon settings-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+                        </div>
+                        <h2 class="card-title">Environment Settings</h2>
+                        <button class="btn btn-primary btn-sm" id="btnSaveSettings">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/></svg>
+                            Save
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="settings-section">
+                            <h3 class="settings-title">Azure Configuration</h3>
+                            <div class="settings-grid" id="commonVarsGrid">
+                                <!-- Dynamically populated -->
+                            </div>
+                        </div>
+                        <div class="settings-section">
+                            <h3 class="settings-title">Scenario Variables <span class="scenario-tag" id="settingsScenarioTag">-</span></h3>
+                            <div class="settings-grid" id="scenarioVarsGrid">
+                                <p class="empty-hint">Select a scenario to configure its variables</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Terminal Modal -->
+        <div class="modal" id="outputModal">
+            <div class="modal-backdrop"></div>
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="modal-title">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4,17 10,11 4,5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+                        <span id="modalScriptName">Running Script</span>
+                    </div>
+                    <button class="btn btn-icon" id="btnCloseModal">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="terminal">
+                        <pre class="terminal-output" id="terminalOutput"></pre>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="modal-status" id="modalStatus">
+                        <span class="spinner"></span>
+                        <span>Running...</span>
+                    </div>
+                    <button class="btn btn-outline" id="btnCancelScript">Cancel</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Toast Container -->
+        <div class="toast-container" id="toastContainer"></div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
+
