@@ -39,6 +39,12 @@ class DepaTrainingApp {
         });
         document.getElementById('btnRefreshScenarios').addEventListener('click', () => this.refreshScenarios());
 
+        // Pre-deployment steps
+        document.getElementById('btnPullContainers').addEventListener('click', () => this.pullContainers());
+        document.getElementById('btnPreprocess').addEventListener('click', () => this.runPreprocess());
+        document.getElementById('btnSaveModel').addEventListener('click', () => this.runSaveModel());
+        document.getElementById('btnTestTraining').addEventListener('click', () => this.runTestTraining());
+
         // Deploy
         document.getElementById('btnDeploy').addEventListener('click', () => this.deploy());
         document.getElementById('btnDownload').addEventListener('click', () => this.downloadModel());
@@ -153,6 +159,7 @@ class DepaTrainingApp {
                 this.renderScenarioInfo(data.scenario);
                 this.renderPipeline(data.scenario);
                 this.renderScenarioSettings(data.scenario_vars);
+                this.updatePreDeploymentButtons(data.scenario);
                 this.toast(`Selected: ${this.formatName(scenarioName)}`, 'success');
             }
         } catch (e) {
@@ -288,6 +295,118 @@ class DepaTrainingApp {
             }
         };
         setTimeout(poll, 5000);
+    }
+
+    // ============= Pre-deployment Steps =============
+
+    updatePreDeploymentButtons(scenario) {
+        const localScripts = scenario.local_scripts || {};
+        const saveModelBtn = document.getElementById('btnSaveModel');
+        
+        if (localScripts.has_save_model) {
+            saveModelBtn.classList.remove('hidden');
+        } else {
+            saveModelBtn.classList.add('hidden');
+        }
+    }
+
+    async pullContainers() {
+        if (!this.state.currentScenario) {
+            return this.toast('Select a scenario first', 'error');
+        }
+
+        this.openModal('pull-containers.sh');
+        
+        const terminal = document.getElementById('terminalOutput');
+        terminal.textContent = `$ ./ci/pull-containers.sh\n$ ./scenarios/${this.state.currentScenario}/ci/pull-containers.sh\n\n`;
+
+        try {
+            const res = await fetch('/api/pull-containers-stream', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            });
+
+            const reader = res.body.getReader();
+            const decoder = new TextDecoder();
+
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+
+                for (const line of decoder.decode(value).split('\n')) {
+                    if (line.startsWith('data: ')) {
+                        try {
+                            const data = JSON.parse(line.slice(6));
+                            if (data.line) {
+                                terminal.textContent += data.line;
+                                terminal.scrollTop = terminal.scrollHeight;
+                            }
+                            if (data.status) {
+                                this.updateModalStatus(data.status);
+                            }
+                        } catch {}
+                    }
+                }
+            }
+        } catch (e) {
+            this.updateModalStatus('failed');
+        }
+    }
+
+    async runLocalScript(scriptName, displayName) {
+        if (!this.state.currentScenario) {
+            return this.toast('Select a scenario first', 'error');
+        }
+
+        this.openModal(displayName || scriptName);
+        
+        const terminal = document.getElementById('terminalOutput');
+        terminal.textContent = `$ ./${scriptName}\n\n`;
+
+        try {
+            const res = await fetch('/api/run-local-script-stream', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ script: scriptName })
+            });
+
+            const reader = res.body.getReader();
+            const decoder = new TextDecoder();
+
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+
+                for (const line of decoder.decode(value).split('\n')) {
+                    if (line.startsWith('data: ')) {
+                        try {
+                            const data = JSON.parse(line.slice(6));
+                            if (data.line) {
+                                terminal.textContent += data.line;
+                                terminal.scrollTop = terminal.scrollHeight;
+                            }
+                            if (data.status) {
+                                this.updateModalStatus(data.status);
+                            }
+                        } catch {}
+                    }
+                }
+            }
+        } catch (e) {
+            this.updateModalStatus('failed');
+        }
+    }
+
+    async runPreprocess() {
+        await this.runLocalScript('preprocess.sh', 'preprocess.sh');
+    }
+
+    async runSaveModel() {
+        await this.runLocalScript('save-model.sh', 'save-model.sh');
+    }
+
+    async runTestTraining() {
+        await this.runLocalScript('train.sh', 'train.sh');
     }
 
     // ============= Scripts =============
