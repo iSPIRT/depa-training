@@ -178,6 +178,12 @@ def discover_scenarios() -> list:
         # Get deployment scripts
         deployment_scripts = discover_deployment_scripts(item)
         
+        # Check for local scripts
+        local_dir = item / "deployment" / "local"
+        has_preprocess = (local_dir / "preprocess.sh").exists()
+        has_save_model = (local_dir / "save-model.sh").exists()
+        has_train = (local_dir / "train.sh").exists()
+        
         scenarios.append({
             "name": item.name,
             "path": str(item),
@@ -188,6 +194,11 @@ def discover_scenarios() -> list:
             "common_vars": vars_info["common_vars"],
             "scenario_vars": vars_info["scenario_vars"],
             "deployment_scripts": deployment_scripts,
+            "local_scripts": {
+                "has_preprocess": has_preprocess,
+                "has_save_model": has_save_model,
+                "has_train": has_train,
+            },
         })
     
     return scenarios
@@ -475,6 +486,128 @@ def run_script_stream():
             state["running_process"] = None
     
     return Response(generate(), mimetype='text/event-stream')
+
+
+@app.route("/api/run-local-script-stream", methods=["POST"])
+def run_local_script_stream():
+    """Run a local deployment script with streaming output."""
+    data = request.json
+    script_name = data.get("script")
+    
+    scenario = state["current_scenario"]
+    if not scenario:
+        return jsonify({"success": False, "error": "No scenario selected"})
+    
+    script_path = SCENARIOS_DIR / scenario / "deployment" / "local" / script_name
+    
+    if not script_path.exists():
+        return jsonify({"success": False, "error": f"Script not found: {script_path}"})
+    
+    script_key = script_name.replace(".sh", "").replace("-", "_")
+    state["script_status"][script_key] = "running"
+    
+    def generate():
+        cwd = script_path.parent
+        cmd = f"bash {script_path}"
+        process = run_command(cmd, cwd=str(cwd), stream=True)
+        state["running_process"] = process
+        
+        try:
+            for line in iter(process.stdout.readline, ''):
+                if line:
+                    yield f"data: {json.dumps({'line': line})}\n\n"
+            
+            process.wait()
+            if process.returncode == 0:
+                state["script_status"][script_key] = "completed"
+                yield f"data: {json.dumps({'status': 'completed'})}\n\n"
+            else:
+                state["script_status"][script_key] = "failed"
+                yield f"data: {json.dumps({'status': 'failed'})}\n\n"
+        finally:
+            state["running_process"] = None
+    
+    return Response(generate(), mimetype='text/event-stream')
+
+
+@app.route("/api/pull-containers-stream", methods=["POST"])
+def pull_containers_stream():
+    """Run both pull-containers.sh scripts (repo-level and scenario-level) with streaming output."""
+    scenario = state["current_scenario"]
+    if not scenario:
+        return jsonify({"success": False, "error": "No scenario selected"})
+    
+    repo_pull_script = Path(REPO_ROOT) / "ci" / "pull-containers.sh"
+    scenario_pull_script = SCENARIOS_DIR / scenario / "ci" / "pull-containers.sh"
+    
+    if not repo_pull_script.exists():
+        return jsonify({"success": False, "error": f"Repo pull-containers.sh not found: {repo_pull_script}"})
+    
+    if not scenario_pull_script.exists():
+        return jsonify({"success": False, "error": f"Scenario pull-containers.sh not found: {scenario_pull_script}"})
+    
+    state["script_status"]["pull_containers"] = "running"
+    
+    def generate():
+        # First run repo-level pull-containers.sh
+        yield f"data: {json.dumps({'line': '=== Pulling common containers ===\n'})}\n\n"
+        cwd = repo_pull_script.parent
+        cmd = f"bash {repo_pull_script}"
+        process = run_command(cmd, cwd=str(cwd), stream=True)
+        state["running_process"] = process
+        
+        try:
+            for line in iter(process.stdout.readline, ''):
+                if line:
+                    yield f"data: {json.dumps({'line': line})}\n\n"
+            
+            process.wait()
+            if process.returncode != 0:
+                state["script_status"]["pull_containers"] = "failed"
+                yield f"data: {json.dumps({'status': 'failed', 'line': 'Failed to pull common containers\n'})}\n\n"
+                return
+        finally:
+            state["running_process"] = None
+        
+        # Then run scenario-specific pull-containers.sh
+        yield f"data: {json.dumps({'line': '\n=== Pulling scenario-specific containers ===\n'})}\n\n"
+        cwd = scenario_pull_script.parent
+        cmd = f"bash {scenario_pull_script}"
+        process = run_command(cmd, cwd=str(cwd), stream=True)
+        state["running_process"] = process
+        
+        try:
+            for line in iter(process.stdout.readline, ''):
+                if line:
+                    yield f"data: {json.dumps({'line': line})}\n\n"
+            
+            process.wait()
+            if process.returncode == 0:
+                state["script_status"]["pull_containers"] = "completed"
+                yield f"data: {json.dumps({'status': 'completed'})}\n\n"
+            else:
+                state["script_status"]["pull_containers"] = "failed"
+                yield f"data: {json.dumps({'status': 'failed'})}\n\n"
+        finally:
+            state["running_process"] = None
+    
+    return Response(generate(), mimetype='text/event-stream')
+
+
+@app.route("/api/check-local-script", methods=["POST"])
+def check_local_script():
+    """Check if a local script exists."""
+    data = request.json
+    script_name = data.get("script")
+    
+    scenario = state["current_scenario"]
+    if not scenario:
+        return jsonify({"success": False, "error": "No scenario selected"})
+    
+    script_path = SCENARIOS_DIR / scenario / "deployment" / "local" / script_name
+    exists = script_path.exists()
+    
+    return jsonify({"success": True, "exists": exists})
 
 
 @app.route("/api/deploy", methods=["POST"])
