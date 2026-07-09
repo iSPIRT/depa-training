@@ -1,0 +1,55 @@
+{
+  "id": "d668a5af-2e13-4009-a19a-7c19404ede30",
+  "schemaVersion": "0.1",
+  "startTime": "2026-05-31T00:00:00.000Z",
+  "expiryTime": "2026-06-30T00:00:00.000Z",
+  "tdc": "",
+  "tdps": [],
+  "ccrp": "did:web:$CCRP_USERNAME.github.io",
+  "datasets": [
+    {
+      "id": "5b0c9fae-1582-4c73-9af3-610b0a25042d",
+      "name": "Oral_Cytology_set_A",
+      "owner": "oral_cyto_A",
+      "url": "https://$AZURE_STORAGE_ACCOUNT_NAME.blob.core.windows.net/$AZURE_ORAL_CYTO_A_CONTAINER_NAME/data.img",
+      "provider": "",
+      "key": {
+        "type": "azure",
+        "properties": {
+          "kid": "OralCytoAFilesystemEncryptionKey",
+          "authority": {
+            "endpoint": "sharedneu.neu.attest.azure.net"
+          },
+          "endpoint": ""
+        }
+      }
+    },
+    {
+      "id": "30e476e6-c569-4ac0-a38c-157f23a8de90",
+      "name": "Oral_Cytology_set_B",
+      "owner": "oral_cyto_B",
+      "url": "https://$AZURE_STORAGE_ACCOUNT_NAME.blob.core.windows.net/$AZURE_ORAL_CYTO_B_CONTAINER_NAME/data.img",
+      "provider": "",
+      "key": {
+        "type": "azure",
+        "properties": {
+          "kid": "OralCytoBFilesystemEncryptionKey",
+          "authority": {
+            "endpoint": "sharedneu.neu.attest.azure.net"
+          },
+          "endpoint": ""
+        }
+      }
+    }
+  ],
+  "purpose": "TRAINING",
+  "constraints": [
+    {
+      "privacy": []
+    }
+  ],
+  "terms": {
+    "payment": {},
+    "revocation": {}
+  }
+}

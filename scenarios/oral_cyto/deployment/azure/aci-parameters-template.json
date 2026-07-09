@@ -1,0 +1,29 @@
+{
+  "containerRegistry": {
+    "value": ""
+  },
+  "ccePolicy": {
+    "value": ""
+  },
+  "EncfsSideCarArgs": {
+    "value": ""
+  },
+  "ContractService": {
+    "value": ""
+  },
+  "ContractServiceParameters": {
+    "value": ""
+  },
+  "Contracts": {
+    "value": ""
+  },
+  "PipelineConfiguration": {
+    "value": ""
+  },
+  "containerRegistryUsername": {
+    "value": ""
+  },
+  "containerRegistryPassword": {
+    "value": ""
+  }
+}

@@ -1,0 +1,128 @@
+# 2025 DEPA Foundation
+#
+# This work is dedicated to the public domain under the CC0 1.0 Universal license.
+# To the extent possible under law, DEPA Foundation has waived all copyright and 
+# related or neighboring rights to this work. 
+# CC0 1.0 Universal (https://creativecommons.org/publicdomain/zero/1.0/)
+#
+# This software is provided "as is", without warranty of any kind, express or implied,
+# including but not limited to the warranties of merchantability, fitness for a 
+# particular purpose and noninfringement. In no event shall the authors or copyright
+# holders be liable for any claim, damages or other liability, whether in an action
+# of contract, tort or otherwise, arising from, out of or in connection with the
+# software or the use or other dealings in the software.
+#
+# For more information about this framework, please visit:
+# https://depa.world/training/depa_training_framework/
+
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+import json
+from safetensors.torch import save_file as st_save
+
+from model_constructor import *
+
+model_config_path = "/mnt/config/model_config.json"
+
+with open(model_config_path, 'r') as f:
+    config = json.load(f)
+
+model = ModelFactory.load_from_dict(config)
+
+model.eval()
+st_save(model.state_dict(), "/mnt/model/model.safetensors")
+print("Model saved as safetensors to /mnt/model/model.safetensors")
+
+
+'''
+
+# Reference model architecture and components for Anatomy UNet
+
+class ConvBlock2d(nn.Module):
+    def __init__(self, in_ch, mid_ch, out_ch):
+        super().__init__()
+        self.conv = nn.Sequential(
+            nn.Conv2d(in_ch, mid_ch, 3, 1, 1),
+            # nn.InstanceNorm2d(mid_ch),
+            nn.GroupNorm(1, mid_ch),
+            nn.LeakyReLU(0.1),
+            nn.Conv2d(mid_ch, out_ch, 3, 1, 1),
+            # nn.InstanceNorm2d(out_ch),
+            nn.GroupNorm(1, out_ch),
+            nn.LeakyReLU(0.1)
+        )
+
+    def forward(self, in_tensor):
+        return self.conv(in_tensor)
+
+
+class Upsample(nn.Module):
+    def __init__(self, in_ch):
+        super().__init__()
+        out_ch = in_ch // 2
+        self.conv = nn.Sequential(
+            nn.Conv2d(in_ch, out_ch, 3, 1, 1),
+            # nn.InstanceNorm2d(out_ch),
+            nn.GroupNorm(1, out_ch),
+            nn.LeakyReLU(0.1)
+        )
+
+    def forward(self, in_tensor, encoded_feature):
+        up_sampled_tensor = F.interpolate(in_tensor, size=None, scale_factor=2.0, mode='bilinear', align_corners=False)
+        up_sampled_tensor = self.conv(up_sampled_tensor)
+        return torch.cat([encoded_feature, up_sampled_tensor], dim=1)
+
+class Base_Model(nn.Module):
+    def __init__(self, in_ch, out_ch, num_lvs=4, base_ch=16, final_act='noact'):
+        super().__init__()
+        self.final_act = final_act
+        self.in_conv = nn.Conv2d(in_ch, base_ch, 3, 1, 1)
+
+        self.down_convs = nn.ModuleList()
+        self.down_samples = nn.ModuleList()
+        self.up_samples = nn.ModuleList()
+        self.up_convs = nn.ModuleList()
+        for lv in range(num_lvs):
+            ch = base_ch * (2 ** lv)
+            self.down_convs.append(ConvBlock2d(ch, ch * 2, ch * 2))
+            self.down_samples.append(nn.MaxPool2d(kernel_size=2, stride=2))
+            self.up_samples.append(Upsample(ch * 4))
+            self.up_convs.append(ConvBlock2d(ch * 4, ch * 2, ch * 2))
+        bottleneck_ch = base_ch * (2 ** num_lvs)
+        self.bottleneck_conv = ConvBlock2d(bottleneck_ch, bottleneck_ch * 2, bottleneck_ch * 2)
+        self.out_conv = nn.Sequential(nn.Conv2d(base_ch * 2, base_ch, 3, 1, 1),
+                                      nn.LeakyReLU(0.1),
+                                      nn.Conv2d(base_ch, out_ch, 3, 1, 1))
+
+    def forward(self, in_tensor):
+        encoded_features = []
+        x = self.in_conv(in_tensor)
+        for down_conv, down_sample in zip(self.down_convs, self.down_samples):
+            down_conv_out = down_conv(x)
+            x = down_sample(down_conv_out)
+            encoded_features.append(down_conv_out)
+        x = self.bottleneck_conv(x)
+        for encoded_feature, up_conv, up_sample in zip(reversed(encoded_features),
+                                                       reversed(self.up_convs),
+                                                       reversed(self.up_samples)):
+            x = up_sample(x, encoded_feature)
+            x = up_conv(x)
+        x = self.out_conv(x)
+        if self.final_act == 'sigmoid':
+            x = torch.sigmoid(x)
+        elif self.final_act == "relu":
+            x = torch.relu(x)
+        elif self.final_act == 'tanh':
+            x = torch.tanh(x)
+        else:
+            x = x
+        return x
+
+
+model = Base_Model(in_ch=1, out_ch=1, base_ch=8, final_act='sigmoid').to('cpu')
+model.eval()
+
+torch.save(model.state_dict(), "/mnt/model/model.pth")
+print("Model saved as pth to /mnt/model/model.pth")
+'''

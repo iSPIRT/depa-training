@@ -1,0 +1,13 @@
+services:
+  oral_cyto_A:
+    image: ${CONTAINER_REGISTRY:+$CONTAINER_REGISTRY/}preprocess-oral-cyto-a:latest
+    volumes:
+      - $ORAL_CYTO_A_INPUT_PATH:/mnt/input/data
+      - $ORAL_CYTO_A_OUTPUT_PATH:/mnt/output/preprocessed
+    command: [python3, preprocess_oral_cyto_A.py]
+  oral_cyto_B:
+    image: ${CONTAINER_REGISTRY:+$CONTAINER_REGISTRY/}preprocess-oral-cyto-b:latest
+    volumes:
+      - $ORAL_CYTO_B_INPUT_PATH:/mnt/input/data
+      - $ORAL_CYTO_B_OUTPUT_PATH:/mnt/output/preprocessed
+    command: [python3, preprocess_oral_cyto_B.py]

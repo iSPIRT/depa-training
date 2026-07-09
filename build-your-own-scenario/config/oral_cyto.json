@@ -1,0 +1,32 @@
+{
+  "scenario_name": "oral_cyto",
+  "tdps": [
+    {
+      "name": "oral_cyto_A",
+      "datasets": [
+        {
+          "name": "Oral_Cytology_set_A",
+          "id": "5b0c9fae-1582-4c73-9af3-610b0a25042d",
+          "privacy": true,
+          "epsilon": 8.0,
+          "delta": 0.00001
+        }
+      ]
+    },
+    {
+      "name": "oral_cyto_B",
+      "datasets": [
+        {
+          "name": "Oral_Cytology_set_B",
+          "id": "30e476e6-c569-4ac0-a38c-157f23a8de90",
+          "privacy": true,
+          "epsilon": 8.0,
+          "delta": 0.00001
+        }
+      ]
+    }
+  ],
+  "training_framework": "Train_DL",
+  "join_type": "DirectoryJoin",
+  "model_format": "Safetensors"
+}

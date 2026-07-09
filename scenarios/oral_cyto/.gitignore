@@ -1,0 +1,13 @@
+data/
+modeller/
+venv/
+
+*.img
+*.bin
+*.csv
+*.parquet
+*.onnx
+*.gz
+*.safetensors
+
+**/__pycache__/

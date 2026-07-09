@@ -1,0 +1,25 @@
+{
+    "type": "directory",
+    "structure_type": "paired",
+    "data_type": "image",
+    "pairing": {
+        "folder_pattern": "oral_cyto_*",
+        "input_pattern": "*_img.png",
+        "target_pattern": "*_seg.png"
+    },
+    "image_config": {
+        "use_cv2": false,
+        "grayscale": false,
+        "to_tensor": true,
+        "binarize": false
+    },
+    "filtering": {
+        "filter_empty_targets": true
+    },
+    "splits": {
+        "train": 0.7,
+        "val": 0.2,
+        "test": 0.1,
+        "random_state": 42
+    }
+}

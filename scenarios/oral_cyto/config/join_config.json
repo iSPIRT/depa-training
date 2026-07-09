@@ -1,0 +1,24 @@
+{
+  "name": "DirectoryJoin",
+  "config": {
+    "datasets": [
+      {
+        "id": "5b0c9fae-1582-4c73-9af3-610b0a25042d",
+        "provider": "oral_cyto_A",
+        "name": "Oral_Cytology_set_A",
+        "file": "",
+        "select_variables": [],
+        "mount_path": "/mnt/remote/oral_cyto_A/"
+      },
+      {
+        "id": "30e476e6-c569-4ac0-a38c-157f23a8de90",
+        "provider": "oral_cyto_B",
+        "name": "Oral_Cytology_set_B",
+        "file": "",
+        "select_variables": [],
+        "mount_path": "/mnt/remote/oral_cyto_B/"
+      }
+    ],
+    "joined_dataset": "/tmp/oral_cyto_joined"
+  }
+}
