@@ -44,6 +44,10 @@ declare -x AZURE_SUBSCRIPTION_ID=
 declare -x AZURE_RESOURCE_GROUP=
 declare -x AZURE_KEYVAULT_ENDPOINT=
 declare -x AZURE_STORAGE_ACCOUNT_NAME=
+declare -x BANK_1_TDP_DID=
+declare -x BANK_2_TDP_DID=
+declare -x BANK_3_TDP_DID=
+declare -x TDC_DID=
 declare -x CCRP_DID=
 
 # For key import:
@@ -59,6 +63,10 @@ export AZURE_SUBSCRIPTION_ID
 export AZURE_RESOURCE_GROUP
 export AZURE_KEYVAULT_ENDPOINT
 export AZURE_STORAGE_ACCOUNT_NAME
+export BANK_1_TDP_DID
+export BANK_2_TDP_DID
+export BANK_3_TDP_DID
+export TDC_DID
 export CCRP_DID
 export CONTRACT_SERVICE_URL
 export TOOLS_HOME

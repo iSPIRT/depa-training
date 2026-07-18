@@ -16,6 +16,36 @@ on:
   workflow_dispatch:
 
 jobs:
+  mule-scenario-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install test dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y jq
+          python -m pip install --requirement scenarios/mule-detection/tests/requirements.txt
+
+      - name: Run mule scenario unit tests
+        run: python -m unittest discover -s scenarios/mule-detection/tests -v
+
+      - name: Validate mule scenario configuration and scripts
+        run: |
+          find scenarios/mule-detection -name '*.json' -print0 | xargs -0 -n1 jq empty
+          find scenarios/mule-detection -name '*.sh' -print0 | xargs -0 -n1 bash -n
+
+      - name: Smoke test the mule scenario generator example
+        run: |
+          ./build-your-own-scenario/build-scenario.sh build-your-own-scenario/config/mule-detection.json
+          test -d scenarios/mule-detection-1
+
   build-and-test-image:
     runs-on: ubuntu-latest
     strategy:
@@ -45,6 +75,15 @@ jobs:
 
       - name: Build encrypted filesystem artifacts, contract ledger client & depa-training container
         run:  ci/build.sh
+
+      - name: Run shared training framework regression tests
+        run: |
+          docker run --rm \
+            -e PYTHONPATH=/workspace/src/train \
+            -e SPARK_LOCAL_IP=127.0.0.1 \
+            -v "${{ github.workspace }}:/workspace:ro" \
+            depa-training:latest \
+            python3 -m unittest discover -s /workspace/src/train/tests -v
 
       - name: Build container images
         run: cd ${{ github.workspace }}/scenarios/covid && ./ci/build.sh

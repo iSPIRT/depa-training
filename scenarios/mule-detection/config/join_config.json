@@ -57,6 +57,7 @@
     "joined_dataset": {
       "joined_dataset": "/tmp/mule_joined.parquet",
       "joining_query": "SELECT account_age_days, vel_24, vel_48, vel_72, fan_in, fan_out, dormancy_ratio, is_mule FROM bank_1_accounts UNION ALL SELECT account_age_days, vel_24, vel_48, vel_72, fan_in, fan_out, dormancy_ratio, is_mule FROM bank_2_accounts UNION ALL SELECT account_age_days, vel_24, vel_48, vel_72, fan_in, fan_out, dormancy_ratio, is_mule FROM bank_3_accounts",
+      "deduplicate_rows": false,
       "drop_columns": [],
       "identifiers": []
     }

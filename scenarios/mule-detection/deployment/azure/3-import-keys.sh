@@ -2,6 +2,9 @@
 
 set -euo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/validate-contract-service-url.sh"
+
 for required_var in AZURE_KEYVAULT_ENDPOINT CONTRACT_SERVICE_URL REPO_ROOT SCENARIO TOOLS_HOME; do
   if [[ -z "${!required_var:-}" ]]; then
     echo "Environment variable $required_var not defined"
@@ -16,7 +19,7 @@ function import_key() {
   export KEYFILE=$2
 
   # For RSA-HSM keys, we need to set a salt and label which will be used in the symmetric key derivation
-  if [ "$AZURE_AKV_KEY_TYPE" = "RSA-HSM" ]; then    
+  if [ "$AZURE_AKV_KEY_TYPE" = "RSA-HSM" ]; then
     export AZURE_AKV_KEY_DERIVATION_LABEL=$KEYID
   fi
 
@@ -35,13 +38,9 @@ function import_key() {
 }
 
 echo Obtaining contract service parameters...
-if [[ "$CONTRACT_SERVICE_URL" != https://* ]] || \
-   [[ "$CONTRACT_SERVICE_URL" =~ ^https://(localhost|127\.0\.0\.1|\[::1\])([:/]|$) ]]; then
-  echo "CONTRACT_SERVICE_URL must be an explicit non-loopback HTTPS endpoint" >&2
-  exit 1
-fi
+validate_contract_service_url "$CONTRACT_SERVICE_URL"
 export CONTRACT_SERVICE_PARAMETERS
-CONTRACT_SERVICE_PARAMETERS=$(curl -f "${CONTRACT_SERVICE_URL%/}/parameters" | base64 --wrap=0)
+CONTRACT_SERVICE_PARAMETERS=$(curl --fail --silent --show-error "${CONTRACT_SERVICE_URL%/}/parameters" | base64 --wrap=0)
 
 envsubst < ../../policy/policy-in-template.json > /tmp/policy-in.json
 export CCE_POLICY=$(az confcom acipolicygen -i /tmp/policy-in.json --debug-mode)
@@ -54,7 +53,7 @@ if [[ "$AZURE_KEYVAULT_ENDPOINT" == *".vault.azure.net" ]]; then
     echo "Importing keys to AKV key vaults can be only of type RSA-HSM"
     export AZURE_AKV_KEY_TYPE="RSA-HSM"
 elif [[ "$AZURE_KEYVAULT_ENDPOINT" == *".managedhsm.azure.net" ]]; then
-    export BEARER_TOKEN=$(az account get-access-token --resource https://managedhsm.azure.net | jq -r .accessToken)    
+    export BEARER_TOKEN=$(az account get-access-token --resource https://managedhsm.azure.net | jq -r .accessToken)
     export AZURE_AKV_KEY_TYPE="oct-HSM"
 else
     echo "AZURE_KEYVAULT_ENDPOINT must end with .vault.azure.net or .managedhsm.azure.net"

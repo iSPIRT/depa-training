@@ -2,6 +2,9 @@
 
 set -e
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/validate-contract-service-url.sh"
+
 for required_var in \
   AZURE_KEYVAULT_ENDPOINT \
   AZURE_LOCATION \
@@ -22,7 +25,7 @@ do
 done
 
 while getopts ":c:p:" options; do
-    case $options in 
+    case $options in
         c)contract=$OPTARG;;
         p)pipelineConfiguration=$OPTARG;;
     esac
@@ -40,13 +43,9 @@ fi
 
 echo Obtaining contract service parameters...
 
-if [[ "$CONTRACT_SERVICE_URL" != https://* ]] || \
-   [[ "$CONTRACT_SERVICE_URL" =~ ^https://(localhost|127\.0\.0\.1|\[::1\])([:/]|$) ]]; then
-  echo "CONTRACT_SERVICE_URL must be an explicit non-loopback HTTPS endpoint" >&2
-  exit 1
-fi
+validate_contract_service_url "$CONTRACT_SERVICE_URL"
 export CONTRACT_SERVICE_PARAMETERS
-CONTRACT_SERVICE_PARAMETERS=$(curl -f "${CONTRACT_SERVICE_URL%/}/parameters" | base64 --wrap=0)
+CONTRACT_SERVICE_PARAMETERS=$(curl --fail --silent --show-error "${CONTRACT_SERVICE_URL%/}/parameters" | base64 --wrap=0)
 
 echo Computing CCE policy...
 envsubst < ../../policy/policy-in-template.json > /tmp/policy-in.json
@@ -60,19 +59,19 @@ export PIPELINE_CONFIGURATION=`cat $pipelineConfiguration | base64 --wrap=0`
 echo Generating encrypted file system information...
 end=`date -u -d "60 minutes" '+%Y-%m-%dT%H:%MZ'`
 
-BANK_1_SAS_TOKEN=$(az storage blob generate-sas --account-name $AZURE_STORAGE_ACCOUNT_NAME --container-name $AZURE_BANK_1_CONTAINER_NAME --permissions r --name data.img --expiry $end --only-show-errors) 
+BANK_1_SAS_TOKEN=$(az storage blob generate-sas --account-name $AZURE_STORAGE_ACCOUNT_NAME --container-name $AZURE_BANK_1_CONTAINER_NAME --permissions r --name data.img --expiry $end --only-show-errors)
 export BANK_1_SAS_TOKEN=$(echo $BANK_1_SAS_TOKEN | tr -d \")
 export BANK_1_SAS_TOKEN="?$BANK_1_SAS_TOKEN"
 
-BANK_2_SAS_TOKEN=$(az storage blob generate-sas --account-name $AZURE_STORAGE_ACCOUNT_NAME --container-name $AZURE_BANK_2_CONTAINER_NAME --permissions r --name data.img --expiry $end --only-show-errors) 
+BANK_2_SAS_TOKEN=$(az storage blob generate-sas --account-name $AZURE_STORAGE_ACCOUNT_NAME --container-name $AZURE_BANK_2_CONTAINER_NAME --permissions r --name data.img --expiry $end --only-show-errors)
 export BANK_2_SAS_TOKEN=$(echo $BANK_2_SAS_TOKEN | tr -d \")
 export BANK_2_SAS_TOKEN="?$BANK_2_SAS_TOKEN"
 
-BANK_3_SAS_TOKEN=$(az storage blob generate-sas --account-name $AZURE_STORAGE_ACCOUNT_NAME --container-name $AZURE_BANK_3_CONTAINER_NAME --permissions r --name data.img --expiry $end --only-show-errors) 
+BANK_3_SAS_TOKEN=$(az storage blob generate-sas --account-name $AZURE_STORAGE_ACCOUNT_NAME --container-name $AZURE_BANK_3_CONTAINER_NAME --permissions r --name data.img --expiry $end --only-show-errors)
 export BANK_3_SAS_TOKEN=$(echo $BANK_3_SAS_TOKEN | tr -d \")
 export BANK_3_SAS_TOKEN="?$BANK_3_SAS_TOKEN"
 
-OUTPUT_SAS_TOKEN=$(az storage blob generate-sas --account-name $AZURE_STORAGE_ACCOUNT_NAME --container-name $AZURE_OUTPUT_CONTAINER_NAME --permissions rw --name data.img --expiry $end --only-show-errors) 
+OUTPUT_SAS_TOKEN=$(az storage blob generate-sas --account-name $AZURE_STORAGE_ACCOUNT_NAME --container-name $AZURE_OUTPUT_CONTAINER_NAME --permissions rw --name data.img --expiry $end --only-show-errors)
 export OUTPUT_SAS_TOKEN=$(echo $OUTPUT_SAS_TOKEN | tr -d \")
 export OUTPUT_SAS_TOKEN="?$OUTPUT_SAS_TOKEN"
 
@@ -163,4 +162,4 @@ az deployment group create \
   --template-file arm-template.json \
   --parameters @/tmp/aci-parameters.json
 
-echo Deployment complete. 
+echo Deployment complete.

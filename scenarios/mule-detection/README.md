@@ -11,6 +11,49 @@ an account is inactive, receives a burst of transfers from multiple sources,
 and then moves funds out rapidly. It is an architecture and integration example,
 not a production fraud model.
 
+For a from-first-principles explanation, architecture walkthrough, change
+history, reviewer questions, and a suggested showcase, see the
+[technical writeup](./TECHNICAL_WRITEUP.md).
+
+## Add mule account detection scenario
+
+Contributed by: **Aonami Technologies**
+
+### Summary
+
+This PR adds a new training scenario, `mule-detection`, to the set of sample
+scenarios supported by DEPA for Training. It follows the same structure and
+conventions as the existing credit-risk scenario.
+
+The scenario demonstrates how two or more banks or NBFCs can jointly train a
+shared fraud detection model to identify mule accounts, bank accounts opened
+using real or synthetic identities to receive and rapidly move fraudulent
+funds, without any raw transaction data or customer identity ever leaving a
+contributing institution's environment.
+
+### Motivation
+
+Mule accounts are a significant and growing source of financial fraud in
+India. Authorities froze 1.33 million mule accounts and recovered ₹5,489
+crore in 2025 alone (Ministry of Home Affairs / I4C). RBI's own innovation
+arm has piloted a comparable AI based detection approach, MuleHunter.AI,
+reporting 85%+ accuracy and adoption by 23 banks as of December 2025.
+
+The structural problem this scenario addresses: a mule account looks
+completely ordinary to the bank holding it. Fraud typically originates at
+one institution while the proceeds land at a different one, so no single
+bank's fraud team has visibility into the receiving side of a transaction
+chain that started elsewhere. This is a cross institution pattern
+recognition problem by nature, which is exactly the class of problem DEPA
+Training's Confidential Clean Room model was designed to solve: multiple
+TDPs jointly train a shared model on anonymized behavioral signal, with no
+institution ever seeing another institution's raw data.
+
+This scenario is intended as a reference implementation that any two or
+more institutions can use to stand up a mule detection consortium, and as a
+concrete example for the community of how DEPA Training applies to BFSI
+fraud use cases beyond the existing credit risk scenario.
+
 ## Scenario type
 
 | Scenario name | Scenario type | Task type | Privacy | TDPs | Data format | Model format | Join |
@@ -77,6 +120,11 @@ account_age_days, vel_24, vel_48, vel_72,
 fan_in, fan_out, dormancy_ratio, is_mule
 ```
 
+The joined dataset deliberately sets `deduplicate_rows: false`. `UNION ALL`
+therefore preserves one row per provider account even when two distinct accounts
+happen to have identical feature values. No account identifier is needed to
+preserve that multiplicity.
+
 ## Training flow
 
 ```mermaid
@@ -103,6 +151,12 @@ The checked-in pipeline uses:
 - Min-max feature scaling.
 - Stratified 80/10/10 train, validation, and test splits.
 - Privacy parameters ε = 5.0 and δ = 0.00001.
+
+Privacy is applied by DP-XGBoost while the model is trained inside the CCR. The
+sample does not add noise to the provider feature tables during preprocessing.
+For classification evaluation, XGBoost probabilities are retained for ROC-AUC
+and precision-recall curves; threshold-based metrics apply a `0.5` decision
+threshold inside the evaluator.
 
 ## Repository layout
 
@@ -233,6 +287,10 @@ Required values include:
 - `AZURE_RESOURCE_GROUP`
 - `AZURE_KEYVAULT_ENDPOINT`
 - `AZURE_STORAGE_ACCOUNT_NAME`
+- `BANK_1_TDP_DID`
+- `BANK_2_TDP_DID`
+- `BANK_3_TDP_DID`
+- `TDC_DID`
 - `CCRP_DID`
 - `CONTRACT_SERVICE_URL`
 - the three bank container names and output container name
@@ -276,26 +334,34 @@ confidential-container policy, and binds the imported keys to its policy hash.
 Each bank table is packaged into a separate encrypted filesystem image. The
 model output receives a fourth encrypted, writable image.
 
-### 4. Prepare the infrastructure-specific contract template
+### 4. Prepare and sign the infrastructure-specific contract
 
 ```bash
 cd "$REPO_ROOT/scenarios/mule-detection"
 ./contract/prepare-contract.sh /tmp/mule-detection-contract.json
 ```
 
-The renderer creates a fresh contract ID and validity window, fills the CCRP
-DID, Key Vault endpoint, storage account, and bank container URLs, and fails if
-an infrastructure placeholder remains.
+The renderer creates a fresh contract ID and validity window, requires distinct
+`did:web` identities for the three banks, fills the TDP, TDC, and CCRP DIDs,
+maps each dataset to its bank DID, fills the Key Vault and storage locations,
+and fails if a required value or placeholder remains.
 
-The rendered file is not signed yet. Populate the actual TDP and TDC DIDs and
-complete the official multi-party signing and registration flow in
+The rendered file is complete but not signed. Complete the official
+multi-party signing and registration flow in
 [iSPIRT/contract-service](https://github.com/iSPIRT/contract-service/blob/main/demo/contract/README.md):
 
-1. Each represented TDP creates or uses its organization-controlled DID.
-2. The TDP side signs and registers the contract.
-3. The TDC retrieves the registered contract, signs it, and registers the
+1. Each bank and the TDC creates or uses its organization-controlled `did:web`
+   document and private signing key.
+2. Bank 1 signs the rendered JSON with participant information listing all three
+   bank DIDs and the TDC DID, then registers it.
+3. Banks 2 and 3 retrieve the latest registered contract in turn, add their own
+   signatures, and register the updated contract.
+4. The TDC retrieves the latest contract, adds its signature, and registers the
    completed contract.
-4. Validate the returned receipt and retain the registered contract sequence.
+5. Validate the returned receipt and retain the final registered sequence.
+
+The CCRP DID identifies the attested compute provider in the contract; the four
+signing identities in this scenario are the three banks and the TDC.
 
 The contract-service local virtual mode is suitable for development only. Do
 not replace participant identities with a developer's local Git identity or use
@@ -336,14 +402,18 @@ build-your-own-scenario/config/mule-detection.json
 
 It declares the same three providers, dataset IDs, privacy values, XGBoost
 training framework, and horizontal Spark join used by this checked-in scenario.
+It generates `scenarios/mule-detection-1`, so running the example does not
+overwrite or collide with the checked-in `mule-detection` scenario.
 
 ## Validation
 
-Run the no-network feature tests from the scenario directory after installing
-the preprocessor dependencies:
+Run the no-network tests from the scenario directory in an isolated environment:
 
 ```bash
-python3 -m unittest discover -s tests -v
+python3 -m venv /tmp/depa-mule-tests
+source /tmp/depa-mule-tests/bin/activate
+python -m pip install --requirement tests/requirements.txt
+python -m unittest discover -s tests -v
 ```
 
 Validate configuration and shell syntax:
@@ -356,6 +426,17 @@ find . -name '*.sh' -print0 | xargs -0 -n1 bash -n
 The full PaySim and Azure flows are intentionally not CI unit tests because they
 require external credentials, substantial downloads, Docker, and cloud
 resources.
+
+### Deferred credentialed integration test
+
+The official signing, key-release, and CCR deployment flow is intentionally
+deferred until a reachable consortium contract-service endpoint, four
+organization-controlled signing identities, a CCRP DID, and Azure credentials
+are available. At that point, run deployment steps 1 through 4, complete the
+four-party signing sequence, then run steps 5 and 6 using the final registered
+contract sequence. Record the sequence and validation receipt outside this
+repository. A PR test run must not claim this flow passed unless those external
+steps were actually completed.
 
 ## Troubleshooting
 
@@ -393,7 +474,8 @@ hash changed.
 - Delete Azure resources when the demonstration is complete.
 - Revoke temporary SAS tokens and rotate test credentials as appropriate.
 - Never add `data/`, `modeller/`, `.env`, `*.bin`, `*.img`, CSV, Parquet, or
-  generated model files to Git.
+  generated model files to Git. DID private keys, PATs, signed COSE contracts,
+  receipts, SAS tokens, and generated policies must also remain outside Git.
 - Review `git status --ignored` before committing.
 
 ## References

@@ -3,6 +3,10 @@
 set -euo pipefail
 
 required_vars=(
+  BANK_1_TDP_DID
+  BANK_2_TDP_DID
+  BANK_3_TDP_DID
+  TDC_DID
   CCRP_DID
   AZURE_KEYVAULT_ENDPOINT
   AZURE_STORAGE_ACCOUNT_NAME
@@ -18,8 +22,25 @@ for required_var in "${required_vars[@]}"; do
   fi
 done
 
-if [[ "$CCRP_DID" != did:* ]]; then
-  echo "CCRP_DID must be a DID, for example did:web:example.org" >&2
+validate_web_did() {
+  local variable_name="$1"
+  local did="$2"
+  if [[ ! "$did" =~ ^did:web:[^[:space:]]+$ ]]; then
+    echo "$variable_name must be a did:web identifier" >&2
+    exit 1
+  fi
+}
+
+validate_web_did BANK_1_TDP_DID "$BANK_1_TDP_DID"
+validate_web_did BANK_2_TDP_DID "$BANK_2_TDP_DID"
+validate_web_did BANK_3_TDP_DID "$BANK_3_TDP_DID"
+validate_web_did TDC_DID "$TDC_DID"
+validate_web_did CCRP_DID "$CCRP_DID"
+
+if [[ "$BANK_1_TDP_DID" == "$BANK_2_TDP_DID" || \
+      "$BANK_1_TDP_DID" == "$BANK_3_TDP_DID" || \
+      "$BANK_2_TDP_DID" == "$BANK_3_TDP_DID" ]]; then
+  echo "The three bank TDP DIDs must be distinct" >&2
   exit 1
 fi
 
@@ -42,6 +63,10 @@ BANK_3_URL="https://${AZURE_STORAGE_ACCOUNT_NAME}.blob.core.windows.net/${AZURE_
 
 jq \
   --arg id "$CONTRACT_ID" \
+  --arg bank_1_tdp "$BANK_1_TDP_DID" \
+  --arg bank_2_tdp "$BANK_2_TDP_DID" \
+  --arg bank_3_tdp "$BANK_3_TDP_DID" \
+  --arg tdc "$TDC_DID" \
   --arg ccrp "$CCRP_DID" \
   --arg endpoint "$AZURE_KEYVAULT_ENDPOINT" \
   --arg start_time "$START_TIME" \
@@ -50,14 +75,16 @@ jq \
   --arg bank_2_url "$BANK_2_URL" \
   --arg bank_3_url "$BANK_3_URL" \
   '.id = $id
+   | .tdc = $tdc
+   | .tdps = [$bank_1_tdp, $bank_2_tdp, $bank_3_tdp]
    | .ccrp = $ccrp
    | .startTime = $start_time
    | .expiryTime = $expiry_time
    | .datasets |= map(
        .key.properties.endpoint = $endpoint
-       | if .owner == "bank_1" then .url = $bank_1_url
-         elif .owner == "bank_2" then .url = $bank_2_url
-         elif .owner == "bank_3" then .url = $bank_3_url
+       | if .owner == "bank_1" then .url = $bank_1_url | .provider = $bank_1_tdp
+         elif .owner == "bank_2" then .url = $bank_2_url | .provider = $bank_2_tdp
+         elif .owner == "bank_3" then .url = $bank_3_url | .provider = $bank_3_tdp
          else .
          end
      )' \
@@ -69,5 +96,5 @@ if grep -Eq '\$[A-Z_]+|<[^>]+>' "$OUTPUT_FILE"; then
   exit 1
 fi
 
-echo "Prepared infrastructure contract template: $OUTPUT_FILE"
-echo "Populate participant DIDs and sign/register it with iSPIRT/contract-service."
+echo "Prepared unsigned contract for the configured participants: $OUTPUT_FILE"
+echo "Sign and register it with the official iSPIRT/contract-service flow."

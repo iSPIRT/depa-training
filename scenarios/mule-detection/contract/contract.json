@@ -3,16 +3,20 @@
   "schemaVersion": "0.1",
   "startTime": "2026-07-06T00:00:00.000Z",
   "expiryTime": "2027-07-06T00:00:00.000Z",
-  "tdc": "",
-  "tdps": [],
-  "ccrp": "did:web:$CCRP_USERNAME.github.io",
+  "tdc": "$TDC_DID",
+  "tdps": [
+    "$BANK_1_TDP_DID",
+    "$BANK_2_TDP_DID",
+    "$BANK_3_TDP_DID"
+  ],
+  "ccrp": "$CCRP_DID",
   "datasets": [
     {
       "id": "357e5ca1-2c42-43d8-a962-7cdbaa6ab27a",
       "name": "bank_1_accounts",
       "owner": "bank_1",
       "url": "https://$AZURE_STORAGE_ACCOUNT_NAME.blob.core.windows.net/$AZURE_BANK_1_CONTAINER_NAME/data.img",
-      "provider": "",
+      "provider": "$BANK_1_TDP_DID",
       "key": {
         "type": "azure",
         "properties": {
@@ -29,7 +33,7 @@
       "name": "bank_2_accounts",
       "owner": "bank_2",
       "url": "https://$AZURE_STORAGE_ACCOUNT_NAME.blob.core.windows.net/$AZURE_BANK_2_CONTAINER_NAME/data.img",
-      "provider": "",
+      "provider": "$BANK_2_TDP_DID",
       "key": {
         "type": "azure",
         "properties": {
@@ -46,7 +50,7 @@
       "name": "bank_3_accounts",
       "owner": "bank_3",
       "url": "https://$AZURE_STORAGE_ACCOUNT_NAME.blob.core.windows.net/$AZURE_BANK_3_CONTAINER_NAME/data.img",
-      "provider": "",
+      "provider": "$BANK_3_TDP_DID",
       "key": {
         "type": "azure",
         "properties": {

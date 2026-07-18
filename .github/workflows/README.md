@@ -7,7 +7,9 @@ This repository contains several CI workflows designed for deployment in a self-
 ### `ci-build.yml` 
 **Trigger:** Automatically on every pull request or Manually
 
+- Runs the mule-detection unit, configuration, contract-rendering, and generator smoke tests with pinned dependencies.
 - Builds the `depa-training-encfs`, `depa-training`, and other containers required for the COVID scenario.
+- Runs shared Spark join and XGBoost evaluation regression tests inside the training image.
 - Runs containers locally to perform preprocessing, save the model, and train the model.
 
 ### `ci.yml`
@@ -59,4 +61,3 @@ This repository contains several CI workflows designed for deployment in a self-
 ---
 
 By following these instructions, you can set up and utilize the CI workflows in your self-hosted runner to automate and manage the deployment processes for your projects.
-

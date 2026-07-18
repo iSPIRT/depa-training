@@ -4,7 +4,7 @@
 # Licensed under the MIT License.
 
 while getopts ":d:k:i:" options; do
-    case $options in 
+    case $options in
         d)dataPath=$OPTARG;;
         k)keyFilePath=$OPTARG;;
         i)encryptedImage=$OPTARG;;
@@ -31,7 +31,7 @@ size=`echo "x=l($arr)/l(2); scale=0; 2^((x+0.5)/1)*2" | bc -l;`
 
 # cryptsetup requires 16M or more
 
-if (($((size)) < 65536)); then 
+if (($((size)) < 65536)); then
     size="65536"
 fi
 size=$size"K"
