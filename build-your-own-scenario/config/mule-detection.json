@@ -1,0 +1,44 @@
+{
+  "scenario_name": "mule-detection",
+  "tdps": [
+    {
+      "name": "bank_1",
+      "datasets": [
+        {
+          "name": "bank_1_accounts",
+          "id": "357e5ca1-2c42-43d8-a962-7cdbaa6ab27a",
+          "privacy": true,
+          "epsilon": 5.0,
+          "delta": 0.00001
+        }
+      ]
+    },
+    {
+      "name": "bank_2",
+      "datasets": [
+        {
+          "name": "bank_2_accounts",
+          "id": "3b8e1807-f2cf-4f6a-a7a2-aee926046864",
+          "privacy": true,
+          "epsilon": 5.0,
+          "delta": 0.00001
+        }
+      ]
+    },
+    {
+      "name": "bank_3",
+      "datasets": [
+        {
+          "name": "bank_3_accounts",
+          "id": "05a41f49-f892-4301-8463-a3061936b5a5",
+          "privacy": true,
+          "epsilon": 5.0,
+          "delta": 0.00001
+        }
+      ]
+    }
+  ],
+  "training_framework": "Train_XGB",
+  "join_type": "SparkJoin",
+  "model_format": "ccr_instantiate"
+}

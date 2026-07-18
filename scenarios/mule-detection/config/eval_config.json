@@ -1,0 +1,13 @@
+{
+    "task_type": "classification",
+    "metrics": [
+        "accuracy",
+        "roc_auc",
+        "precision",
+        "recall",
+        "f1_score",
+        "confusion_matrix",
+        "classification_report",
+        "precision_recall_curve"
+    ]
+}

@@ -1,0 +1,52 @@
+{
+  "name": "Train_XGB",
+  "config": {
+    "paths": {
+      "input_dataset_path": "/tmp/mule_joined.parquet",
+      "trained_model_output_path": "/mnt/remote/output"
+    },
+    "is_private": true,
+    "privacy_params": {
+      "epsilon": 5.0,
+      "delta": 0.00001
+    },
+    "model_config": {
+      "n_estimators": 20,
+      "max_depth": 3,
+      "learning_rate": 0.3,
+      "l2_regularization": 1.0,
+      "min_child_weight": 1.0,
+      "subsample": 0.5,
+      "objective": "binary:logistic",
+      "eval_metric": "auc",
+      "seed": 42
+    },
+    "dataset_config": {
+      "type": "tabular",
+      "target_variable": "is_mule",
+      "missing_strategy": "drop",
+      "preprocessing": {
+        "scaler": "minmax"
+      },
+      "splits": {
+        "train": 0.8,
+        "val": 0.1,
+        "test": 0.1,
+        "random_state": 42,
+        "stratify": true
+      },
+      "data_type": "numpy"
+    },
+    "metrics": [
+      "accuracy",
+      "roc_auc",
+      "precision",
+      "recall",
+      "f1_score",
+      "confusion_matrix",
+      "classification_report",
+      "precision_recall_curve"
+    ],
+    "task_type": "classification"
+  }
+}

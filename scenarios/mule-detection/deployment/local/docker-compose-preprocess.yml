@@ -1,0 +1,31 @@
+services:
+  bank_1:
+    image: ${CONTAINER_REGISTRY:+$CONTAINER_REGISTRY/}preprocess-bank-1:latest
+    volumes:
+      - $BANK_1_INPUT_PATH:/mnt/input/data
+      - $BANK_1_OUTPUT_PATH:/mnt/output/preprocessed
+    environment:
+      - KAGGLE_API_TOKEN=${KAGGLE_API_TOKEN}
+      - KAGGLE_USERNAME=${KAGGLE_USERNAME}
+      - KAGGLE_KEY=${KAGGLE_KEY}
+    command: [python3, preprocess_bank_1.py]
+  bank_2:
+    image: ${CONTAINER_REGISTRY:+$CONTAINER_REGISTRY/}preprocess-bank-2:latest
+    volumes:
+      - $BANK_2_INPUT_PATH:/mnt/input/data
+      - $BANK_2_OUTPUT_PATH:/mnt/output/preprocessed
+    environment:
+      - KAGGLE_API_TOKEN=${KAGGLE_API_TOKEN}
+      - KAGGLE_USERNAME=${KAGGLE_USERNAME}
+      - KAGGLE_KEY=${KAGGLE_KEY}
+    command: [python3, preprocess_bank_2.py]
+  bank_3:
+    image: ${CONTAINER_REGISTRY:+$CONTAINER_REGISTRY/}preprocess-bank-3:latest
+    volumes:
+      - $BANK_3_INPUT_PATH:/mnt/input/data
+      - $BANK_3_OUTPUT_PATH:/mnt/output/preprocessed
+    environment:
+      - KAGGLE_API_TOKEN=${KAGGLE_API_TOKEN}
+      - KAGGLE_USERNAME=${KAGGLE_USERNAME}
+      - KAGGLE_KEY=${KAGGLE_KEY}
+    command: [python3, preprocess_bank_3.py]

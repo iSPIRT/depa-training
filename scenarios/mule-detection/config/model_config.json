@@ -1,0 +1,11 @@
+{
+    "n_estimators": 20,
+    "max_depth": 3,
+    "learning_rate": 0.3,
+    "l2_regularization": 1.0,
+    "min_child_weight": 1.0,
+    "subsample": 0.5,
+    "objective": "binary:logistic",
+    "eval_metric": "auc",
+    "seed": 42
+}
