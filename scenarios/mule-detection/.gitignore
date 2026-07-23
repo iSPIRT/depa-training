@@ -1,0 +1,22 @@
+data/
+modeller/
+venv/
+.venv/
+
+# never commit the local .env (holds the Kaggle token)
+.env
+**/.env
+
+*.img
+*.bin
+*.csv
+*.parquet
+*.onnx
+*.gz
+*.safetensors
+*.cose
+*.pem
+*.key
+*.token
+
+**/__pycache__/

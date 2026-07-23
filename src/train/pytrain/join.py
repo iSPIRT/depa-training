@@ -343,7 +343,7 @@ class SparkJoin(TaskBase):
         """
         Create joined dataset by running SQL query and applying cleaning rules.
         - Drops `_c0` (index col from CSVs).
-        - Drops duplicates.
+        - Optionally drops duplicate rows (enabled by default for compatibility).
         - Removes explicitly configured columns.
         - Saves to disk in requested format.
         """
@@ -353,7 +353,11 @@ class SparkJoin(TaskBase):
         if "_c0" in df.columns:
             df = df.drop("_c0")
 
-        df = df.dropDuplicates()
+        deduplicate_rows = joined_dataset_config.get("deduplicate_rows", True)
+        if not isinstance(deduplicate_rows, bool):
+            raise ValueError("deduplicate_rows must be a boolean")
+        if deduplicate_rows:
+            df = df.dropDuplicates()
         df = self.drop_duplicate_columns(df)
 
         drop_cols = joined_dataset_config.get("drop_columns", [])
@@ -468,4 +472,3 @@ class DirectoryJoin(TaskBase):
     def execute(self, config):
         # Join the datasets
         self.join_datasets(config)
-

@@ -322,34 +322,23 @@ class Train_XGB(TaskBase):
         else:
             dtest = xgb.DMatrix(self.X_test)
         
-        # Get predictions from DP model
+        # Keep continuous scores for evaluation. compute_metrics applies its own
+        # threshold for discrete classification metrics and uses the scores for
+        # ranking metrics such as ROC-AUC and precision-recall curves.
         preds_raw = self.bst.predict(dtest)
-        
-        # For classification, convert to binary predictions
-        if self.task_type == "classification":
-            preds_list = (preds_raw > 0.5).astype(int)
-        else:
-            preds_list = preds_raw
-        
         targets_list = self.y_test
 
         print(f"\n{'='*60}")
         print(f"DP Model Evaluation (ε={self.privacy_config['epsilon']})" if self.is_private else "Model Evaluation")
         print(f"{'='*60}")
-        numeric_metrics = compute_metrics(preds_list, targets_list, None, self.config)
+        numeric_metrics = compute_metrics(preds_raw, targets_list, None, self.config)
         print(f"Evaluation Metrics: {numeric_metrics}")
 
         # Evaluate non-DP baseline model if available
         if self.is_private and self.non_dp_bst is not None:
             dtest_non_dp = xgb.DMatrix(self.X_test)
             non_dp_preds_raw = self.non_dp_bst.predict(dtest_non_dp)
-            
-            # For classification, convert to binary predictions
-            if self.task_type == "classification":
-                non_dp_preds_list = (non_dp_preds_raw > 0.5).astype(int)
-            else:
-                non_dp_preds_list = non_dp_preds_raw
-            
+
             original_output_path = self.paths["trained_model_output_path"]
             non_dp_output_path = os.path.join(original_output_path, "non_dp")
             os.makedirs(non_dp_output_path, exist_ok=True)
@@ -358,7 +347,7 @@ class Train_XGB(TaskBase):
             print(f"\n{'='*60}")
             print(f"Non-DP Baseline Model Evaluation")
             print(f"{'='*60}")
-            non_dp_numeric_metrics = compute_metrics(non_dp_preds_list, targets_list, None, self.config)
+            non_dp_numeric_metrics = compute_metrics(non_dp_preds_raw, targets_list, None, self.config)
             print(f"Non-DP Evaluation Metrics: {non_dp_numeric_metrics}")
             self.config["paths"]["trained_model_output_path"] = original_output_path
             
@@ -387,6 +376,5 @@ class Train_XGB(TaskBase):
         except Exception as e:
             print(f"An error occurred: {e}")
             raise e
-
 
 

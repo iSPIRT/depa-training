@@ -1,0 +1,65 @@
+{
+  "name": "SparkJoin",
+  "config": {
+    "datasets": [
+      {
+        "id": "357e5ca1-2c42-43d8-a962-7cdbaa6ab27a",
+        "provider": "bank_1",
+        "name": "bank_1_accounts",
+        "file": "accounts.parquet",
+        "select_variables": [
+          "account_age_days",
+          "vel_24",
+          "vel_48",
+          "vel_72",
+          "fan_in",
+          "fan_out",
+          "dormancy_ratio",
+          "is_mule"
+        ],
+        "mount_path": "/mnt/remote/bank_1/"
+      },
+      {
+        "id": "3b8e1807-f2cf-4f6a-a7a2-aee926046864",
+        "provider": "bank_2",
+        "name": "bank_2_accounts",
+        "file": "accounts.parquet",
+        "select_variables": [
+          "account_age_days",
+          "vel_24",
+          "vel_48",
+          "vel_72",
+          "fan_in",
+          "fan_out",
+          "dormancy_ratio",
+          "is_mule"
+        ],
+        "mount_path": "/mnt/remote/bank_2/"
+      },
+      {
+        "id": "05a41f49-f892-4301-8463-a3061936b5a5",
+        "provider": "bank_3",
+        "name": "bank_3_accounts",
+        "file": "accounts.parquet",
+        "select_variables": [
+          "account_age_days",
+          "vel_24",
+          "vel_48",
+          "vel_72",
+          "fan_in",
+          "fan_out",
+          "dormancy_ratio",
+          "is_mule"
+        ],
+        "mount_path": "/mnt/remote/bank_3/"
+      }
+    ],
+    "joined_dataset": {
+      "joined_dataset": "/tmp/mule_joined.parquet",
+      "joining_query": "SELECT account_age_days, vel_24, vel_48, vel_72, fan_in, fan_out, dormancy_ratio, is_mule FROM bank_1_accounts UNION ALL SELECT account_age_days, vel_24, vel_48, vel_72, fan_in, fan_out, dormancy_ratio, is_mule FROM bank_2_accounts UNION ALL SELECT account_age_days, vel_24, vel_48, vel_72, fan_in, fan_out, dormancy_ratio, is_mule FROM bank_3_accounts",
+      "deduplicate_rows": false,
+      "drop_columns": [],
+      "identifiers": []
+    }
+  }
+}

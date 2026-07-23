@@ -1,0 +1,14 @@
+{
+  "name": "Train_XGB",
+  "config": {
+    "paths": {
+      "input_dataset_path": "/tmp/mule_joined.parquet",
+      "trained_model_output_path": "/mnt/remote/output"
+    },
+    "is_private": true,
+    "privacy_params": {
+      "epsilon": 5.0,
+      "delta": 0.00001
+    }
+  }
+}
