@@ -1,487 +1,278 @@
-# Mule Account Detection Consortium
+# Mule Account Detection
 
-This scenario demonstrates how three financial institutions can train a shared
-binary classifier for mule-account risk using DEPA Training. Each institution
-derives an account-level behavioural feature table locally. The three encrypted
-tables are combined with a horizontal `UNION ALL` inside the Confidential Clean
-Room (CCR), where a differentially private XGBoost model is trained.
+## Scenario Type
 
-The scenario is inspired by a first-phase dormant-account-activation pattern:
-an account is inactive, receives a burst of transfers from multiple sources,
-and then moves funds out rapidly. It is an architecture and integration example,
-not a production fraud model.
-
-For a from-first-principles explanation, architecture walkthrough, change
-history, reviewer questions, and a suggested showcase, see the
-[technical writeup](./TECHNICAL_WRITEUP.md).
-
-## Add mule account detection scenario
-
-Contributed by: **Aonami Technologies**
-
-### Summary
-
-This PR adds a new training scenario, `mule-detection`, to the set of sample
-scenarios supported by DEPA for Training. It follows the same structure and
-conventions as the existing credit-risk scenario.
-
-The scenario demonstrates how two or more banks or NBFCs can jointly train a
-shared fraud detection model to identify mule accounts, bank accounts opened
-using real or synthetic identities to receive and rapidly move fraudulent
-funds, without any raw transaction data or customer identity ever leaving a
-contributing institution's environment.
-
-### Motivation
-
-Mule accounts are a significant and growing source of financial fraud in
-India. Authorities froze 1.33 million mule accounts and recovered ₹5,489
-crore in 2025 alone (Ministry of Home Affairs / I4C). RBI's own innovation
-arm has piloted a comparable AI based detection approach, MuleHunter.AI,
-reporting 85%+ accuracy and adoption by 23 banks as of December 2025.
-
-The structural problem this scenario addresses: a mule account looks
-completely ordinary to the bank holding it. Fraud typically originates at
-one institution while the proceeds land at a different one, so no single
-bank's fraud team has visibility into the receiving side of a transaction
-chain that started elsewhere. This is a cross institution pattern
-recognition problem by nature, which is exactly the class of problem DEPA
-Training's Confidential Clean Room model was designed to solve: multiple
-TDPs jointly train a shared model on anonymized behavioral signal, with no
-institution ever seeing another institution's raw data.
-
-This scenario is intended as a reference implementation that any two or
-more institutions can use to stand up a mule detection consortium, and as a
-concrete example for the community of how DEPA Training applies to BFSI
-fraud use cases beyond the existing credit risk scenario.
-
-## Scenario type
-
-| Scenario name | Scenario type | Task type | Privacy | TDPs | Data format | Model format | Join |
+| Scenario name | Scenario type | Task type | Privacy | No. of TDPs* | Data type (format) | Model type (format) | Join type (No. of datasets) |
 |---|---|---|---|---:|---|---|---|
-| Mule Account Detection | Training - Classical ML | Binary classification | Differentially private | 3 | Derived tabular data (Parquet) | XGBoost (JSON) | Horizontal (3 datasets) |
+| Mule Account Detection | Training - Classical ML | Binary Classification | Differentially Private | 3 | Derived tabular data (Parquet) | XGBoost (JSON) | Horizontal (3) |
 
-The participants are:
+---
 
-- `bank_1`, `bank_2`, and `bank_3`: Training Data Providers (TDPs).
-- A deployment-selected lead bank or consortium operator: Training Data
-  Consumer (TDC).
-- A CCR Provider (CCRP): operates the attested confidential environment.
-- A consortium-approved contract service: records the multi-party signed
-  training contract.
+## Scenario Description
 
-Account Aggregator is not part of this training flow. Each participating bank
-would deploy the trained model within its own systems and decide how to review
-or act on scores under its existing authority. Live scoring and case-management
-integration are outside this repository scenario.
+This scenario trains a differentially private **XGBoost** model to identify
+accounts that exhibit mule-account behaviour. Three banks act as Training Data
+Providers (TDPs), each supplying an account-level feature table. The tables are
+combined with a horizontal `UNION ALL` inside the Confidential Clean Room
+(CCR), where the shared binary classifier is trained. A consortium-selected
+bank or operator acts as the Training Data Consumer (TDC), and the CCR Provider
+(CCRP) operates the attested environment.
 
-## What the sample implements
+The sample uses the public [PaySim](https://www.kaggle.com/datasets/ealaxi/paysim1)
+transaction simulator. PaySim is synthetic, and the `is_mule` field produced by
+this sample is a proxy label rather than a confirmed investigation outcome; a
+production deployment must use institution-approved features and historical
+labels.
 
-The local sample uses the public PaySim transaction simulator dataset. PaySim
-does not contain real account-opening dates, a six-month observation period, or
-confirmed bank investigation outcomes. The preprocessor therefore uses the
-following proof-of-concept proxies.
+Contributed by: Aonami Technologies
 
-| Intended signal | Output column | PaySim derivation |
-|---|---|---|
-| Account age | `account_age_days` | Days between the account's first observed event and the end of the PaySim log |
-| 24-hour velocity | `vel_24` | Maximum rolling 24-hour inbound-plus-outbound value |
-| 48-hour velocity | `vel_48` | Maximum rolling 48-hour inbound-plus-outbound value |
-| 72-hour velocity | `vel_72` | Maximum rolling 72-hour inbound-plus-outbound value |
-| Counterparty fan-in | `fan_in` | Distinct inbound counterparties over the observation period |
-| Counterparty fan-out | `fan_out` | Distinct outbound counterparties over the observation period |
-| Dormancy transition proxy | `dormancy_ratio` | Longest inactive gap divided by the account's active span |
-| Mule label proxy | `is_mule` | Destination of a fraudulent transfer or origin of a fraudulent cash-out event |
+See the [technical writeup](./TECHNICAL_WRITEUP.md) for the feature formulas,
+architecture, privacy analysis, and implementation details.
 
-For a production adapter, banks should replace these proxies with features from
-their own account-opening, transaction-monitoring, AML, and confirmed-case
-systems. In particular, production features should be calculated at an explicit
-observation cutoff and labels should come from confirmed historical cases.
+The end-to-end training pipeline consists of the following phases:
 
-## Data boundaries
+1. Data pre-processing
+2. Data packaging, encryption, and upload
+3. Encryption-key import with key-release policies
+4. CCR deployment and model training
+5. Trained-model decryption
 
-The sample emulates three providers by deterministically assigning PaySim
-customer accounts to banks. Each local preprocessor sees the public PaySim log,
-but writes only the rows assigned to its bank. This fixture construction should
-not be interpreted as cross-bank access to production ledgers.
+## Build container images
 
-| Boundary | Data |
-|---|---|
-| Bank-local input | PaySim transaction rows in the sample; a bank's own transaction history in production |
-| Bank-local processing | Account grouping, rolling windows, counterparty counts, proxy label derivation |
-| Provider output | Seven numerical features and the binary `is_mule` proxy label |
-| Removed before provider output | PaySim `account_id`, raw transactions, counterparty identifiers |
-| CCR input | Three encrypted Parquet feature tables |
-| CCR output | Trained model and evaluation artifacts in the encrypted output filesystem |
+Build the core DEPA Training images and the three bank pre-processing images
+from the repository root:
 
-The provider schema is:
+```bash
+export SCENARIO=mule-detection
+export REPO_ROOT="$(git rev-parse --show-toplevel)"
+
+cd "$REPO_ROOT"
+./ci/build.sh
+
+cd "$REPO_ROOT/scenarios/$SCENARIO"
+./ci/build.sh
+```
+
+The scenario build creates:
+
+- `preprocess-bank-1:latest`
+- `preprocess-bank-2:latest`
+- `preprocess-bank-3:latest`
+
+Alternatively, pull scenario images that have already been published to your
+container registry:
+
+```bash
+export CONTAINER_REGISTRY=<container-registry-name>
+cd "$REPO_ROOT/scenarios/$SCENARIO"
+./ci/pull-containers.sh
+```
+
+## Data pre-processing
+
+Set the Kaggle credentials available from your Kaggle account settings. Keep
+these credentials in environment variables or an ignored local file; do not
+commit them.
+
+```bash
+export KAGGLE_USERNAME=<kaggle-username>
+export KAGGLE_KEY=<kaggle-key>
+```
+
+Run the three bank pre-processors:
+
+```bash
+cd "$REPO_ROOT/scenarios/$SCENARIO/deployment/local"
+./preprocess.sh
+```
+
+The pre-processors create one Parquet file per bank under
+`scenarios/mule-detection/data/`. Each file has the following schema:
 
 ```text
 account_age_days, vel_24, vel_48, vel_72,
 fan_in, fan_out, dormancy_ratio, is_mule
 ```
 
-The joined dataset deliberately sets `deduplicate_rows: false`. `UNION ALL`
-therefore preserves one row per provider account even when two distinct accounts
-happen to have identical feature values. No account identifier is needed to
-preserve that multiplicity.
+Raw transactions, counterparty identifiers, and `account_id` are not included
+in the provider Parquet output. The sample partitions PaySim accounts among the
+three providers only to emulate separate bank datasets; it does not represent
+cross-bank access to production ledgers.
 
-## Training flow
+## Deploy locally
 
-```mermaid
-flowchart LR
-    P[Public PaySim fixture] --> B1[Bank 1 preprocessor]
-    P --> B2[Bank 2 preprocessor]
-    P --> B3[Bank 3 preprocessor]
-    B1 --> D1[Encrypted feature table 1]
-    B2 --> D2[Encrypted feature table 2]
-    B3 --> D3[Encrypted feature table 3]
-    D1 --> C[Attested CCR]
-    D2 --> C
-    D3 --> C
-    S[Multi-party signed contract] --> C
-    C --> J[Horizontal UNION ALL]
-    J --> T[DP-XGBoost training]
-    T --> O[Encrypted model output]
-```
-
-The checked-in pipeline uses:
-
-- `SparkJoin` to combine the three identically shaped datasets.
-- `Train_XGB` with `objective: binary:logistic`.
-- Min-max feature scaling.
-- Stratified 80/10/10 train, validation, and test splits.
-- Privacy parameters ε = 5.0 and δ = 0.00001.
-
-Privacy is applied by DP-XGBoost while the model is trained inside the CCR. The
-sample does not add noise to the provider feature tables during preprocessing.
-For classification evaluation, XGBoost probabilities are retained for ROC-AUC
-and precision-recall curves; threshold-based metrics apply a `0.5` decision
-threshold inside the evaluator.
-
-## Repository layout
-
-```text
-scenarios/mule-detection/
-├── ci/                  # Per-bank preprocessor container builds
-├── config/              # Join, dataset, model, evaluation, and pipeline configs
-├── contract/            # Contract template and infrastructure renderer
-├── deployment/
-│   ├── local/           # Local preprocessing and training
-│   └── azure/           # Azure CCR lifecycle scripts and templates
-├── policy/              # Confidential-container policy template
-└── src/                 # Shared feature logic and bank entry points
-```
-
-Generated data, credentials, encryption keys, encrypted images, and model
-outputs are ignored by Git.
-
-## Prerequisites
-
-For local preprocessing and training:
-
-- Linux or WSL 2.
-- Docker with the Compose plugin.
-- The core `depa-training:latest` container image.
-- A Kaggle account with permission to download the PaySim dataset.
-
-For Azure CCR deployment, also install and authenticate:
-
-- Azure CLI.
-- `jq`, `envsubst`, Go, `cryptsetup`, and `bc`.
-- Azure Confidential Container tooling used by the other DEPA Training
-  scenarios.
-- An Azure subscription able to create resource groups, storage, Key Vault
-  Premium, and confidential ACI resources in North Europe.
-
-Follow the repository-level setup instructions before running this scenario.
-
-## Build container images
-
-Build the core CCR images from the repository root:
+If the three pre-processed datasets are available locally, train the model as
+follows:
 
 ```bash
-./ci/build.sh
-```
-
-Build the three preprocessor images:
-
-```bash
-export SCENARIO=mule-detection
-export REPO_ROOT="$(git rev-parse --show-toplevel)"
-cd "$REPO_ROOT/scenarios/$SCENARIO"
-./ci/build.sh
-```
-
-This creates:
-
-- `preprocess-bank-1:latest`
-- `preprocess-bank-2:latest`
-- `preprocess-bank-3:latest`
-
-To use a registry, set `CONTAINER_REGISTRY` and use `ci/push-containers.sh` or
-`ci/pull-containers.sh`, consistent with the other scenarios.
-
-## Run locally
-
-### 1. Configure Kaggle credentials
-
-Prefer environment variables or an ignored local `.env`; never commit a token.
-
-```bash
-export KAGGLE_USERNAME=<your-kaggle-username>
-export KAGGLE_KEY=<your-kaggle-key>
-```
-
-### 2. Preprocess the three bank partitions
-
-```bash
-cd "$REPO_ROOT/scenarios/mule-detection/deployment/local"
-./preprocess.sh
-```
-
-Each container downloads PaySim into its own ignored input directory, derives
-only its assigned account rows, and writes:
-
-```text
-data/bank_1/preprocessed/accounts.parquet
-data/bank_2/preprocessed/accounts.parquet
-data/bank_3/preprocessed/accounts.parquet
-```
-
-### 3. Train the shared model
-
-```bash
+cd "$REPO_ROOT/scenarios/$SCENARIO/deployment/local"
 ./train.sh
 ```
 
-The script consolidates the pipeline configuration, horizontally combines the
-three tables, and invokes `Train_XGB` in the core training container.
+The script consolidates the files in the [config](./config/) directory,
+combines the three provider tables, and runs XGBoost training. The trained model
+and evaluation artifacts are saved under
+`scenarios/mule-detection/modeller/output/`. Results from the synthetic fixture
+are pipeline diagnostics, not evidence of production fraud-detection
+performance.
 
-Outputs are written under the ignored `modeller/output/` directory. Depending
-on the configured metrics, these include:
+## Deploy on CCR
 
-- `trained_model.json`
-- `evaluation_metrics.json`
-- `classification_report.txt`
-- `confusion_matrix.png`
-- `precision_recall_curve.png`
-- comparison artifacts under `non_dp/`
+In a consortium deployment, each TDP encrypts and uploads its own feature table.
+The TDC then deploys the training pipeline to an Azure CCR, where the datasets
+are joined and the model is trained without exposing the cleartext inputs to
+the TDC.
 
-Results from this synthetic fixture should be treated as pipeline diagnostics,
-not as evidence of detection performance on a bank's population.
+The Azure workflow requires:
 
-## Configure Azure resources
+- Docker and access to a container registry
+- Azure CLI with the confidential-containers extension
+- `jq`, `envsubst`, Go, `cryptsetup`, and `bc`
+- an Azure subscription permitted to create a resource group, storage account,
+  Key Vault Premium instance, and confidential Azure Container Instance
+- three distinct bank `did:web` identities, a TDC DID, and a CCRP DID
+- a consortium-selected contract service reachable through a non-loopback
+  HTTPS URL
 
-Copy or source `export-variables.sh`, then replace every empty value with your
-deployment value. The sample is fixed to North Europe because its Azure
-attestation authority is North-Europe-specific.
+### 1. Push Container Images
+
+If the required images have not yet been published, authenticate with your
+registry and push the core and scenario images:
 
 ```bash
-cd "$REPO_ROOT/scenarios/mule-detection"
+export CONTAINER_REGISTRY=<container-registry-name>
+docker login "$CONTAINER_REGISTRY"
+
+cd "$REPO_ROOT"
+./ci/push-containers.sh
+
+cd "$REPO_ROOT/scenarios/$SCENARIO"
+./ci/push-containers.sh
+```
+
+### 2. Create Resources
+
+Authenticate with Azure, edit
+[`export-variables.sh`](./export-variables.sh), and source it:
+
+```bash
+az login
+cd "$REPO_ROOT/scenarios/$SCENARIO"
 source ./export-variables.sh
 ```
 
-Required values include:
+Set the subscription, resource group, Key Vault endpoint, storage-account name,
+participant DIDs, and contract-service URL before continuing. The Key Vault
+endpoint must use the form `https://<name>.vault.azure.net`, and
+`CONTRACT_SERVICE_URL` must be a reachable non-loopback HTTPS endpoint.
 
-- `AZURE_SUBSCRIPTION_ID`
-- `AZURE_RESOURCE_GROUP`
-- `AZURE_KEYVAULT_ENDPOINT`
-- `AZURE_STORAGE_ACCOUNT_NAME`
-- `BANK_1_TDP_DID`
-- `BANK_2_TDP_DID`
-- `BANK_3_TDP_DID`
-- `TDC_DID`
-- `CCRP_DID`
-- `CONTRACT_SERVICE_URL`
-- the three bank container names and output container name
-
-`CONTRACT_SERVICE_URL` must be the explicit non-loopback HTTPS endpoint of the
-contract service selected by the consortium. CCR scripts do not silently start
-or substitute a local contract service.
-
-## Deploy to an Azure CCR
-
-Run the following commands from `deployment/azure` unless noted otherwise.
-
-### 1. Create storage and Key Vault
+Create the storage containers and Key Vault:
 
 ```bash
-cd "$REPO_ROOT/scenarios/mule-detection/deployment/azure"
+cd "$REPO_ROOT/scenarios/$SCENARIO/deployment/azure"
 ./1-create-storage-containers.sh
 ./2-create-akv.sh
 ```
 
-The Key Vault script supports an endpoint shaped as
-`https://<name>.vault.azure.net`. Managed HSM resources must be provisioned
-separately.
+### 3. Contract Signing
 
-### 2. Import attestation-bound encryption keys
+Render the infrastructure-specific unsigned contract:
 
 ```bash
-./3-import-keys.sh
+cd "$REPO_ROOT/scenarios/$SCENARIO"
+./contract/prepare-contract.sh /tmp/mule-detection-contract.json
 ```
 
-This fetches `/parameters` from the explicit contract service, generates the
-confidential-container policy, and binds the imported keys to its policy hash.
+The renderer maps each dataset to its bank DID and requires three distinct bank
+`did:web` identities plus the TDC and CCRP DIDs. Complete the official
+[contract-service signing flow](https://github.com/iSPIRT/contract-service/blob/main/demo/contract/README.md):
+each bank signs and registers the latest contract in sequence, followed by the
+TDC. Retain the final registered contract sequence for CCR deployment. Do not
+substitute local Git identities or a source-code override for participant
+signatures.
 
-### 3. Encrypt and upload provider tables
+### 4. Data Encryption and Upload
+
+Import the attestation-bound keys, create the encrypted filesystem images, and
+upload them to Azure Storage:
 
 ```bash
+cd "$REPO_ROOT/scenarios/$SCENARIO/deployment/azure"
+./3-import-keys.sh
 ./4-encrypt-data.sh
 ./5-upload-encrypted-data.sh
 ```
 
-Each bank table is packaged into a separate encrypted filesystem image. The
-model output receives a fourth encrypted, writable image.
+This creates separate encrypted images for the three provider tables and a
+writable encrypted image for model output.
 
-### 4. Prepare and sign the infrastructure-specific contract
+### 5. CCR Deployment
 
-```bash
-cd "$REPO_ROOT/scenarios/mule-detection"
-./contract/prepare-contract.sh /tmp/mule-detection-contract.json
-```
-
-The renderer creates a fresh contract ID and validity window, requires distinct
-`did:web` identities for the three banks, fills the TDP, TDC, and CCRP DIDs,
-maps each dataset to its bank DID, fills the Key Vault and storage locations,
-and fails if a required value or placeholder remains.
-
-The rendered file is complete but not signed. Complete the official
-multi-party signing and registration flow in
-[iSPIRT/contract-service](https://github.com/iSPIRT/contract-service/blob/main/demo/contract/README.md):
-
-1. Each bank and the TDC creates or uses its organization-controlled `did:web`
-   document and private signing key.
-2. Bank 1 signs the rendered JSON with participant information listing all three
-   bank DIDs and the TDC DID, then registers it.
-3. Banks 2 and 3 retrieve the latest registered contract in turn, add their own
-   signatures, and register the updated contract.
-4. The TDC retrieves the latest contract, adds its signature, and registers the
-   completed contract.
-5. Validate the returned receipt and retain the final registered sequence.
-
-The CCRP DID identifies the attested compute provider in the contract; the four
-signing identities in this scenario are the three banks and the TDC.
-
-The contract-service local virtual mode is suitable for development only. Do
-not replace participant identities with a developer's local Git identity or use
-a source-code override as a signing mechanism.
-
-### 5. Consolidate and deploy
+Consolidate the pipeline configuration and deploy the CCR using the final
+registered contract sequence:
 
 ```bash
-cd "$REPO_ROOT/scenarios/mule-detection/config"
+cd "$REPO_ROOT/scenarios/$SCENARIO/config"
 ./consolidate_pipeline.sh
 
-cd "$REPO_ROOT/scenarios/mule-detection/deployment/azure"
-./deploy.sh \
-  -c <registered-contract-sequence> \
-  -p "$REPO_ROOT/scenarios/mule-detection/config/pipeline_config.json"
+export CONTRACT_SEQ_NO=<registered-contract-sequence>
+cd "$REPO_ROOT/scenarios/$SCENARIO/deployment/azure"
+./deploy.sh -c "$CONTRACT_SEQ_NO" -p ../../config/pipeline_config.json
 ```
 
-The deployment uses the same contract-service URL and parameters that were
-included while computing the key-release policy.
+The contract-service URL, Azure resources, participant identities, and pipeline
+configuration must match the values used to generate the key-release policy and
+signed contract.
 
-### 6. Download and decrypt the model
+### 6. Monitor Container Logs
 
-After the container group completes successfully:
+Creating the Azure Container Instance does not mean training has completed.
+Monitor the training container until it prints `CCR Training complete!`:
 
 ```bash
+az container logs \
+  --name "depa-training-$SCENARIO" \
+  --resource-group "$AZURE_RESOURCE_GROUP" \
+  --container-name depa-training
+```
+
+If training fails, inspect the encrypted-storage sidecar logs:
+
+```bash
+az container logs \
+  --name "depa-training-$SCENARIO" \
+  --resource-group "$AZURE_RESOURCE_GROUP" \
+  --container-name encrypted-storage-sidecar
+```
+
+### 7. Download and Decrypt Model
+
+After training completes, download and decrypt the model and evaluation
+artifacts:
+
+```bash
+cd "$REPO_ROOT/scenarios/$SCENARIO/deployment/azure"
 ./6-download-decrypt-model.sh
 ```
 
-The model and evaluation artifacts are restored to `modeller/output/`.
+The decrypted files are saved under
+`scenarios/mule-detection/modeller/output/`.
 
-## Build-your-own scenario integration
+## Clean-up
 
-The corresponding generator input is:
-
-```text
-build-your-own-scenario/config/mule-detection.json
-```
-
-It declares the same three providers, dataset IDs, privacy values, XGBoost
-training framework, and horizontal Spark join used by this checked-in scenario.
-It generates `scenarios/mule-detection-1`, so running the example does not
-overwrite or collide with the checked-in `mule-detection` scenario.
-
-## Validation
-
-Run the no-network tests from the scenario directory in an isolated environment:
+Delete the demonstration resource group when it is no longer required:
 
 ```bash
-python3 -m venv /tmp/depa-mule-tests
-source /tmp/depa-mule-tests/bin/activate
-python -m pip install --requirement tests/requirements.txt
-python -m unittest discover -s tests -v
+az group delete --yes --name "$AZURE_RESOURCE_GROUP"
 ```
 
-Validate configuration and shell syntax:
-
-```bash
-find . -name '*.json' -print0 | xargs -0 -n1 jq empty
-find . -name '*.sh' -print0 | xargs -0 -n1 bash -n
-```
-
-The full PaySim and Azure flows are intentionally not CI unit tests because they
-require external credentials, substantial downloads, Docker, and cloud
-resources.
-
-### Deferred credentialed integration test
-
-The official signing, key-release, and CCR deployment flow is intentionally
-deferred until a reachable consortium contract-service endpoint, four
-organization-controlled signing identities, a CCRP DID, and Azure credentials
-are available. At that point, run deployment steps 1 through 4, complete the
-four-party signing sequence, then run steps 5 and 6 using the final registered
-contract sequence. Record the sequence and validation receipt outside this
-repository. A PR test run must not claim this flow passed unless those external
-steps were actually completed.
-
-## Troubleshooting
-
-### PaySim download fails
-
-Confirm `KAGGLE_USERNAME` and `KAGGLE_KEY` are exported into the shell that runs
-Docker Compose. Rotate the key if it has ever been stored in an unprotected file.
-
-### A bank table is empty
-
-Confirm the input CSV is the PaySim transaction log and contains the columns
-listed in `src/mule_features.py`. The deterministic account partition requires
-customer identifiers beginning with `C` followed by digits.
-
-### Contract-service parameters cannot be fetched
-
-Confirm `CONTRACT_SERVICE_URL` is an HTTPS endpoint reachable from the current
-environment and that its certificate is trusted by the host. Loopback URLs are
-rejected for CCR preparation and deployment.
-
-### Contract validation fails in the sidecar
-
-Check that dataset IDs, privacy values, Key Vault endpoint, storage URLs,
-contract-service URL, and pipeline configuration match the values signed by all
-participants.
-
-### Azure key release fails
-
-Verify the confidential-container policy was regenerated after any image,
-command, environment, or contract-service change. Re-import keys if the policy
-hash changed.
-
-## Cleanup and credential hygiene
-
-- Delete Azure resources when the demonstration is complete.
-- Revoke temporary SAS tokens and rotate test credentials as appropriate.
-- Never add `data/`, `modeller/`, `.env`, `*.bin`, `*.img`, CSV, Parquet, or
-  generated model files to Git. DID private keys, PATs, signed COSE contracts,
-  receipts, SAS tokens, and generated policies must also remain outside Git.
-- Review `git status --ignored` before committing.
+Revoke temporary access tokens and remove generated credentials, keys,
+encrypted images, datasets, and model outputs according to your organization's
+retention policy. These artifacts must not be committed to Git.
 
 ## References
 
 - [DEPA Training Framework](https://depa.world/training/depa_training_framework/)
 - [iSPIRT DEPA Training contract service](https://github.com/iSPIRT/contract-service)
 - [PaySim dataset](https://www.kaggle.com/datasets/ealaxi/paysim1)
-- [RBI Annual Report 2024-25: MuleHunter initiative](https://www.rbi.org.in/scripts/AnnualReportPublications.aspx?Id=1436)
-- [Reserve Bank Innovation Hub: MuleHunter](https://rbihub.in/projects/mulehunter)
+- [XGBoost documentation](https://xgboost.readthedocs.io/en/stable/)
